@@ -17,7 +17,6 @@ function showMessage(title, message) {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Get references to various HTML elements
-    // const productItems = document.querySelectorAll('.product-item'); // This will be handled dynamically
     const productGridsContainer = document.querySelector('.products-section .container'); // Parent for all product grids
     const orderPopup = document.getElementById('order-popup');
     const popupProductName = document.getElementById('popup-product-name');
@@ -88,8 +87,14 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('river-fish-grid').innerHTML = '';
 
         productsToRender.forEach(product => {
+            // --- DEBUGGING: Log product details to console ---
+            console.log('Processing Product:', product.Name_BN, 'Category:', product.Category, 'Available:', product.Available);
+
             // Ensure 'Available' is a string 'হ্যাঁ' or 'true' from Google Sheet
-            const isAvailable = (product.Available === 'হ্যাঁ' || product.Available === true || product.Available === 'TRUE'); 
+            // Added .toString().toLowerCase().trim() for robust checking
+            const isAvailable = (product.Available && product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
+                                 product.Available && product.Available.toString().toLowerCase().trim() === 'true'); 
+            
             const productItem = document.createElement('div');
             productItem.classList.add('product-item');
             if (!isAvailable) {
@@ -123,24 +128,29 @@ document.addEventListener('DOMContentLoaded', () => {
             if (targetGrid) {
                 targetGrid.appendChild(productItem);
             } else {
-                console.warn('Uncategorized product (or missing grid for category):', product.Name_BN, 'Category:', product.Category);
+                // This warning will now also log the problematic category name
+                console.warn('Uncategorized product (or missing grid for category):', product.Name_BN, 'Category received:', product.Category);
             }
         });
     }
 
     /**
      * Helper to get the correct product grid element based on category name.
+     * Added .trim() and .toLowerCase() for robust matching.
      * @param {string} categoryName - The category name from the Google Sheet.
      * @returns {HTMLElement|null} The corresponding product grid element or null if not found.
      */
     function getProductGridByCategory(categoryName) {
-        switch (categoryName) {
+        // Normalize the category name for robust matching
+        const normalizedCategory = categoryName ? categoryName.toString().toLowerCase().trim() : '';
+
+        switch (normalizedCategory) {
             case 'নোনা পানির মাছ':
                 return document.getElementById('saltwater-fish-grid');
             case 'দেশি প্রজাতি':
-            case 'খাল-বিলের মাছ': // Assuming 'খাল-বিলের মাছ' also maps to 'দেশি প্রজাতি' grid
+            case 'খাল-বিলের মাছ':
                 return document.getElementById('local-fish-grid');
-            case 'রুই মাছ':
+            case 'রুই মাছ': // This will now match 'রুই মাছ', ' রুই মাছ ', 'রুই মাছ' (with different cases)
                 return document.getElementById('rohu-fish-grid');
             case 'কাতল মাছ':
                 return document.getElementById('catla-fish-grid');
@@ -149,6 +159,8 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'নদীর মাছ':
                 return document.getElementById('river-fish-grid');
             default:
+                // This warning will now show the normalized category as well
+                console.warn('Uncategorized product (or missing grid for category): Normalized Category:', normalizedCategory, 'Original Category:', categoryName);
                 return null;
         }
     }
