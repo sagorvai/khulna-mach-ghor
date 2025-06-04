@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /**
      * Helper to get the correct product grid element based on category name.
-     * Added .trim() and .toLowerCase() for robust matching.
+     * Uses includes() for more flexible matching.
      * @param {string} categoryName - The category name from the Google Sheet.
      * @returns {HTMLElement|null} The corresponding product grid element or null if not found.
      */
@@ -144,24 +144,22 @@ document.addEventListener('DOMContentLoaded', () => {
         // Normalize the category name for robust matching
         const normalizedCategory = categoryName ? categoryName.toString().toLowerCase().trim() : '';
 
-        switch (normalizedCategory) {
-            case 'নোনা পানির মাছ':
-                return document.getElementById('saltwater-fish-grid');
-            case 'দেশি প্রজাতি':
-            case 'খাল-বিলের মাছ':
-                return document.getElementById('local-fish-grid');
-            case 'রুই মাছ': // This will now match 'রুই মাছ', ' রুই মাছ ', 'রুই মাছ' (with different cases)
-                return document.getElementById('rohu-fish-grid');
-            case 'কাতল মাছ':
-                return document.getElementById('catla-fish-grid');
-            case 'চিংড়ি মাছ':
-                return document.getElementById('shrimp-fish-grid');
-            case 'নদীর মাছ':
-                return document.getElementById('river-fish-grid');
-            default:
-                // This warning will now show the normalized category as well
-                console.warn('Uncategorized product (or missing grid for category): Normalized Category:', normalizedCategory, 'Original Category:', categoryName);
-                return null;
+        if (normalizedCategory.includes('নোনা পানির মাছ')) {
+            return document.getElementById('saltwater-fish-grid');
+        } else if (normalizedCategory.includes('দেশি প্রজাতি') || normalizedCategory.includes('খাল-বিলের মাছ')) {
+            return document.getElementById('local-fish-grid');
+        } else if (normalizedCategory.includes('রুই মাছ')) {
+            return document.getElementById('rohu-fish-grid');
+        } else if (normalizedCategory.includes('কাতল মাছ')) {
+            return document.getElementById('catla-fish-grid');
+        } else if (normalizedCategory.includes('চিংড়ি মাছ')) {
+            return document.getElementById('shrimp-fish-grid');
+        } else if (normalizedCategory.includes('নদীর মাছ')) {
+            return document.getElementById('river-fish-grid');
+        } else {
+            // This warning will now show the normalized category as well
+            console.warn('Uncategorized product (or missing grid for category): Normalized Category:', normalizedCategory, 'Original Category:', categoryName);
+            return null;
         }
     }
 
