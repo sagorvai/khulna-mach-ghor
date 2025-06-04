@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return document.getElementById('rohu-fish-grid');
         } else if (normalizedCategory.includes('কাতল মাছ')) {
             return document.getElementById('catla-fish-grid');
-        } else if (normalizedCategory.includes('চিংড়ি মাছ')) {
+        } else if (normalizedCategory.includes('চিংড়ি মাছ')) { // Ensure this string 'চিংড়ি মাছ' exactly matches what you expect
             return document.getElementById('shrimp-fish-grid');
         } else if (normalizedCategory.includes('নদীর মাছ')) {
             return document.getElementById('river-fish-grid');
