@@ -292,6 +292,7 @@ p {
     color: #555;
 }
 
+/* New: Styles for dynamically added product categories */
 .product-category {
     margin-bottom: 50px;
 }
@@ -916,4 +917,4 @@ p {
     .success-message {
         font-size: 1.1em;
     }
-}
+    }
