@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Google Apps Script URL ---
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
 
-    // New: A Map to store dynamically created category grid elements
+    // A Map to store dynamically created category grid elements
     const dynamicCategoryGrids = new Map();
 
     /**
@@ -81,14 +81,21 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     function renderProducts(productsToRender) {
         // Clear previous dynamic categories and products
-        // We need to clear only the dynamically added content, not the fixed h2 and p
         const existingDynamicContent = productsSectionContainer.querySelectorAll('.product-category');
         existingDynamicContent.forEach(element => element.remove());
         dynamicCategoryGrids.clear(); // Clear the map as well
 
         productsToRender.forEach(product => {
+            // --- NEW: Filter out empty or invalid product rows ---
+            // A product is considered valid if it has a non-empty Name_BN and Category
+            if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
+                !product.Category || product.Category.toString().trim() === '') {
+                console.warn('Skipping invalid product row (missing Name_BN or Category):', product);
+                return; // Skip to the next product in the loop
+            }
+
             // --- DEBUGGING: Log product details to console ---
-            console.log('Processing Product:', product.Name_BN, 'Category:', product.Category, 'Available:', product.Available);
+            console.log('Processing Valid Product:', product.Name_BN, 'Category:', product.Category, 'Available:', product.Available);
 
             // Ensure 'Available' is a string 'হ্যাঁ' or 'true' from Google Sheet
             const isAvailable = (product.Available && product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
@@ -125,8 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // --- Dynamic Category Handling Logic ---
             const originalCategoryName = product.Category;
             // Normalize the category name for consistent key in the Map
-            // This ensures 'রুই মাছ ' and 'রুই মাছ' are treated as the same category
-            const normalizedCategoryName = originalCategoryName ? originalCategoryName.toString().toLowerCase().trim() : 'uncategorized'; 
+            const normalizedCategoryName = originalCategoryName.toString().toLowerCase().trim(); 
 
             let currentProductGrid = dynamicCategoryGrids.get(normalizedCategoryName);
 
@@ -136,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryDiv.classList.add('product-category');
 
                 const categoryHeading = document.createElement('h3');
-                // Use the original category name for display, as it might be more human-readable
+                // Use the original category name for display
                 categoryHeading.textContent = originalCategoryName; 
 
                 const productGridDiv = document.createElement('div');
@@ -154,9 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
             currentProductGrid.appendChild(productItem); 
         });
     }
-
-    // The getProductGridByCategory function is no longer needed and has been removed.
-
 
     /**
      * Updates the display of items in the cart and calculates the total bill.
