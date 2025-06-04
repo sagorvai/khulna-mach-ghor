@@ -4,16 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>খুলনা মাছ ঘর - ফরমালিন মুক্ত তাজা মাছের অনলাইন বাজার</title>
+    <!-- Google Fonts: Baloo Da 2 (for Bengali headings/slogans) and Roboto (for paragraphs) -->
     <link href="https://fonts.googleapis.com/css2?family=Baloo+Da+2:wght@400;600;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Custom CSS file -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <!-- Main Header Section -->
     <header class="main-header">
         <div class="container">
             <div class="logo-placeholder">
+                <!-- Company Logo. Ensure this URL is valid or replace with your own logo path -->
                 <img src="http://i.imgur.com/f68904s.jpeg" alt="খুলনা মাছ ঘর লোগো" class="company-logo">
-                <h1 class="company-name">খুলনা মাছ ঘর</h1> </div>
+                <h1 class="company-name">খুলনা মাছ ঘর</h1> <!-- Hidden by CSS, but good for SEO -->
+            </div>
             <p class="slogan">ফরমালিন মুক্ত বিষবিহীন তাজা মাছ খাওয়ানোর ক্ষুদ্র প্রয়াস</p>
             <nav>
                 <a href="#products"><i class="fas fa-fish"></i> আমাদের মাছ</a>
@@ -24,6 +30,7 @@
         </div>
     </header>
 
+    <!-- Hero Section -->
     <section class="hero-section">
         <div class="container">
             <div class="hero-content">
@@ -37,6 +44,7 @@
         </div>
     </section>
 
+    <!-- Why Us Section -->
     <section id="why-us" class="why-us-section">
         <div class="container">
             <h2><i class="fas fa-hand-holding-heart"></i> কেন খুলনা মাছ ঘর?</h2>
@@ -65,6 +73,7 @@
         </div>
     </section>
 
+    <!-- Delivery Process Section -->
     <section id="process" class="process-section">
         <div class="container">
             <h2><i class="fas fa-truck"></i> আমাদের ডেলিভারি প্রক্রিয়া</h2>
@@ -93,49 +102,19 @@
         </div>
     </section>
 
+    <!-- Products Section -->
     <section id="products" class="products-section">
         <div class="container">
             <h2><i class="fas fa-fish"></i> আমাদের তাজা মাছের সম্ভার</h2>
             <p class="section-description">নিচের তালিকা থেকে আপনার পছন্দের মাছ বেছে নিন এবং অর্ডার করুন।</p>
 
-            <div class="product-category">
-                <h3>নোনা পানির মাছ</h3>
-                <div class="product-grid" id="saltwater-fish-grid">
-                    </div>
-            </div>
+            <!-- Dynamic categories and product grids will be inserted here by JavaScript -->
+            <!-- All previous <div class="product-category"> blocks are removed from here -->
 
-            <div class="product-category">
-                <h3>দেশি প্রজাতি / খাল-বিলের মাছ</h3>
-                <div class="product-grid" id="local-fish-grid">
-                    </div>
-            </div>
-
-            <div class="product-category">
-                <h3>রুই মাছ</h3>
-                <div class="product-grid" id="rohu-fish-grid">
-                    </div>
-            </div>
-
-            <div class="product-category">
-                <h3>কাতল মাছ</h3>
-                <div class="product-grid" id="catla-fish-grid">
-                    </div>
-            </div>
-
-            <div class="product-category">
-                <h3>চিংড়ি মাছ</h3>
-                <div class="product-grid" id="shrimp-fish-grid">
-                    </div>
-            </div>
-
-            <div class="product-category">
-                <h3>নদীর মাছ</h3>
-                <div class="product-grid" id="river-fish-grid">
-                    </div>
-            </div>
         </div>
     </section>
 
+    <!-- Order Summary Section (Initially hidden by CSS/JS) -->
     <section class="order-summary-section">
         <div class="container">
             <h3 class="order-summary-heading"><i class="fas fa-file-invoice-dollar"></i> আপনার অর্ডারের চালান</h3>
@@ -147,12 +126,14 @@
                 <p>যোগাযোগ: ০১৭৫৩৯০৩৮৫৪</p>
             </div>
             <div id="cart-items">
-                </div>
+                <!-- Cart items will be dynamically added here by JavaScript -->
+            </div>
             <div class="cart-total-section">
                 <p class="total-label">মোট =</p>
                 <p class="total-amount"><span id="total-bill">০</span> টাকা</p>
             </div>
             
+            <!-- Customer Information Form -->
             <form id="order-form">
                 <h4 class="customer-info-heading">অর্ডার দাতা</h4>
                 <input type="text" id="customer-name" name="customerName" placeholder="আপনার নাম লিখুন" required>
@@ -163,21 +144,25 @@
         </div>
     </section>
 
+    <!-- Contact Section (Basic placeholder, you can expand this) -->
     <section id="contact" class="contact-section">
         <div class="container">
             <h2><i class="fas fa-phone-alt"></i> যোগাযোগ</h2>
             <p>আমাদের সাথে যোগাযোগ করতে নিচে দেওয়া নম্বরগুলিতে কল করুন অথবা আমাদের অফিসে ভিজিট করুন।</p>
             <p>মোবাইল: <a href="tel:+8801753903854">০১৭৫৩৯০৩৮৫৪</a>, <a href="tel:+8801951912031">০১৯৫১৯১২০৩১</a></p>
             <p>ঠিকানা: সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।</p>
-            </div>
+            <!-- You can add a Google Map embed here -->
+        </div>
     </section>
 
+    <!-- Footer Section -->
     <footer>
         <div class="container">
             <p>&copy; <span id="current-year"></span> খুলনা মাছ ঘর। সর্বস্বত্ব সংরক্ষিত।</p>
         </div>
     </footer>
 
+    <!-- Order Popup Overlay (Hidden by default) -->
     <div id="order-popup" class="order-popup-overlay" style="display: none;">
         <div class="order-popup-content">
             <button class="close-popup-btn" id="close-order-form-btn">&times;</button>
@@ -199,6 +184,7 @@
         </div>
     </div>
 
+    <!-- Order Success Popup Overlay (Hidden by default) -->
     <div id="order-success-popup" class="order-popup-overlay" style="display: none;">
         <div class="order-popup-content success-content">
             <button class="close-popup-btn" id="close-success-popup-btn">&times;</button>
@@ -210,6 +196,7 @@
         </div>
     </div>
 
+    <!-- Custom Message Box Overlay (Hidden by default) -->
     <div id="message-box-overlay" class="order-popup-overlay" style="display: none;">
         <div id="message-box-content" class="order-popup-content">
             <h4 id="message-box-title"></h4>
@@ -218,6 +205,7 @@
         </div>
     </div>
 
+    <!-- Custom JavaScript file -->
     <script src="script.js"></script>
     <script>
         // Set current year in footer
@@ -229,4 +217,4 @@
         });
     </script>
 </body>
-                </html>
+</html>
