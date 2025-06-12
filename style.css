@@ -26,26 +26,27 @@ body {
     color: #333;
     line-height: 1.6;
     background-color: #f8f8f8; /* Light background */
-    /* গ্রামীণ দৃশ্য এবং সুন্দরবন ব্যাকগ্রাউন্ড */
-    background-image: url('https://placehold.co/1920x1080/E0F2F7/0056b3?text=গ্রামীন+মাছ+ধরা+ও+সুন্দরবন+দৃশ্য'); /* প্রাকৃতিক দৃশ্যের প্লেসহোল্ডার */
-    background-size: cover;
-    background-attachment: fixed; /* স্ক্রল করলেও ব্যাকগ্রাউন্ড স্থির থাকবে */
-    background-position: center center;
+    /* Removed: গ্রামীণ দৃশ্য এবং সুন্দরবন ব্যাকগ্রাউন্ড */
+    /* background-image: url('https://placehold.co/1920x1080/E0F2F7/0056b3?text=গ্রামীন+মাছ+ধরা+ও+সুন্দরবন+দৃশ্য'); */
+    /* background-size: cover; */
+    /* background-attachment: fixed; */
+    /* background-position: center center; */
     position: relative; /* overlay এর জন্য */
     z-index: 0;
 }
 
-body::before { /* ব্যাকগ্রাউন্ড ইমেজকে হালকা আবছা করার জন্য ওভারলে */
+/* Removed: body::before overlay */
+/* body::before {
     content: '';
-    position: fixed; /* Fix it to the viewport */
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(255, 255, 255, 0.7); /* হালকা সাদা ওভারলে */
-    backdrop-filter: blur(2px); /* হালকা ব্লার */
-    z-index: -1; /* মূল কন্টেন্টের নিচে থাকবে */
-}
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(2px);
+    z-index: -1;
+} */
 
 .container {
     max-width: 1200px;
@@ -430,19 +431,9 @@ p {
 }
 
 
-/* Order Summary Section (Now a modal-like overlay) */
+/* Order Summary Section (Now a modal-like overlay) - Styles for its content box */
 .order-summary-section {
-    /* Instead of `display: none;` here, it is controlled by order-popup-overlay. */
-    /* Only styles for the modal content are needed here */
-    background-color: #ffffff; /* White background */
-    border: 1px solid #ddd; /* Light border */
-    border-radius: 10px;
-    padding: 30px;
-    /* margin-top: 60px; - Removed, as it's a fixed modal */
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    color: #333;
-    font-family: 'Sutoni MJ', 'Baloo Da 2', Arial, sans-serif; /* Bengali font */
-    /* display: none; - Moved to .order-popup-overlay */
+    /* Styles are moved to .order-popup-content.invoice-content */
 }
 
 .order-summary-heading {
@@ -597,7 +588,7 @@ p {
     background-color: #004085;
 }
 
-/* Order Popup Specific Styles (reused for order summary modal) */
+/* Base styles for all modal-like overlays */
 .order-popup-overlay {
     position: fixed;
     z-index: 1000;
@@ -605,24 +596,21 @@ p {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
+    background-color: rgba(0, 0, 0, 0.6); /* Darker overlay for better focus */
     display: flex;
-    justify-content: center;
-    align-items: center;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
     animation: fadeIn 0.3s ease-out;
 }
 
-/* Content box for the order summary modal */
-.order-popup-content.invoice-content {
+/* Base styles for all modal content boxes */
+.order-popup-content {
     background-color: #ffffff;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 700px; /* Wider for invoice */
-    height: 90%; /* Allow scrollable content */
-    max-height: 90%;
-    overflow-y: auto; /* Enable scrolling for long invoices */
+    max-width: 600px; /* Default max-width for product popup */
     text-align: center;
     position: relative;
     animation: slideInTop 0.3s ease-out;
@@ -630,6 +618,15 @@ p {
     flex-direction: column;
     align-items: center;
 }
+
+/* Specific styles for the invoice content box */
+.order-popup-content.invoice-content {
+    max-width: 700px; /* Wider for invoice */
+    height: 90%; /* Allow scrollable content */
+    max-height: 90%;
+    overflow-y: auto; /* Enable scrolling for long invoices */
+}
+
 
 .order-popup-content .close-popup-btn {
     position: absolute;
@@ -782,6 +779,28 @@ p {
     padding: 12px 40px;
 }
 
+/* NEW: Style for download PDF button */
+.btn.secondary-btn {
+    background-color: #e67e22; /* Orange */
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    margin-top: 15px; /* Spacing from success message */
+    margin-bottom: 15px; /* Spacing to thank you message */
+    display: inline-flex; /* For icon alignment */
+    align-items: center;
+    gap: 8px;
+}
+
+.btn.secondary-btn:hover {
+    background-color: #d35400; /* Darker orange */
+    transform: translateY(-2px);
+}
+
+
 /* Custom Message Box Styles */
 #message-box-overlay {
     position: fixed;
@@ -837,7 +856,7 @@ p {
     background-color: #004085;
 }
 
-/* NEW: Floating Cart Button Styles */
+/* Floating Cart Button Styles */
 .floating-button {
     position: fixed;
     bottom: 20px; /* Default position */
@@ -987,4 +1006,4 @@ p {
         top: -3px;
         right: -3px;
     }
-    }
+}
