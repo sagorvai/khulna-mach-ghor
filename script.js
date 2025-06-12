@@ -17,8 +17,8 @@ function showMessage(title, message) {
 
 document.addEventListener('DOMContentLoaded', () => {
     // Get references to various HTML elements
-    const productsSectionContainer = document.querySelector('.products-section .container'); // The main container for all categories
-    const orderPopup = document.getElementById('order-popup');
+    const productsSectionContainer = document.querySelector('.products-section .container');
+    const orderPopup = document.getElementById('order-popup'); // For individual product quantity selection
     const popupProductName = document.getElementById('popup-product-name');
     const popupProductNameEn = document.getElementById('popup-product-name-en');
     const popupProductDescription = document.querySelector('.popup-product-description');
@@ -27,11 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupQuantityInput = document.getElementById('popup-quantity');
     const popupProductUnit = document.getElementById('popup-product-unit');
     const addToCartFromPopupBtn = document.getElementById('add-to-cart-from-popup-btn');
-    const closeOrderFormBtn = document.getElementById('close-order-form-btn');
+    const closeOrderFormBtn = document.getElementById('close-order-form-btn'); // Close button for product popup
+
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    const orderSummarySection = document.querySelector('.order-summary-section');
+    // Renamed for clarity: orderSummaryModal now refers to the invoice popup
+    const orderSummaryModal = document.querySelector('.order-summary-section'); 
+    const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); // Close button for invoice popup
+
     const invoiceDateSpan = document.getElementById('invoice-date');
     const invoiceOrderCodeSpan = document.getElementById('invoice-order-code');
 
@@ -39,9 +43,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn'); // Top right X button
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom'); // Bottom OK button
 
+    // NEW: Floating Cart Button elements
+    const floatingCartButton = document.getElementById('floating-cart-button');
+    const cartItemCountSpan = document.getElementById('cart-item-count');
+
     let cart = []; // Array to hold selected products in the cart
     let selectedProduct = null; // To hold the product currently selected from the product grid
-    let allProducts = []; // To store all products fetched from the Google Sheet
 
     // --- Google Apps Script URL ---
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
@@ -66,8 +73,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            allProducts = productsData; // Store all fetched products
-            renderProducts(allProducts); // Render them onto the page
+            // --- IMPORTANT: Removed allProducts variable and used productsData directly or filtered data ---
+            // If the Apps Script filtering is working perfectly, we can use productsData directly.
+            // If issues persist, re-implement robust client-side filtering here.
+            renderProducts(productsData); 
 
         } catch (error) {
             console.error('Error loading products from sheet:', error);
@@ -86,18 +95,15 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicCategoryGrids.clear(); // Clear the map as well
 
         productsToRender.forEach(product => {
-            // --- NEW: Filter out empty or invalid product rows ---
-            // A product is considered valid if it has a non-empty Name_BN and Category
+            // Re-confirming filtering for safety, though Apps Script should handle most of this.
+            // A product is considered valid if it has a non-empty Name_BN, Price, and Category.
             if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
+                !product.Price || product.Price.toString().trim() === '' ||
                 !product.Category || product.Category.toString().trim() === '') {
-                console.warn('Skipping invalid product row (missing Name_BN or Category):', product);
+                console.warn('Skipping invalid product row (client-side filter):', product);
                 return; // Skip to the next product in the loop
             }
 
-            // --- DEBUGGING: Log product details to console ---
-            console.log('Processing Valid Product:', product.Name_BN, 'Category:', product.Category, 'Available:', product.Available);
-
-            // Ensure 'Available' is a string 'হ্যাঁ' or 'true' from Google Sheet
             const isAvailable = (product.Available && product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
                                  product.Available && product.Available.toString().toLowerCase().trim() === 'true'); 
             
@@ -131,18 +137,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // --- Dynamic Category Handling Logic ---
             const originalCategoryName = product.Category;
-            // Normalize the category name for consistent key in the Map
             const normalizedCategoryName = originalCategoryName.toString().toLowerCase().trim(); 
 
             let currentProductGrid = dynamicCategoryGrids.get(normalizedCategoryName);
 
             if (!currentProductGrid) {
-                // If this category grid doesn't exist yet, create it
                 const categoryDiv = document.createElement('div');
                 categoryDiv.classList.add('product-category');
 
                 const categoryHeading = document.createElement('h3');
-                // Use the original category name for display
                 categoryHeading.textContent = originalCategoryName; 
 
                 const productGridDiv = document.createElement('div');
@@ -150,54 +153,61 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 categoryDiv.appendChild(categoryHeading);
                 categoryDiv.appendChild(productGridDiv);
-                productsSectionContainer.appendChild(categoryDiv); // Append to the main products section
+                productsSectionContainer.appendChild(categoryDiv);
 
-                dynamicCategoryGrids.set(normalizedCategoryName, productGridDiv); // Store the grid element for future use
+                dynamicCategoryGrids.set(normalizedCategoryName, productGridDiv);
                 currentProductGrid = productGridDiv;
             }
 
-            // Append the product item to the identified or newly created product grid
             currentProductGrid.appendChild(productItem); 
         });
     }
 
     /**
-     * Updates the display of items in the cart and calculates the total bill.
-     * Shows/hides the order summary section based on whether the cart is empty or not.
+     * Updates the display of items in the cart, calculates the total bill,
+     * and controls the visibility and count of the floating cart button.
      */
     function updateCartDisplay() {
         cartItemsContainer.innerHTML = ''; // Clear previous items from the cart display
         let total = 0;
+        let totalItemCount = 0; // To count distinct items in cart
 
-        if (cart.length > 0) {
-            orderSummarySection.style.display = 'block'; // Show order summary section if cart has items
-            const now = new Date();
-            // Format the current date in Bengali
-            invoiceDateSpan.textContent = now.toLocaleDateString('bn-BD', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-            invoiceOrderCodeSpan.textContent = generateOrderCode(); // Generate and display order code
-        } else {
-            orderSummarySection.style.display = 'none'; // Hide if cart is empty
-        }
-
-        // Iterate through each item in the cart and display it
+        // Calculate total items and total bill
         cart.forEach((item, index) => {
-            const itemTotal = item.quantity * item.price; // Calculate total price for the current item
-            total += itemTotal; // Add to overall total
-
+            const itemTotal = item.quantity * item.price;
+            total += itemTotal;
+            totalItemCount++; // Each unique product in cart is one item
+            
             const itemElement = document.createElement('div');
             itemElement.classList.add('cart-item');
-            // Populate item details including a remove button
             itemElement.innerHTML = `
                 <span class="item-details">★ ${item.name} (${item.quantity} ${item.unit}) × ${item.price} টাকা =</span>
                 <span class="item-total">${itemTotal} টাকা</span>
                 <button class="remove-item-btn" data-index="${index}"><i class="fas fa-trash-alt"></i></button>
             `;
-            cartItemsContainer.appendChild(itemElement); // Add item to the cart display
+            cartItemsContainer.appendChild(itemElement);
         });
 
         totalBillSpan.textContent = total; // Update the total bill displayed
+
+        // Control floating cart button visibility and count
+        if (totalItemCount > 0) {
+            floatingCartButton.style.display = 'flex'; // Show the button
+            cartItemCountSpan.textContent = totalItemCount; // Update count
+        } else {
+            floatingCartButton.style.display = 'none'; // Hide the button if cart is empty
+            cartItemCountSpan.textContent = 0;
+            orderSummaryModal.style.display = 'none'; // Also hide the modal if cart becomes empty
+        }
+
+        // Update invoice date and order code when cart is updated and visible
+        if (orderSummaryModal.style.display === 'flex') {
+            const now = new Date();
+            invoiceDateSpan.textContent = now.toLocaleDateString('bn-BD', {
+                year: 'numeric', month: 'long', day: 'numeric'
+            });
+            invoiceOrderCodeSpan.textContent = generateOrderCode();
+        }
     }
 
     /**
@@ -207,113 +217,115 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateOrderCode() {
         const now = new Date();
         const year = now.getFullYear();
-        const month = (now.getMonth() + 1).toString().padStart(2, '0'); // Month (00-padded)
-        const day = now.getDate().toString().padStart(2, '0'); // Day (00-padded)
-        const uniqueId = Math.random().toString(36).substr(2, 4).toUpperCase(); // 4 random uppercase characters
-        return `KMG-${year}${month}${day}-${uniqueId}`; // Example: KMG-20250530-ABCD
+        const month = (now.getMonth() + 1).toString().padStart(2, '0');
+        const day = now.getDate().toString().padStart(2, '0');
+        const uniqueId = Math.random().toString(36).substr(2, 4).toUpperCase();
+        return `KMG-${year}${month}${day}-${uniqueId}`;
     }
 
-    // Event listener for opening the order popup when a product item is clicked (using event delegation)
-    // Attach listener to a common parent like products-section or document.body
+    // Event listener for opening the product quantity popup
     document.querySelector('.products-section').addEventListener('click', (e) => {
         const productItem = e.target.closest('.product-item');
         const openOrderBtn = e.target.closest('.open-order-form-btn');
 
-        if (productItem && openOrderBtn && !openOrderBtn.disabled) { // Check if a product item and an enabled button were clicked
-            // Extract product data from data attributes
+        if (productItem && openOrderBtn && !openOrderBtn.disabled) {
             const name = productItem.dataset.name;
             const nameEn = productItem.dataset.nameEn || '';
             const price = parseFloat(productItem.dataset.price);
-            const unit = productItem.dataset.unit; // Use unit from data-attribute
+            const unit = productItem.dataset.unit;
             const description = productItem.dataset.description || 'এই মাছ সম্পর্কে কোনো বিবরণ নেই।';
-            const imageUrl = productItem.querySelector('img').src; // Get image URL from the <img> tag within the product item
+            const imageUrl = productItem.querySelector('img').src;
 
-            // Populate the popup with selected product details
             popupProductName.textContent = name;
             popupProductNameEn.textContent = nameEn;
             popupProductDescription.textContent = description;
             popupProductImage.src = imageUrl;
             popupProductPrice.textContent = `${price} টাকা${unit === 'কেজি' ? '/কেজি' : ''}`;
-            popupQuantityInput.value = '1'; // Default quantity to 1 for KG
-            popupQuantityInput.min = '0.5'; // Minimum quantity to 0.5 for KG
-            popupQuantityInput.step = '0.5'; // Step increment to 0.5 for KG
+            popupQuantityInput.value = '1';
+            popupQuantityInput.min = '0.5';
+            popupQuantityInput.step = '0.5';
             popupProductUnit.textContent = unit;
-            selectedProduct = { name, nameEn, price, unit, description, imageUrl }; // Store the selected product object
-            orderPopup.style.display = 'flex'; // Show the popup
+            selectedProduct = { name, nameEn, price, unit, description, imageUrl };
+            orderPopup.style.display = 'flex';
         } else if (openOrderBtn && openOrderBtn.disabled) {
             showMessage('স্টক নেই', 'এই পণ্যটি বর্তমানে স্টক নেই।');
         }
     });
 
-    // Event listener for adding an item to the cart from the popup
+    // Event listener for adding an item to the cart from the product popup
     addToCartFromPopupBtn.addEventListener('click', () => {
         if (selectedProduct) {
             const quantity = parseFloat(popupQuantityInput.value);
-            // Validate quantity input
             if (isNaN(quantity) || quantity <= 0) {
-                showMessage('ভুল পরিমাণ', 'দয়া করে সঠিক পরিমাণ দিন।'); // Use custom message box
+                showMessage('ভুল পরিমাণ', 'দয়া করে সঠিক পরিমাণ দিন।');
                 return;
             }
 
-            // Check if the product already exists in the cart
             const existingItemIndex = cart.findIndex(item => item.name === selectedProduct.name);
 
             if (existingItemIndex > -1) {
-                // If exists, update its quantity
                 cart[existingItemIndex].quantity += quantity;
             } else {
-                // If not, add as a new item
-                cart.push({ ...selectedProduct, quantity }); // Add quantity to selected product object
+                cart.push({ ...selectedProduct, quantity });
             }
-            updateCartDisplay(); // Refresh cart display
-            orderPopup.style.display = 'none'; // Hide the popup
-            selectedProduct = null; // Clear selected product
+            updateCartDisplay();
+            orderPopup.style.display = 'none';
+            selectedProduct = null;
         }
     });
 
-    // Event listener for closing the order popup
+    // Event listener for closing the product quantity popup
     closeOrderFormBtn.addEventListener('click', () => {
         orderPopup.style.display = 'none';
-        selectedProduct = null; // Clear selected product
+        selectedProduct = null;
     });
 
     // Event listener for removing an item from the cart
     cartItemsContainer.addEventListener('click', (e) => {
-        // Check if the clicked element or its closest parent is a remove button
         if (e.target.classList.contains('remove-item-btn') || e.target.closest('.remove-item-btn')) {
             const button = e.target.closest('.remove-item-btn');
-            const indexToRemove = parseInt(button.dataset.index); // Get the index of the item to remove
-            cart.splice(indexToRemove, 1); // Remove the item from the cart array
-            updateCartDisplay(); // Refresh cart display
+            const indexToRemove = parseInt(button.dataset.index);
+            cart.splice(indexToRemove, 1);
+            updateCartDisplay();
         }
+    });
+
+    // NEW: Event listener for opening the order summary modal when floating cart button is clicked
+    floatingCartButton.addEventListener('click', () => {
+        if (cart.length > 0) {
+            updateCartDisplay(); // Ensure cart display is fresh before showing
+            orderSummaryModal.style.display = 'flex'; // Show the order summary as a modal
+        }
+    });
+
+    // NEW: Event listener for closing the order summary modal
+    closeOrderSummaryBtn.addEventListener('click', () => {
+        orderSummaryModal.style.display = 'none';
     });
 
     // Event listener for handling order submission
     orderForm.addEventListener('submit', async (e) => {
-        e.preventDefault(); // Prevent default form submission
+        e.preventDefault();
 
         if (cart.length === 0) {
-            showMessage('অর্ডার ত্রুটি', 'অর্ডার করার জন্য কোনো পণ্য নির্বাচন করা হয়নি।'); // Use custom message box
+            showMessage('অর্ডার ত্রুটি', 'অর্ডার করার জন্য কোনো পণ্য নির্বাচন করা হয়নি।');
             return;
         }
 
-        // Get customer details from the form
         const customerName = document.getElementById('customer-name').value;
         const customerPhone = document.getElementById('customer-phone').value;
         const customerAddress = document.getElementById('customer-address').value;
-
-        // Validate customer details
+        
         if (!customerName || !customerPhone || !customerAddress) {
-            showMessage('তথ্য পূরণ করুন', 'দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা পূরণ করুন।'); // Changed: Using showMessage for validation
+            showMessage('তথ্য পূরণ করুন', 'দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা পূরণ করুন।');
             return;
         }
 
-        // Prepare order data object
         const orderData = {
             customerName: customerName,
             customerPhone: customerPhone,
             customerAddress: customerAddress,
-            items: cart.map(item => ({ // Map cart items to a simplified structure for submission
+            items: cart.map(item => ({ 
                 name: item.name,
                 quantity: item.quantity,
                 unit: item.unit,
@@ -321,56 +333,113 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalItemPrice: item.quantity * item.price
             })),
             totalBill: parseFloat(totalBillSpan.textContent),
-            orderDate: invoiceDateSpan.textContent,
+            orderDate: invoiceDateSpan.textContent, 
             orderCode: invoiceOrderCodeSpan.textContent
         };
 
-        // --- IMPORTANT: This is the part that sends order data to Google Apps Script ---
         try {
-            // Send data to Google Apps Script
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { // Use the single URL for POST request
+            const loadingMessageTitle = 'অর্ডার প্রক্রিয়া চলছে...';
+            const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
+            showMessage(loadingMessageTitle, loadingMessageText); 
+
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
-                mode: 'no-cors', // Required for simple Apps Script POST (no direct response)
-                headers: {
-                    'Content-Type': 'application/json', // Indicate that you are sending JSON
-                },
-                body: JSON.stringify(orderData), // Convert your data object to a JSON string
+                mode: 'no-cors', 
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(orderData), 
             });
 
-            // In 'no-cors' mode, you typically don't get a usable response object directly from fetch,
-            // but the request is sent. The success message below assumes the Apps Script processed it.
             console.log('Order data sent to Google Sheet (check your sheet)!');
 
-            // Show success popup and clear form/cart ONLY if the fetch request was initiated successfully
-            orderSuccessPopup.style.display = 'flex'; // Show success popup
+            document.getElementById('message-box-overlay').style.display = 'none';
+            orderSuccessPopup.style.display = 'flex'; 
 
-            // Clear form and cart after successful order
-            orderForm.reset(); // Reset the customer information form
-            cart = []; // Empty the cart
-            updateCartDisplay(); // Update display, which will hide the order summary section
+            orderForm.reset();
+            cart = [];
+            updateCartDisplay(); // This will also hide the floating cart button if cart is empty
 
         } catch (error) {
-            // If there's a network error or problem initiating the fetch request
             console.error('Error sending order:', error);
+            document.getElementById('message-box-overlay').style.display = 'none';
             showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
-            // Do NOT clear cart or show success if there was an error
         }
-        // --- End of IMPORTANT section ---
     });
 
-    // Event listener for closing the order success popup (top right X button)
+    // Event listener for closing the order success popup
     closeSuccessPopupBtn.addEventListener('click', () => {
         orderSuccessPopup.style.display = 'none';
     });
     
-    // Event listener for closing the order success popup (bottom OK button)
     closeSuccessPopupBtnBottom.addEventListener('click', () => {
         orderSuccessPopup.style.display = 'none';
     });
 
-    // Initial call to update cart display in case there's any pre-loaded data (though not in this example)
-    updateCartDisplay();
+    // --- Floating Button Drag Functionality ---
+    let isDragging = false;
+    let offsetX, offsetY;
 
-    // Load products when the page loads
-    loadProductsFromSheet(); // Call this function to fetch and display products
+    floatingCartButton.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        offsetX = e.clientX - floatingCartButton.getBoundingClientRect().left;
+        offsetY = e.clientY - floatingCartButton.getBoundingClientRect().top;
+        floatingCartButton.style.cursor = 'grabbing'; // Change cursor to grabbing
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+
+        // Calculate new position
+        let newLeft = e.clientX - offsetX;
+        let newTop = e.clientY - offsetY;
+
+        // Keep button within viewport boundaries
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatingCartButton.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatingCartButton.offsetHeight));
+
+        floatingCartButton.style.left = `${newLeft}px`;
+        floatingCartButton.style.top = `${newTop}px`;
+        floatingCartButton.style.right = 'auto'; // Disable right/bottom when dragging by left/top
+        floatingCartButton.style.bottom = 'auto'; // Disable right/bottom when dragging by left/top
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+        floatingCartButton.style.cursor = 'grab'; // Change cursor back to grab
+    });
+
+    // --- Touch events for dragging on mobile devices ---
+    floatingCartButton.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        const touch = e.touches[0];
+        offsetX = touch.clientX - floatingCartButton.getBoundingClientRect().left;
+        offsetY = touch.clientY - floatingCartButton.getBoundingClientRect().top;
+        floatingCartButton.style.cursor = 'grabbing';
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        e.preventDefault(); // Prevent scrolling while dragging
+
+        const touch = e.touches[0];
+        let newLeft = touch.clientX - offsetX;
+        let newTop = touch.clientY - offsetY;
+
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatingCartButton.offsetWidth));
+        newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatingCartButton.offsetHeight));
+
+        floatingCartButton.style.left = `${newLeft}px`;
+        floatingCartButton.style.top = `${newTop}px`;
+        floatingCartButton.style.right = 'auto';
+        floatingCartButton.style.bottom = 'auto';
+    }, { passive: false }); // `passive: false` allows `preventDefault`
+
+    document.addEventListener('touchend', () => {
+        isDragging = false;
+        floatingCartButton.style.cursor = 'grab';
+    });
+
+
+    // Initial setup
+    updateCartDisplay(); // Call this to set initial cart state (hidden/count 0)
+    loadProductsFromSheet(); // Load products when the page loads
 });
