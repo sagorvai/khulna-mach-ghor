@@ -430,17 +430,19 @@ p {
 }
 
 
-/* Order Summary Section (Updated to match image) */
+/* Order Summary Section (Now a modal-like overlay) */
 .order-summary-section {
+    /* Instead of `display: none;` here, it is controlled by order-popup-overlay. */
+    /* Only styles for the modal content are needed here */
     background-color: #ffffff; /* White background */
     border: 1px solid #ddd; /* Light border */
     border-radius: 10px;
     padding: 30px;
-    margin-top: 60px;
+    /* margin-top: 60px; - Removed, as it's a fixed modal */
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     color: #333;
     font-family: 'Sutoni MJ', 'Baloo Da 2', Arial, sans-serif; /* Bengali font */
-    display: none; /* Initially hidden */
+    /* display: none; - Moved to .order-popup-overlay */
 }
 
 .order-summary-heading {
@@ -595,7 +597,7 @@ p {
     background-color: #004085;
 }
 
-/* Order Popup Specific Styles */
+/* Order Popup Specific Styles (reused for order summary modal) */
 .order-popup-overlay {
     position: fixed;
     z-index: 1000;
@@ -610,13 +612,17 @@ p {
     animation: fadeIn 0.3s ease-out;
 }
 
-.order-popup-content {
+/* Content box for the order summary modal */
+.order-popup-content.invoice-content {
     background-color: #ffffff;
     padding: 30px;
     border-radius: 10px;
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
     width: 90%;
-    max-width: 600px;
+    max-width: 700px; /* Wider for invoice */
+    height: 90%; /* Allow scrollable content */
+    max-height: 90%;
+    overflow-y: auto; /* Enable scrolling for long invoices */
     text-align: center;
     position: relative;
     animation: slideInTop 0.3s ease-out;
@@ -831,6 +837,53 @@ p {
     background-color: #004085;
 }
 
+/* NEW: Floating Cart Button Styles */
+.floating-button {
+    position: fixed;
+    bottom: 20px; /* Default position */
+    right: 20px; /* Default position */
+    background-color: #0056b3; /* Blue */
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8em;
+    cursor: grab; /* Indicate draggable */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    z-index: 999; /* Ensure it stays on top */
+    transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.floating-button:hover {
+    background-color: #004085;
+    transform: scale(1.05);
+}
+
+.floating-button:active {
+    cursor: grabbing; /* Indicate dragging */
+}
+
+.floating-button .cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #e67e22; /* Orange for count */
+    color: white;
+    font-size: 0.5em; /* Smaller font size for count */
+    font-weight: bold;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid white; /* White border */
+}
+
+
 /* Responsive Design */
 @media (min-width: 768px) {
     /* পপ-আপের লেআউট বড় স্ক্রিনের জন্য */
@@ -886,9 +939,10 @@ p {
     }
 
     /* Popup on smaller screens */
-    .order-popup-content {
+    .order-popup-content, .order-popup-content.invoice-content {
         width: 95%;
         margin: 5% auto;
+        padding: 20px; /* Reduced padding for smaller screens */
     }
     .order-popup-content .btn {
         width: 100%;
@@ -918,4 +972,19 @@ p {
     .success-message {
         font-size: 1.1em;
     }
-}
+
+    .floating-button {
+        width: 50px; /* Slightly smaller on mobile */
+        height: 50px;
+        font-size: 1.5em;
+        bottom: 15px;
+        right: 15px;
+    }
+    .floating-button .cart-count {
+        width: 20px;
+        height: 20px;
+        font-size: 0.45em;
+        top: -3px;
+        right: -3px;
+    }
+    }
