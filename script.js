@@ -18,7 +18,8 @@ function showMessage(title, message) {
 document.addEventListener('DOMContentLoaded', () => {
     // Get references to various HTML elements
     const productsSectionContainer = document.querySelector('.products-section .container');
-    const orderPopup = document.getElementById('order-popup'); // For individual product quantity selection
+    // Renamed product popup to avoid confusion with general order popup
+    const productQuantityPopup = document.getElementById('product-quantity-popup'); 
     const popupProductName = document.getElementById('popup-product-name');
     const popupProductNameEn = document.getElementById('popup-product-name-en');
     const popupProductDescription = document.querySelector('.popup-product-description');
@@ -27,13 +28,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupQuantityInput = document.getElementById('popup-quantity');
     const popupProductUnit = document.getElementById('popup-product-unit');
     const addToCartFromPopupBtn = document.getElementById('add-to-cart-from-popup-btn');
-    const closeOrderFormBtn = document.getElementById('close-order-form-btn'); // Close button for product popup
+    // Renamed close button for product quantity popup
+    const closeProductQuantityPopupBtn = document.getElementById('close-product-quantity-popup-btn'); 
 
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    // Renamed for clarity: orderSummaryModal now refers to the invoice popup
-    const orderSummaryModal = document.querySelector('.order-summary-section'); 
+    // orderSummaryModal now refers to the invoice popup itself
+    const orderSummaryModal = document.getElementById('order-summary-modal'); 
     const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); // Close button for invoice popup
 
     const invoiceDateSpan = document.getElementById('invoice-date');
@@ -42,13 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderSuccessPopup = document.getElementById('order-success-popup');
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn'); // Top right X button
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom'); // Bottom OK button
+    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // New PDF download button
 
-    // NEW: Floating Cart Button elements
+    // Floating Cart Button elements
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
 
     let cart = []; // Array to hold selected products in the cart
     let selectedProduct = null; // To hold the product currently selected from the product grid
+
+    // Store generated order code and date for PDF
+    let currentOrderCode = '';
+    let currentInvoiceDate = '';
 
     // --- Google Apps Script URL ---
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
@@ -61,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     async function loadProductsFromSheet() {
         try {
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL); // Use the single URL for GET request
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
@@ -72,10 +79,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.error('Apps Script Error:', productsData.error);
                 return;
             }
-
-            // --- IMPORTANT: Removed allProducts variable and used productsData directly or filtered data ---
-            // If the Apps Script filtering is working perfectly, we can use productsData directly.
-            // If issues persist, re-implement robust client-side filtering here.
             renderProducts(productsData); 
 
         } catch (error) {
@@ -95,13 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicCategoryGrids.clear(); // Clear the map as well
 
         productsToRender.forEach(product => {
-            // Re-confirming filtering for safety, though Apps Script should handle most of this.
-            // A product is considered valid if it has a non-empty Name_BN, Price, and Category.
+            // Client-side filtering as a fallback, Apps Script should handle most of this.
             if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
                 !product.Price || product.Price.toString().trim() === '' ||
                 !product.Category || product.Category.toString().trim() === '') {
                 console.warn('Skipping invalid product row (client-side filter):', product);
-                return; // Skip to the next product in the loop
+                return;
             }
 
             const isAvailable = (product.Available && product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
@@ -110,16 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const productItem = document.createElement('div');
             productItem.classList.add('product-item');
             if (!isAvailable) {
-                productItem.classList.add('unavailable'); // Add class for unavailable items
+                productItem.classList.add('unavailable');
             }
 
-            // Set data attributes for the product
             productItem.dataset.name = product.Name_BN;
             productItem.dataset.nameEn = product.Name_EN || '';
             productItem.dataset.price = product.Price;
             productItem.dataset.unit = product.Unit || 'কেজি';
             productItem.dataset.description = product.Description || 'এই মাছ সম্পর্কে কোনো বিবরণ নেই।';
-            productItem.dataset.imageUrl = product['Image URL'] || 'https://placehold.co/300x200/cccccc/333333?text=ছবি+নেই'; // Placeholder if no image
+            productItem.dataset.imageUrl = product['Image URL'] || 'https://placehold.co/300x200/cccccc/333333?text=ছবি+নেই';
 
             productItem.innerHTML = `
                 <img src="${productItem.dataset.imageUrl}" alt="${product.Name_BN} মাছ">
@@ -135,7 +136,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
 
-            // --- Dynamic Category Handling Logic ---
             const originalCategoryName = product.Category;
             const normalizedCategoryName = originalCategoryName.toString().toLowerCase().trim(); 
 
@@ -172,11 +172,10 @@ document.addEventListener('DOMContentLoaded', () => {
         let total = 0;
         let totalItemCount = 0; // To count distinct items in cart
 
-        // Calculate total items and total bill
         cart.forEach((item, index) => {
             const itemTotal = item.quantity * item.price;
             total += itemTotal;
-            totalItemCount++; // Each unique product in cart is one item
+            totalItemCount++;
             
             const itemElement = document.createElement('div');
             itemElement.classList.add('cart-item');
@@ -188,26 +187,25 @@ document.addEventListener('DOMContentLoaded', () => {
             cartItemsContainer.appendChild(itemElement);
         });
 
-        totalBillSpan.textContent = total; // Update the total bill displayed
+        totalBillSpan.textContent = total;
 
         // Control floating cart button visibility and count
         if (totalItemCount > 0) {
-            floatingCartButton.style.display = 'flex'; // Show the button
-            cartItemCountSpan.textContent = totalItemCount; // Update count
+            floatingCartButton.style.display = 'flex';
+            cartItemCountSpan.textContent = totalItemCount;
         } else {
-            floatingCartButton.style.display = 'none'; // Hide the button if cart is empty
+            floatingCartButton.style.display = 'none';
             cartItemCountSpan.textContent = 0;
-            orderSummaryModal.style.display = 'none'; // Also hide the modal if cart becomes empty
+            orderSummaryModal.style.display = 'none'; // Hide the invoice modal if cart becomes empty
         }
 
-        // Update invoice date and order code when cart is updated and visible
-        if (orderSummaryModal.style.display === 'flex') {
-            const now = new Date();
-            invoiceDateSpan.textContent = now.toLocaleDateString('bn-BD', {
-                year: 'numeric', month: 'long', day: 'numeric'
-            });
-            invoiceOrderCodeSpan.textContent = generateOrderCode();
-        }
+        // Always update current order code and date for PDF generation
+        const now = new Date();
+        currentInvoiceDate = now.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' });
+        currentOrderCode = generateOrderCode();
+
+        invoiceDateSpan.textContent = currentInvoiceDate;
+        invoiceOrderCodeSpan.textContent = currentOrderCode;
     }
 
     /**
@@ -246,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
             popupQuantityInput.step = '0.5';
             popupProductUnit.textContent = unit;
             selectedProduct = { name, nameEn, price, unit, description, imageUrl };
-            orderPopup.style.display = 'flex';
+            productQuantityPopup.style.display = 'flex'; // Show the product quantity popup
         } else if (openOrderBtn && openOrderBtn.disabled) {
             showMessage('স্টক নেই', 'এই পণ্যটি বর্তমানে স্টক নেই।');
         }
@@ -269,14 +267,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 cart.push({ ...selectedProduct, quantity });
             }
             updateCartDisplay();
-            orderPopup.style.display = 'none';
+            productQuantityPopup.style.display = 'none'; // Hide the product quantity popup
             selectedProduct = null;
         }
     });
 
     // Event listener for closing the product quantity popup
-    closeOrderFormBtn.addEventListener('click', () => {
-        orderPopup.style.display = 'none';
+    closeProductQuantityPopupBtn.addEventListener('click', () => {
+        productQuantityPopup.style.display = 'none';
         selectedProduct = null;
     });
 
@@ -290,18 +288,75 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // NEW: Event listener for opening the order summary modal when floating cart button is clicked
+    // Event listener for opening the order summary modal when floating cart button is clicked
     floatingCartButton.addEventListener('click', () => {
         if (cart.length > 0) {
-            updateCartDisplay(); // Ensure cart display is fresh before showing
+            updateCartDisplay(); // Ensure cart display and invoice details are fresh
             orderSummaryModal.style.display = 'flex'; // Show the order summary as a modal
         }
     });
 
-    // NEW: Event listener for closing the order summary modal
+    // Event listener for closing the order summary modal
     closeOrderSummaryBtn.addEventListener('click', () => {
         orderSummaryModal.style.display = 'none';
     });
+
+    // NEW: PDF Generation Function
+    async function generateInvoicePdf() {
+        const invoiceContent = document.querySelector('.invoice-content'); // Select the div that contains the invoice details
+
+        // Temporarily hide close button and form button for cleaner PDF capture
+        const closeBtnDisplay = closeOrderSummaryBtn.style.display;
+        const formBtnDisplay = orderForm.querySelector('.order-confirm-btn').style.display;
+        
+        closeOrderSummaryBtn.style.display = 'none';
+        orderForm.querySelector('.order-confirm-btn').style.display = 'none';
+
+        // Add temporary border to invoice content for better PDF visual
+        invoiceContent.style.border = '1px solid #000';
+        invoiceContent.style.padding = '20px';
+
+
+        try {
+            const canvas = await html2canvas(invoiceContent, {
+                scale: 2, // Higher scale for better resolution PDF
+                useCORS: true, // Needed if images are from different origin
+                allowTaint: true // Allow tainted canvas for images if useCORS doesn't work
+            });
+
+            // Convert canvas to image data
+            const imgData = canvas.toDataURL('image/png');
+
+            // Initialize jsPDF with A4 size and image orientation
+            // You might need to adjust width/height based on your invoice content size
+            const pdf = new window.jspdf.jsPDF({
+                orientation: 'portrait', // portrait or landscape
+                unit: 'px',
+                format: 'a4' // or [canvas.width, canvas.height] if you want exact canvas size
+            });
+
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+            // Add image to PDF
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save(`চালান_${currentOrderCode}.pdf`); // Save with dynamic name
+
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি।');
+        } finally {
+            // Restore hidden elements and remove temporary styles
+            closeOrderSummaryBtn.style.display = closeBtnDisplay;
+            orderForm.querySelector('.order-confirm-btn').style.display = formBtnDisplay;
+            invoiceContent.style.border = '';
+            invoiceContent.style.padding = '';
+        }
+    }
+
+    // NEW: Event listener for download PDF button
+    downloadPdfBtn.addEventListener('click', generateInvoicePdf);
+
 
     // Event listener for handling order submission
     orderForm.addEventListener('submit', async (e) => {
@@ -333,8 +388,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalItemPrice: item.quantity * item.price
             })),
             totalBill: parseFloat(totalBillSpan.textContent),
-            orderDate: invoiceDateSpan.textContent, 
-            orderCode: invoiceOrderCodeSpan.textContent
+            orderDate: currentInvoiceDate, // Use the generated date
+            orderCode: currentOrderCode // Use the generated order code
         };
 
         try {
@@ -382,13 +437,13 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = true;
         offsetX = e.clientX - floatingCartButton.getBoundingClientRect().left;
         offsetY = e.clientY - floatingCartButton.getBoundingClientRect().top;
-        floatingCartButton.style.cursor = 'grabbing'; // Change cursor to grabbing
+        floatingCartButton.style.cursor = 'grabbing';
     });
 
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
+        e.preventDefault(); // Prevent text selection while dragging
 
-        // Calculate new position
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
 
@@ -404,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('mouseup', () => {
         isDragging = false;
-        floatingCartButton.style.cursor = 'grab'; // Change cursor back to grab
+        floatingCartButton.style.cursor = 'grab';
     });
 
     // --- Touch events for dragging on mobile devices ---
