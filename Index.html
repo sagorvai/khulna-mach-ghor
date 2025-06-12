@@ -10,6 +10,9 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Custom CSS file -->
     <link rel="stylesheet" href="style.css">
+    <!-- jsPDF Library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 </head>
 <body>
     <!-- Main Header Section -->
@@ -114,7 +117,7 @@
     </section>
 
     <!-- Order Summary Section (Now a modal-like overlay) -->
-    <section class="order-summary-section order-popup-overlay" style="display: none;">
+    <section id="order-summary-modal" class="order-popup-overlay" style="display: none;">
         <div class="order-popup-content invoice-content">
             <button class="close-popup-btn" id="close-order-summary-btn">&times;</button>
             <h3 class="order-summary-heading"><i class="fas fa-file-invoice-dollar"></i> আপনার অর্ডারের চালান</h3>
@@ -163,9 +166,9 @@
     </footer>
 
     <!-- Order Popup Overlay (Used for individual product quantity selection) -->
-    <div id="order-popup" class="order-popup-overlay" style="display: none;">
+    <div id="product-quantity-popup" class="order-popup-overlay" style="display: none;">
         <div class="order-popup-content">
-            <button class="close-popup-btn" id="close-order-form-btn">&times;</button>
+            <button class="close-popup-btn" id="close-product-quantity-popup-btn">&times;</button>
             <div class="popup-product-details">
                 <img id="popup-product-image" src="" alt="Product Image">
                 <div class="text-details">
@@ -184,13 +187,14 @@
         </div>
     </div>
 
-    <!-- Order Success Popup Overlay (Hidden by default) -->
+    <!-- Order Success Popup Overlay -->
     <div id="order-success-popup" class="order-popup-overlay" style="display: none;">
         <div class="order-popup-content success-content">
             <button class="close-popup-btn" id="close-success-popup-btn">&times;</button>
             <h2 class="success-heading"><i class="fas fa-check-circle"></i> অর্ডার সফল!</h2>
             <p class="success-message">আপনার অর্ডার সফলভাবে জমা হয়েছে।</p>
             <p class="success-message">খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে।</p>
+            <button class="btn secondary-btn" id="download-pdf-btn"><i class="fas fa-file-pdf"></i> রসিদ ডাউনলোড করুন</button>
             <p class="thank-you-message">খুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!</p>
             <button class="btn primary-btn" id="close-success-popup-btn-bottom">ঠিক আছে</button>
         </div>
@@ -205,7 +209,7 @@
         </div>
     </div>
 
-    <!-- NEW: Floating Cart Button -->
+    <!-- Floating Cart Button -->
     <div id="floating-cart-button" class="floating-button" style="display: none;">
         <i class="fas fa-shopping-cart"></i>
         <span id="cart-item-count" class="cart-count">0</span>
@@ -223,4 +227,4 @@
         });
     </script>
 </body>
-                    </html>
+    </html>
