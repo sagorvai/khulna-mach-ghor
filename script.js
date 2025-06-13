@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
 
-    // NEW: Reference to the hidden PDF content div
+    // Reference to the hidden PDF content div
     const pdfInvoiceContentDiv = document.getElementById('pdf-invoice-content');
 
     let cart = [];
@@ -272,28 +272,31 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // NEW: PDF Generation Function - using a hidden div for simplified HTML content
+    // NEW: PDF Generation Function - using a hidden div for simplified HTML content (Text-only)
     async function generateInvoicePdf() {
-        // Populate the hidden div with simplified invoice HTML
+        // Clear previous content
+        pdfInvoiceContentDiv.innerHTML = '';
+
+        // Generate simplified HTML for PDF
         let pdfHtml = `
-            <div style="text-align: center; margin-bottom: 30px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                <h2 style="font-size: 24px; color: #0056b3; margin-bottom: 5px;">খুলনা মাছ ঘর</h2>
-                <p style="font-size: 14px; color: #555;">ফরমালিন মুক্ত বিষবিহীন তাজা মাছের অনলাইন বাজার</p>
-                <p style="font-size: 12px; color: #777;">সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।</p>
-                <p style="font-size: 12px; color: #777;">যোগাযোগ: ০১৭৫৩৯০৩৮৫৪, ০১৯৫১৯১২০৩১</p>
+            <div style="text-align: center; margin-bottom: 20px; font-family: 'Arial', sans-serif;">
+                <h2 style="font-size: 20px; color: #333; margin-bottom: 5px;">খুলনা মাছ ঘর</h2>
+                <p style="font-size: 12px; color: #666;">ফরমালিন মুক্ত বিষবিহীন তাজা মাছের অনলাইন বাজার</p>
+                <p style="font-size: 10px; color: #888;">সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।</p>
+                <p style="font-size: 10px; color: #888;">যোগাযোগ: ০১৭৫৩৯০৩৮৫৪, ০১৯৫১৯১২০৩১</p>
             </div>
-            <div style="margin-bottom: 20px; font-size: 14px; line-height: 1.6;">
+            <div style="margin-bottom: 15px; font-size: 12px; line-height: 1.5; font-family: 'Arial', sans-serif;">
                 <p style="margin: 0;"><strong>চালান:</strong></p>
                 <p style="margin: 0;"><strong>তারিখ:</strong> ${currentInvoiceDate}</p>
                 <p style="margin: 0;"><strong>অর্ডার কোড:</strong> ${currentOrderCode}</p>
             </div>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; font-family: 'Arial', sans-serif;">
                 <thead>
-                    <tr style="background-color: #f2f2f2;">
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: left;">পণ্য</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: center;">পরিমাণ</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">একক মূল্য</th>
-                        <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">মোট মূল্য</th>
+                    <tr style="background-color: #f8f8f8;">
+                        <th style="padding: 6px; border: 1px solid #ddd; text-align: left;">পণ্য</th>
+                        <th style="padding: 6px; border: 1px solid #ddd; text-align: center;">পরিমাণ</th>
+                        <th style="padding: 6px; border: 1px solid #ddd; text-align: right;">একক মূল্য</th>
+                        <th style="padding: 6px; border: 1px solid #ddd; text-align: right;">মোট মূল্য</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -303,10 +306,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const itemTotal = item.quantity * item.price;
             pdfHtml += `
                 <tr>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: left;">${item.name}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">${item.quantity} ${item.unit}</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${item.price} টাকা</td>
-                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${itemTotal} টাকা</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: left;">${item.name}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${item.quantity} ${item.unit}</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right;">${item.price} টাকা</td>
+                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right;">${itemTotal} টাকা</td>
                 </tr>
             `;
         });
@@ -314,35 +317,38 @@ document.addEventListener('DOMContentLoaded', () => {
         pdfHtml += `
                 </tbody>
             </table>
-            <div style="text-align: right; font-size: 16px; margin-bottom: 30px; padding-top: 10px; border-top: 2px solid #000;">
-                <p style="margin: 0;"><strong>মোট বিল:</strong> <span style="font-size: 20px; color: #000; font-weight: bold;">${parseFloat(totalBillSpan.textContent)} টাকা</span></p>
+            <div style="text-align: right; font-size: 14px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #ccc; font-family: 'Arial', sans-serif;">
+                <p style="margin: 0;"><strong>মোট বিল:</strong> <span style="font-size: 18px; color: #000; font-weight: bold;">${parseFloat(totalBillSpan.textContent)} টাকা</span></p>
             </div>
-            <div style="padding-top: 20px; border-top: 1px solid #eee; font-size: 14px; line-height: 1.6;">
+            <div style="padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; line-height: 1.5; font-family: 'Arial', sans-serif;">
                 <p style="margin: 0;"><strong>গ্রাহকের নাম:</strong> ${document.getElementById('customer-name').value}</p>
                 <p style="margin: 0;"><strong>মোবাইল নম্বর:</strong> ${document.getElementById('customer-phone').value}</p>
                 <p style="margin: 0;"><strong>ঠিকানা:</strong> ${document.getElementById('customer-address').value}</p>
             </div>
-            <div style="text-align: center; margin-top: 40px; font-size: 12px; color: #888;">
+            <div style="text-align: center; margin-top: 30px; font-size: 10px; color: #aaa; font-family: 'Arial', sans-serif;">
                 <p>খুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!</p>
+                <p>আপনার বিশ্বাসই আমাদের প্রেরণা।</p>
             </div>
         `;
 
         pdfInvoiceContentDiv.innerHTML = pdfHtml; // Set the HTML content for capture
 
         // Wait a little to ensure all DOM elements are rendered
-        await new Promise(resolve => setTimeout(resolve, 100)); // Increased delay for more stability
+        // Increased delay for more stability, especially for content parsing by html2canvas
+        await new Promise(resolve => setTimeout(resolve, 200)); 
 
         try {
             const canvas = await html2canvas(pdfInvoiceContentDiv, {
                 scale: 2, // Higher scale for better resolution PDF
-                useCORS: true, // Needed if images are from different origin (though no external images now)
-                allowTaint: true, // Allow tainted canvas for images if useCORS doesn't work
-                foreignObjectRendering: true, // Enable rendering of foreignObject elements
+                useCORS: false, // No external images, so CORS is less relevant for this content
+                allowTaint: false, // No external images, so no tainting expected
+                foreignObjectRendering: true, // Enable rendering of foreignObject elements for better HTML/CSS support
                 backgroundColor: '#ffffff' // Ensure white background for the PDF
             });
 
             const imgData = canvas.toDataURL('image/png');
 
+            // Using A4 dimensions in pixels for better control
             const pdf = new window.jspdf.jsPDF({
                 orientation: 'portrait',
                 unit: 'px',
@@ -357,14 +363,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error generating PDF:', error);
-            if (error.name === 'SecurityError' && error.message.includes('CORS')) {
-                showMessage('পিডিএফ তৈরি করতে সমস্যা', 'ইমেজ লোড করতে সমস্যা হয়েছে (CORS ত্রুটি)। অনুগ্রহ করে পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
-            } else if (error.message && error.message.includes('tainted')) {
-                 showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের কিছু ছবি লোড করতে সমস্যা হয়েছে। অনুগ্রহ করে পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
-            }
-            else {
-                showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।');
-            }
+            // More generic error message since image issues are less likely now
+            showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।');
         } finally {
             // Clear the hidden div after generating PDF
             pdfInvoiceContentDiv.innerHTML = '';
