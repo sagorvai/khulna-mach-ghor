@@ -18,7 +18,6 @@ function showMessage(title, message) {
 document.addEventListener('DOMContentLoaded', () => {
     // Get references to various HTML elements
     const productsSectionContainer = document.querySelector('.products-section .container');
-    // Renamed product popup to avoid confusion with general order popup
     const productQuantityPopup = document.getElementById('product-quantity-popup'); 
     const popupProductName = document.getElementById('popup-product-name');
     const popupProductNameEn = document.getElementById('popup-product-name-en');
@@ -28,44 +27,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupQuantityInput = document.getElementById('popup-quantity');
     const popupProductUnit = document.getElementById('popup-product-unit');
     const addToCartFromPopupBtn = document.getElementById('add-to-cart-from-popup-btn');
-    // Renamed close button for product quantity popup
     const closeProductQuantityPopupBtn = document.getElementById('close-product-quantity-popup-btn'); 
 
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    // orderSummaryModal now refers to the invoice popup itself
     const orderSummaryModal = document.getElementById('order-summary-modal'); 
-    const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); // Close button for invoice popup
+    const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); 
 
     const invoiceDateSpan = document.getElementById('invoice-date');
     const invoiceOrderCodeSpan = document.getElementById('invoice-order-code');
 
     const orderSuccessPopup = document.getElementById('order-success-popup');
-    const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn'); // Top right X button
-    const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom'); // Bottom OK button
-    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // New PDF download button
+    const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
+    const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
+    const downloadPdfBtn = document.getElementById('download-pdf-btn');
 
-    // Floating Cart Button elements
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
 
-    let cart = []; // Array to hold selected products in the cart
-    let selectedProduct = null; // To hold the product currently selected from the product grid
+    let cart = [];
+    let selectedProduct = null;
 
-    // Store generated order code and date for PDF
     let currentOrderCode = '';
     let currentInvoiceDate = '';
 
-    // --- Google Apps Script URL ---
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
 
-    // A Map to store dynamically created category grid elements
     const dynamicCategoryGrids = new Map();
 
-    /**
-     * Fetches product data from Google Sheet via Apps Script and displays them.
-     */
     async function loadProductsFromSheet() {
         try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
@@ -87,18 +77,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    /**
-     * Renders products onto dynamically created HTML grids based on fetched data.
-     * @param {Array} productsToRender - The array of product objects to render.
-     */
     function renderProducts(productsToRender) {
-        // Clear previous dynamic categories and products
         const existingDynamicContent = productsSectionContainer.querySelectorAll('.product-category');
         existingDynamicContent.forEach(element => element.remove());
-        dynamicCategoryGrids.clear(); // Clear the map as well
+        dynamicCategoryGrids.clear();
 
         productsToRender.forEach(product => {
-            // Client-side filtering as a fallback, Apps Script should handle most of this.
             if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
                 !product.Price || product.Price.toString().trim() === '' ||
                 !product.Category || product.Category.toString().trim() === '') {
@@ -163,14 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    /**
-     * Updates the display of items in the cart, calculates the total bill,
-     * and controls the visibility and count of the floating cart button.
-     */
     function updateCartDisplay() {
-        cartItemsContainer.innerHTML = ''; // Clear previous items from the cart display
+        cartItemsContainer.innerHTML = '';
         let total = 0;
-        let totalItemCount = 0; // To count distinct items in cart
+        let totalItemCount = 0;
 
         cart.forEach((item, index) => {
             const itemTotal = item.quantity * item.price;
@@ -189,17 +169,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalBillSpan.textContent = total;
 
-        // Control floating cart button visibility and count
         if (totalItemCount > 0) {
             floatingCartButton.style.display = 'flex';
             cartItemCountSpan.textContent = totalItemCount;
         } else {
             floatingCartButton.style.display = 'none';
             cartItemCountSpan.textContent = 0;
-            orderSummaryModal.style.display = 'none'; // Hide the invoice modal if cart becomes empty
+            orderSummaryModal.style.display = 'none';
         }
 
-        // Always update current order code and date for PDF generation
         const now = new Date();
         currentInvoiceDate = now.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' });
         currentOrderCode = generateOrderCode();
@@ -208,10 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
         invoiceOrderCodeSpan.textContent = currentOrderCode;
     }
 
-    /**
-     * Generates a unique order code based on the current date and a random string.
-     * @returns {string} The generated order code.
-     */
     function generateOrderCode() {
         const now = new Date();
         const year = now.getFullYear();
@@ -221,7 +195,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return `KMG-${year}${month}${day}-${uniqueId}`;
     }
 
-    // Event listener for opening the product quantity popup
     document.querySelector('.products-section').addEventListener('click', (e) => {
         const productItem = e.target.closest('.product-item');
         const openOrderBtn = e.target.closest('.open-order-form-btn');
@@ -250,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listener for adding an item to the cart from the product popup
     addToCartFromPopupBtn.addEventListener('click', () => {
         if (selectedProduct) {
             const quantity = parseFloat(popupQuantityInput.value);
@@ -267,18 +239,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 cart.push({ ...selectedProduct, quantity });
             }
             updateCartDisplay();
-            productQuantityPopup.style.display = 'none'; // Hide the product quantity popup
+            productQuantityPopup.style.display = 'none';
             selectedProduct = null;
         }
     });
 
-    // Event listener for closing the product quantity popup
     closeProductQuantityPopupBtn.addEventListener('click', () => {
         productQuantityPopup.style.display = 'none';
         selectedProduct = null;
     });
 
-    // Event listener for removing an item from the cart
     cartItemsContainer.addEventListener('click', (e) => {
         if (e.target.classList.contains('remove-item-btn') || e.target.closest('.remove-item-btn')) {
             const button = e.target.closest('.remove-item-btn');
@@ -288,20 +258,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listener for opening the order summary modal when floating cart button is clicked
     floatingCartButton.addEventListener('click', () => {
         if (cart.length > 0) {
-            updateCartDisplay(); // Ensure cart display and invoice details are fresh
-            orderSummaryModal.style.display = 'flex'; // Show the order summary as a modal
+            updateCartDisplay();
+            orderSummaryModal.style.display = 'flex';
         }
     });
 
-    // Event listener for closing the order summary modal
     closeOrderSummaryBtn.addEventListener('click', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // NEW: PDF Generation Function
+    // NEW: PDF Generation Function - with improved error handling and options
     async function generateInvoicePdf() {
         const invoiceContent = document.querySelector('.invoice-content'); // Select the div that contains the invoice details
 
@@ -316,35 +284,42 @@ document.addEventListener('DOMContentLoaded', () => {
         invoiceContent.style.border = '1px solid #000';
         invoiceContent.style.padding = '20px';
 
+        // Wait a little to ensure all DOM elements are rendered
+        await new Promise(resolve => setTimeout(resolve, 50)); 
 
         try {
             const canvas = await html2canvas(invoiceContent, {
                 scale: 2, // Higher scale for better resolution PDF
                 useCORS: true, // Needed if images are from different origin
-                allowTaint: true // Allow tainted canvas for images if useCORS doesn't work
+                allowTaint: true, // Allow tainted canvas for images if useCORS doesn't work
+                foreignObjectRendering: true // Enable rendering of foreignObject elements, useful for complex CSS/SVG
             });
 
-            // Convert canvas to image data
             const imgData = canvas.toDataURL('image/png');
 
-            // Initialize jsPDF with A4 size and image orientation
-            // You might need to adjust width/height based on your invoice content size
             const pdf = new window.jspdf.jsPDF({
-                orientation: 'portrait', // portrait or landscape
+                orientation: 'portrait',
                 unit: 'px',
-                format: 'a4' // or [canvas.width, canvas.height] if you want exact canvas size
+                format: 'a4'
             });
 
             const imgWidth = pdf.internal.pageSize.getWidth();
             const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-            // Add image to PDF
             pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
-            pdf.save(`চালান_${currentOrderCode}.pdf`); // Save with dynamic name
+            pdf.save(`চালান_${currentOrderCode}.pdf`);
 
         } catch (error) {
             console.error('Error generating PDF:', error);
-            showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি।');
+            // Provide more specific error messages if possible
+            if (error.name === 'SecurityError' && error.message.includes('CORS')) {
+                showMessage('পিডিএফ তৈরি করতে সমস্যা', 'ইমেজ লোড করতে সমস্যা হয়েছে (CORS ত্রুটি)। অনুগ্রহ করে পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+            } else if (error.message && error.message.includes('tainted')) {
+                 showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের কিছু ছবি লোড করতে সমস্যা হয়েছে। অনুগ্রহ করে পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+            }
+            else {
+                showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।');
+            }
         } finally {
             // Restore hidden elements and remove temporary styles
             closeOrderSummaryBtn.style.display = closeBtnDisplay;
@@ -354,11 +329,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // NEW: Event listener for download PDF button
     downloadPdfBtn.addEventListener('click', generateInvoicePdf);
 
-
-    // Event listener for handling order submission
     orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -388,8 +360,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 totalItemPrice: item.quantity * item.price
             })),
             totalBill: parseFloat(totalBillSpan.textContent),
-            orderDate: currentInvoiceDate, // Use the generated date
-            orderCode: currentOrderCode // Use the generated order code
+            orderDate: currentInvoiceDate,
+            orderCode: currentOrderCode
         };
 
         try {
@@ -411,7 +383,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             orderForm.reset();
             cart = [];
-            updateCartDisplay(); // This will also hide the floating cart button if cart is empty
+            updateCartDisplay();
 
         } catch (error) {
             console.error('Error sending order:', error);
@@ -420,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Event listener for closing the order success popup
     closeSuccessPopupBtn.addEventListener('click', () => {
         orderSuccessPopup.style.display = 'none';
     });
@@ -429,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSuccessPopup.style.display = 'none';
     });
 
-    // --- Floating Button Drag Functionality ---
+    // Floating Button Drag Functionality
     let isDragging = false;
     let offsetX, offsetY;
 
@@ -442,19 +413,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        e.preventDefault(); // Prevent text selection while dragging
+        e.preventDefault();
 
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
 
-        // Keep button within viewport boundaries
         newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatingCartButton.offsetWidth));
         newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatingCartButton.offsetHeight));
 
         floatingCartButton.style.left = `${newLeft}px`;
         floatingCartButton.style.top = `${newTop}px`;
-        floatingCartButton.style.right = 'auto'; // Disable right/bottom when dragging by left/top
-        floatingCartButton.style.bottom = 'auto'; // Disable right/bottom when dragging by left/top
+        floatingCartButton.style.right = 'auto';
+        floatingCartButton.style.bottom = 'auto';
     });
 
     document.addEventListener('mouseup', () => {
@@ -462,7 +432,7 @@ document.addEventListener('DOMContentLoaded', () => {
         floatingCartButton.style.cursor = 'grab';
     });
 
-    // --- Touch events for dragging on mobile devices ---
+    // Touch events for dragging on mobile devices
     floatingCartButton.addEventListener('touchstart', (e) => {
         isDragging = true;
         const touch = e.touches[0];
@@ -473,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
-        e.preventDefault(); // Prevent scrolling while dragging
+        e.preventDefault();
 
         const touch = e.touches[0];
         let newLeft = touch.clientX - offsetX;
@@ -486,7 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
         floatingCartButton.style.top = `${newTop}px`;
         floatingCartButton.style.right = 'auto';
         floatingCartButton.style.bottom = 'auto';
-    }, { passive: false }); // `passive: false` allows `preventDefault`
+    }, { passive: false });
 
     document.addEventListener('touchend', () => {
         isDragging = false;
@@ -495,6 +465,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Initial setup
-    updateCartDisplay(); // Call this to set initial cart state (hidden/count 0)
-    loadProductsFromSheet(); // Load products when the page loads
+    updateCartDisplay();
+    loadProductsFromSheet();
 });
