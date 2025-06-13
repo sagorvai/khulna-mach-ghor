@@ -46,8 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
 
-    // Removed: Reference to the hidden PDF content div (pdfInvoiceContentDiv)
-
     let cart = [];
     let selectedProduct = null;
 
@@ -67,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const productsData = await response.json();
             
             if (productsData.error) {
-                showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে পণ্য ডেটা লোড করা যায়নি: ' + productsData.error);
+                showMessage('পণ্য লোAD করতে সমস্যা', 'Apps Script থেকে পণ্য ডেটা লোড করা যায়নি: ' + productsData.error);
                 console.error('Apps Script Error:', productsData.error);
                 return;
             }
@@ -271,19 +269,20 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // NEW: PDF Generation Function - using jsPDF direct text rendering
+    // NEW: PDF Generation Function - using jsPDF direct text rendering with Ekush Regular font
     async function generateInvoicePdf() {
         try {
-            // Initialize jsPDF with A4 size in points
             const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
 
-            // Set font for Bengali text (a common sans-serif font)
-            // You might need to add a custom font for perfect Bengali rendering if default is not good
-            // For simplicity, we'll use a common font family that often supports Bengali characters.
-            // However, for perfect rendering of specific Bengali fonts, custom font embedding in jsPDF is required.
-            // Example: pdf.addFont("YourBengaliFont.ttf", "BengaliFont", "normal");
-            // pdf.setFont("BengaliFont");
-            pdf.setFont('Helvetica'); // A common font, often supports Bengali characters partially
+            // --- IMPORTANT: Add the Ekush-Regular font ---
+            // The 'font' variable is the name of the base64 font data from Ekush-Regular-normal.js
+            // The first parameter 'Ekush-Regular-normal.ttf' should match the actual TTF file name you converted.
+            // The second parameter 'Ekush-Regular' is the font name you want to use in jsPDF.
+            // The third parameter 'normal' is the font style.
+            pdf.addFileToVFS('Ekush-Regular-normal.ttf', window.font); 
+            pdf.addFont('Ekush-Regular-normal.ttf', 'Ekush-Regular', 'normal');
+            pdf.setFont('Ekush-Regular', 'normal');
+            // --- End Font Setup ---
             
             let y = 50; // Starting Y position
 
@@ -314,6 +313,8 @@ document.addEventListener('DOMContentLoaded', () => {
             pdf.setFillColor(242, 242, 242); // Light gray background for header
             pdf.rect(50, y, pdf.internal.pageSize.width - 100, 20, 'F'); // Draw filled rectangle for header background
             pdf.setTextColor(0, 0, 0);
+            
+            // Adjust header text positions to match column alignment
             pdf.text('পণ্য', 55, y + 14);
             pdf.text('পরিমাণ', 250, y + 14, { align: 'center' });
             pdf.text('একক মূল্য', 400, y + 14, { align: 'right' });
