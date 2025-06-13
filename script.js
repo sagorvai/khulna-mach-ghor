@@ -46,8 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
 
-    // Reference to the hidden PDF content div
-    const pdfInvoiceContentDiv = document.getElementById('pdf-invoice-content');
+    // Removed: Reference to the hidden PDF content div (pdfInvoiceContentDiv)
 
     let cart = [];
     let selectedProduct = null;
@@ -272,102 +271,121 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // NEW: PDF Generation Function - using a hidden div for simplified HTML content (Text-only)
+    // NEW: PDF Generation Function - using jsPDF direct text rendering
     async function generateInvoicePdf() {
-        // Clear previous content
-        pdfInvoiceContentDiv.innerHTML = '';
-
-        // Generate simplified HTML for PDF
-        let pdfHtml = `
-            <div style="text-align: center; margin-bottom: 20px; font-family: 'Arial', sans-serif;">
-                <h2 style="font-size: 20px; color: #333; margin-bottom: 5px;">খুলনা মাছ ঘর</h2>
-                <p style="font-size: 12px; color: #666;">ফরমালিন মুক্ত বিষবিহীন তাজা মাছের অনলাইন বাজার</p>
-                <p style="font-size: 10px; color: #888;">সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।</p>
-                <p style="font-size: 10px; color: #888;">যোগাযোগ: ০১৭৫৩৯০৩৮৫৪, ০১৯৫১৯১২০৩১</p>
-            </div>
-            <div style="margin-bottom: 15px; font-size: 12px; line-height: 1.5; font-family: 'Arial', sans-serif;">
-                <p style="margin: 0;"><strong>চালান:</strong></p>
-                <p style="margin: 0;"><strong>তারিখ:</strong> ${currentInvoiceDate}</p>
-                <p style="margin: 0;"><strong>অর্ডার কোড:</strong> ${currentOrderCode}</p>
-            </div>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 12px; font-family: 'Arial', sans-serif;">
-                <thead>
-                    <tr style="background-color: #f8f8f8;">
-                        <th style="padding: 6px; border: 1px solid #ddd; text-align: left;">পণ্য</th>
-                        <th style="padding: 6px; border: 1px solid #ddd; text-align: center;">পরিমাণ</th>
-                        <th style="padding: 6px; border: 1px solid #ddd; text-align: right;">একক মূল্য</th>
-                        <th style="padding: 6px; border: 1px solid #ddd; text-align: right;">মোট মূল্য</th>
-                    </tr>
-                </thead>
-                <tbody>
-        `;
-
-        cart.forEach(item => {
-            const itemTotal = item.quantity * item.price;
-            pdfHtml += `
-                <tr>
-                    <td style="padding: 6px; border: 1px solid #ddd; text-align: left;">${item.name}</td>
-                    <td style="padding: 6px; border: 1px solid #ddd; text-align: center;">${item.quantity} ${item.unit}</td>
-                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right;">${item.price} টাকা</td>
-                    <td style="padding: 6px; border: 1px solid #ddd; text-align: right;">${itemTotal} টাকা</td>
-                </tr>
-            `;
-        });
-
-        pdfHtml += `
-                </tbody>
-            </table>
-            <div style="text-align: right; font-size: 14px; margin-bottom: 20px; padding-top: 8px; border-top: 1px solid #ccc; font-family: 'Arial', sans-serif;">
-                <p style="margin: 0;"><strong>মোট বিল:</strong> <span style="font-size: 18px; color: #000; font-weight: bold;">${parseFloat(totalBillSpan.textContent)} টাকা</span></p>
-            </div>
-            <div style="padding-top: 15px; border-top: 1px solid #eee; font-size: 12px; line-height: 1.5; font-family: 'Arial', sans-serif;">
-                <p style="margin: 0;"><strong>গ্রাহকের নাম:</strong> ${document.getElementById('customer-name').value}</p>
-                <p style="margin: 0;"><strong>মোবাইল নম্বর:</strong> ${document.getElementById('customer-phone').value}</p>
-                <p style="margin: 0;"><strong>ঠিকানা:</strong> ${document.getElementById('customer-address').value}</p>
-            </div>
-            <div style="text-align: center; margin-top: 30px; font-size: 10px; color: #aaa; font-family: 'Arial', sans-serif;">
-                <p>খুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!</p>
-                <p>আপনার বিশ্বাসই আমাদের প্রেরণা।</p>
-            </div>
-        `;
-
-        pdfInvoiceContentDiv.innerHTML = pdfHtml; // Set the HTML content for capture
-
-        // Wait a little to ensure all DOM elements are rendered
-        // Increased delay for more stability, especially for content parsing by html2canvas
-        await new Promise(resolve => setTimeout(resolve, 200)); 
-
         try {
-            const canvas = await html2canvas(pdfInvoiceContentDiv, {
-                scale: 2, // Higher scale for better resolution PDF
-                useCORS: false, // No external images, so CORS is less relevant for this content
-                allowTaint: false, // No external images, so no tainting expected
-                foreignObjectRendering: true, // Enable rendering of foreignObject elements for better HTML/CSS support
-                backgroundColor: '#ffffff' // Ensure white background for the PDF
+            // Initialize jsPDF with A4 size in points
+            const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
+
+            // Set font for Bengali text (a common sans-serif font)
+            // You might need to add a custom font for perfect Bengali rendering if default is not good
+            // For simplicity, we'll use a common font family that often supports Bengali characters.
+            // However, for perfect rendering of specific Bengali fonts, custom font embedding in jsPDF is required.
+            // Example: pdf.addFont("YourBengaliFont.ttf", "BengaliFont", "normal");
+            // pdf.setFont("BengaliFont");
+            pdf.setFont('Helvetica'); // A common font, often supports Bengali characters partially
+            
+            let y = 50; // Starting Y position
+
+            // Company Header
+            pdf.setFontSize(20);
+            pdf.text('খুলনা মাছ ঘর', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += 20;
+            pdf.setFontSize(12);
+            pdf.text('ফরমালিন মুক্ত বিষবিহীন তাজা মাছের অনলাইন বাজার', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += 15;
+            pdf.setFontSize(10);
+            pdf.text('সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += 12;
+            pdf.text('যোগাযোগ: ০১৭৫৩৯০৩৮৫৪, ০১৯৫১৯১২০৩১', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += 30;
+
+            // Invoice Details
+            pdf.setFontSize(14);
+            pdf.text('চালান:', 50, y);
+            y += 15;
+            pdf.text(`তারিখ: ${currentInvoiceDate}`, 50, y);
+            y += 15;
+            pdf.text(`অর্ডার কোড: ${currentOrderCode}`, 50, y);
+            y += 30;
+
+            // Table Header
+            pdf.setFontSize(12);
+            pdf.setFillColor(242, 242, 242); // Light gray background for header
+            pdf.rect(50, y, pdf.internal.pageSize.width - 100, 20, 'F'); // Draw filled rectangle for header background
+            pdf.setTextColor(0, 0, 0);
+            pdf.text('পণ্য', 55, y + 14);
+            pdf.text('পরিমাণ', 250, y + 14, { align: 'center' });
+            pdf.text('একক মূল্য', 400, y + 14, { align: 'right' });
+            pdf.text('মোট মূল্য', pdf.internal.pageSize.width - 55, y + 14, { align: 'right' });
+            y += 20;
+
+            // Table Rows
+            pdf.setFontSize(11);
+            cart.forEach(item => {
+                const itemTotal = item.quantity * item.price;
+                // Draw border for row
+                pdf.rect(50, y, pdf.internal.pageSize.width - 100, 20); // Draw rectangle for row border
+
+                pdf.text(`${item.name}`, 55, y + 14);
+                pdf.text(`${item.quantity} ${item.unit}`, 250, y + 14, { align: 'center' });
+                pdf.text(`${item.price} টাকা`, 400, y + 14, { align: 'right' });
+                pdf.text(`${itemTotal} টাকা`, pdf.internal.pageSize.width - 55, y + 14, { align: 'right' });
+                y += 20;
+
+                // Check if current position is too low for the next item, if so, add new page
+                if (y > pdf.internal.pageSize.height - 100 && cart.indexOf(item) < cart.length - 1) {
+                    pdf.addPage();
+                    y = 50; // Reset Y position for new page
+                    // Redraw header on new page
+                    pdf.setFontSize(12);
+                    pdf.setFillColor(242, 242, 242);
+                    pdf.rect(50, y, pdf.internal.pageSize.width - 100, 20, 'F');
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.text('পণ্য', 55, y + 14);
+                    pdf.text('পরিমাণ', 250, y + 14, { align: 'center' });
+                    pdf.text('একক মূল্য', 400, y + 14, { align: 'right' });
+                    pdf.text('মোট মূল্য', pdf.internal.pageSize.width - 55, y + 14, { align: 'right' });
+                    y += 20;
+                    pdf.setFontSize(11); // Reset font size for content
+                }
             });
 
-            const imgData = canvas.toDataURL('image/png');
+            y += 20; // Space after table
 
-            // Using A4 dimensions in pixels for better control
-            const pdf = new window.jspdf.jsPDF({
-                orientation: 'portrait',
-                unit: 'px',
-                format: 'a4'
-            });
+            // Total Bill
+            pdf.setFontSize(16);
+            pdf.text('মোট বিল:', pdf.internal.pageSize.width - 180, y, { align: 'right' });
+            pdf.setFontSize(20);
+            pdf.text(`${parseFloat(totalBillSpan.textContent)} টাকা`, pdf.internal.pageSize.width - 55, y + 5, { align: 'right' });
+            y += 30;
 
-            const imgWidth = pdf.internal.pageSize.getWidth();
-            const imgHeight = (canvas.height * imgWidth) / canvas.width;
+            // Customer Information
+            pdf.setFontSize(12);
+            pdf.text('গ্রাহকের নাম: ' + document.getElementById('customer-name').value, 50, y);
+            y += 15;
+            pdf.text('মোবাইল নম্বর: ' + document.getElementById('customer-phone').value, 50, y);
+            y += 15;
+            // Split long address into multiple lines
+            const customerAddressText = 'ঠিকানা: ' + document.getElementById('customer-address').value;
+            const addressLines = pdf.splitTextToSize(customerAddressText, pdf.internal.pageSize.width - 100);
+            pdf.text(addressLines, 50, y);
+            y += addressLines.length * 15; // Adjust y based on number of lines
+            y += 20;
 
-            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            // Thank You Message
+            pdf.setFontSize(10);
+            pdf.text('খুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += 12;
+            pdf.text('আপনার বিশ্বাসই আমাদের প্রেরণা।', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+
+
             pdf.save(`চালান_${currentOrderCode}.pdf`);
 
         } catch (error) {
             console.error('Error generating PDF:', error);
-            // More generic error message since image issues are less likely now
-            showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন।');
-        } finally {
-            // Clear the hidden div after generating PDF
-            pdfInvoiceContentDiv.innerHTML = '';
+            // More specific error message for direct PDF generation issues
+            showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন। ত্রুটি: ' + error.message);
         }
     }
 
