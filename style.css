@@ -1,15 +1,16 @@
-/* Importing Ekush Regular font directly for web display */
+/* Importing KumarkhaliMJ Bold font directly for web display */
 @font-face {
-    font-family: 'Ekush Regular';
-    src: url('./fonts/Ekush-Regular.ttf') format('truetype');
-    /* Ensure the path to your .ttf file is correct */
+    font-family: 'KumarkhaliMJ Bold';
+    /* Ensure this matches the actual font name */
+    src: url('./fonts/KumarkhaliMJ Bold.ttf') format('truetype');
+    /* Adjust path and filename if different */
     font-weight: normal;
     font-style: normal;
 }
 
-/* Apply Ekush Regular globally */
+/* Apply KumarkhaliMJ Bold globally */
 body {
-    font-family: 'Ekush Regular', sans-serif;
+    font-family: 'KumarkhaliMJ Bold', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -19,7 +20,7 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Specific elements that might override global font, ensure they use Ekush Regular */
+/* Specific elements that might override global font, ensure they use KumarkhaliMJ Bold */
 h1, h2, h3, h4, h5, h6,
 .slogan,
 .btn,
@@ -28,7 +29,7 @@ h1, h2, h3, h4, h5, h6,
 .customer-info-heading,
 .success-heading,
 .message-box-title {
-    font-family: 'Ekush Regular', sans-serif;
+    font-family: 'KumarkhaliMJ Bold', sans-serif;
 }
 
 
@@ -471,8 +472,8 @@ section {
     max-width: 600px;
     position: relative;
     animation: slideUp 0.3s ease-out;
-    max-height: 90vh;
-    overflow-y: auto;
+    max-height: 95vh; /* Adjusted for better fit on various screens */
+    overflow-y: auto; /* Ensure content is scrollable if it exceeds max-height */
     text-align: left;
 }
 
@@ -594,7 +595,7 @@ section {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1rem;
-    font-family: 'Ekush Regular', sans-serif; /* Ensure form fields use Ekush Regular */
+    font-family: 'KumarkhaliMJ Bold', sans-serif; /* Ensure form fields use KumarkhaliMJ Bold */
 }
 
 #order-form textarea {
@@ -692,7 +693,7 @@ section {
     border-radius: 8px;
     font-size: 1rem;
     text-align: center;
-    font-family: 'Ekush Regular', sans-serif; /* Ensure input uses Ekush Regular */
+    font-family: 'KumarkhaliMJ Bold', sans-serif; /* Ensure input uses KumarkhaliMJ Bold */
 }
 
 #add-to-cart-from-popup-btn {
