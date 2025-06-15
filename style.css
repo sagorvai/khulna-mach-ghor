@@ -1,16 +1,15 @@
-/* Importing KumarkhaliMJ Bold font directly for web display */
+/* Importing Tiro Bangla font directly for web display */
 @font-face {
-    font-family: 'KumarkhaliMJ Bold';
-    /* Ensure this matches the actual font name */
-    src: url('./fonts/KumarkhaliMJ Bold.ttf') format('truetype');
-    /* Adjust path and filename if different */
+    font-family: 'Tiro Bangla';
+    src: url('./fonts/TiroBangla-Regular.ttf') format('truetype');
+    /* Ensure the path to your .ttf file is correct */
     font-weight: normal;
     font-style: normal;
 }
 
-/* Apply KumarkhaliMJ Bold globally */
+/* Apply Tiro Bangla globally */
 body {
-    font-family: 'KumarkhaliMJ Bold', sans-serif;
+    font-family: 'Tiro Bangla', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -20,7 +19,7 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Specific elements that might override global font, ensure they use KumarkhaliMJ Bold */
+/* Specific elements that might override global font, ensure they use Tiro Bangla */
 h1, h2, h3, h4, h5, h6,
 .slogan,
 .btn,
@@ -29,7 +28,7 @@ h1, h2, h3, h4, h5, h6,
 .customer-info-heading,
 .success-heading,
 .message-box-title {
-    font-family: 'KumarkhaliMJ Bold', sans-serif;
+    font-family: 'Tiro Bangla', sans-serif;
 }
 
 
@@ -458,7 +457,7 @@ section {
     /* Dark overlay */
     display: flex;
     justify-content: center;
-    align-items: center;
+    /* align-items: center removed for better vertical positioning flexibility */
     z-index: 1000;
     animation: fadeIn 0.3s ease-out;
 }
@@ -472,7 +471,9 @@ section {
     max-width: 600px;
     position: relative;
     animation: slideUp 0.3s ease-out;
-    max-height: 95vh; /* Adjusted for better fit on various screens */
+    margin-top: 20px; /* Added margin to keep it off the top edge */
+    margin-bottom: 20px; /* Added margin to keep it off the bottom edge */
+    max-height: calc(100vh - 40px); /* Adjusted max-height based on margins */
     overflow-y: auto; /* Ensure content is scrollable if it exceeds max-height */
     text-align: left;
 }
@@ -518,11 +519,13 @@ section {
 
 .cart-item {
     display: flex;
-    justify-content: space-between;
     align-items: center;
     padding: 10px 0;
     border-bottom: 1px dashed #eee;
     font-size: 1.05rem;
+    flex-wrap: wrap; /* Allow items to wrap if space is tight */
+    /* Removed justify-content for more controlled spacing with flex grow/shrink */
+    gap: 8px; /* Slightly increased gap for readability */
 }
 
 .cart-item:last-child {
@@ -530,14 +533,17 @@ section {
 }
 
 .item-details {
-    flex-grow: 1;
+    flex: 1 1 65%; /* Allows it to take about 65% of space, wraps if needed */
     color: #555;
+    /* min-width: 150px; - Removed to let flex take control more fluidly */
 }
 
 .item-total {
+    flex: 0 0 25%; /* Takes about 25% space, doesn't grow much, stays at its base size */
     font-weight: bold;
     color: #333;
-    margin-left: 15px;
+    text-align: right; /* Align total to right */
+    /* min-width: 80px; - Removed to let flex take control more fluidly */
 }
 
 .remove-item-btn {
@@ -547,10 +553,11 @@ section {
     /* Red */
     font-size: 1.2rem;
     cursor: pointer;
-    margin-left: 10px;
+    margin-left: auto; /* Push delete button to far right */
     padding: 5px;
     border-radius: 5px;
     transition: background-color 0.2s ease;
+    flex-shrink: 0; /* Prevent button from shrinking */
 }
 
 .remove-item-btn:hover {
@@ -595,7 +602,7 @@ section {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1rem;
-    font-family: 'KumarkhaliMJ Bold', sans-serif; /* Ensure form fields use KumarkhaliMJ Bold */
+    font-family: 'Tiro Bangla', sans-serif; /* Ensure form fields use Tiro Bangla */
 }
 
 #order-form textarea {
@@ -693,7 +700,7 @@ section {
     border-radius: 8px;
     font-size: 1rem;
     text-align: center;
-    font-family: 'KumarkhaliMJ Bold', sans-serif; /* Ensure input uses KumarkhaliMJ Bold */
+    font-family: 'Tiro Bangla', sans-serif; /* Ensure input uses Tiro Bangla */
 }
 
 #add-to-cart-from-popup-btn {
@@ -944,5 +951,11 @@ footer p {
     .step-item {
         flex: 1 1 100%;
         /* One item per row on mobile */
+    }
+    /* Smaller margins for popup on very small screens */
+    .order-popup-content {
+        margin-top: 10px; 
+        margin-bottom: 10px;
+        max-height: calc(100vh - 20px); 
     }
 }
