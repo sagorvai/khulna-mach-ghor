@@ -269,7 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // NEW: PDF Generation Function - using jsPDF with default English font
+    // UPDATED: PDF Generation Function - now accurately populating data from cart and form
     async function generateInvoicePdf() {
         try {
             const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
@@ -279,6 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             let y = 50; // Starting Y position for content
             const lineHeightFactor = 1.2; 
+            const leftMargin = 50;
+            const rightMargin = pdf.internal.pageSize.width - 50; // Total width - right margin
 
             // Company Header
             pdf.setFontSize(20);
@@ -295,38 +297,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Invoice Details
             pdf.setFontSize(14);
-            pdf.text('INVOICE:', 50, y);
+            pdf.text('INVOICE:', leftMargin, y);
             y += (15 * lineHeightFactor);
             // Convert currentInvoiceDate (Bengali date) to English for PDF
             const englishDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            pdf.text(`Date: ${englishDate}`, 50, y);
+            pdf.text(`Date: ${englishDate}`, leftMargin, y);
             y += (15 * lineHeightFactor);
-            pdf.text(`Order Code: ${currentOrderCode}`, 50, y);
+            pdf.text(`Order Code: ${currentOrderCode}`, leftMargin, y);
             y += (30 * lineHeightFactor);
 
             // Table Header
             pdf.setFontSize(12);
             pdf.setFillColor(242, 242, 242); // Light gray background for header
-            const tableWidth = pdf.internal.pageSize.width - 100;
+            const tableWidth = pdf.internal.pageSize.width - (2 * leftMargin);
             const headerHeight = 20;
-            pdf.rect(50, y, tableWidth, headerHeight, 'F'); 
+            pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F'); 
             pdf.setTextColor(0, 0, 0);
             
             // Define column widths and starting X positions for precise alignment
-            const col1X = 55; // Item Name
-            const col2X = 240; // Quantity (centered)
-            const col3X = 370; // Unit Price (right aligned)
-            const col4X = pdf.internal.pageSize.width - 55; // Total Price (right aligned)
-            const colWidths = [
-                180, // Item Name
-                80,  // Quantity
-                100, // Unit Price
-                100  // Total Price
+            const col1X = leftMargin + 5; // Item Name
+            const col2X = leftMargin + colWidths[0] + 5; // Quantity (centered relative to its column)
+            const col3X = leftMargin + colWidths[0] + colWidths[1] + 5; // Unit Price (right aligned relative to its column)
+            const col4X = rightMargin - 5; // Total Price (right aligned)
+
+            const colWidthsArray = [
+                tableWidth * 0.40, // Item (40%)
+                tableWidth * 0.20, // Quantity (20%)
+                tableWidth * 0.20, // Unit Price (20%)
+                tableWidth * 0.20  // Total Price (20%)
             ];
 
             pdf.text('Item', col1X, y + (headerHeight / 2) + 4); 
-            pdf.text('Quantity', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
-            pdf.text('Unit Price', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
+            pdf.text('Quantity', col1X + colWidthsArray[0] + (colWidthsArray[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
+            pdf.text('Unit Price', col1X + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2], y + (headerHeight / 2) + 4, { align: 'right' });
             pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
             y += headerHeight;
 
@@ -335,60 +338,75 @@ document.addEventListener('DOMContentLoaded', () => {
             cart.forEach(item => {
                 const itemTotal = item.quantity * item.price;
                 
-                // For PDF, we'll use English product names if available, otherwise Bengali which might show as squares
-                // This is a trade-off: English PDF for stability vs. potentially garbled Bengali if no English name
-                const itemNameForPdf = item.nameEn || item.name; // Use English name if available, else Bengali
+                // Use English product name if available, otherwise Bengali which will show as squares (as discussed)
+                const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
-                // Use splitTextToSize for product name to handle long names
-                const productNameLines = pdf.splitTextToSize(itemNameForPdf, colWidths[0] - 5); 
-                let rowHeight = productNameLines.length * (pdf.getFontSize() * lineHeightFactor);
-                if (rowHeight < 20) rowHeight = 20; // Minimum row height
+                // Calculate max width for item name to fit into its column
+                const maxItemNameWidth = colWidthsArray[0] - 10; // Column width minus padding
+                const productNameLines = pdf.splitTextToSize(itemNameForPdf, maxItemNameWidth); 
+                
+                // Calculate row height based on number of lines for product name
+                const textLineHeight = pdf.getFontSize() * lineHeightFactor;
+                let rowHeight = productNameLines.length * textLineHeight;
+                if (rowHeight < 20) rowHeight = 20; // Minimum row height to ensure spacing
 
-                pdf.rect(50, y, tableWidth, rowHeight); 
+                // Draw cell background for this row (optional, can be alternating colors)
+                // pdf.setFillColor(255, 255, 255); // White background
+                pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); // 'S' for stroke (border only)
 
-                pdf.text(productNameLines, col1X, y + 14); 
-                pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X + (colWidths[1] / 2), y + 14, { align: 'center' });
-                pdf.text(`${item.price} BDT`, col3X + colWidths[2], y + 14, { align: 'right' });
-                pdf.text(`${itemTotal} BDT`, col4X, y + 14, { align: 'right' });
+                // Add text content
+                pdf.text(productNameLines, col1X, y + (textLineHeight * 0.75)); // Vertical alignment adjusted
+                pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col1X + colWidthsArray[0] + (colWidthsArray[1] / 2), y + (textLineHeight * 0.75), { align: 'center' });
+                pdf.text(`${item.price} BDT`, col1X + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2], y + (textLineHeight * 0.75), { align: 'right' });
+                pdf.text(`${itemTotal} BDT`, col4X, y + (textLineHeight * 0.75), { align: 'right' });
+                
                 y += rowHeight;
 
+                // Page breaking logic
                 if (y > pdf.internal.pageSize.height - 150 && cart.indexOf(item) < cart.length - 1) {
                     pdf.addPage();
                     y = 50; 
+                    // Redraw header on new page
                     pdf.setFontSize(12);
                     pdf.setFillColor(242, 242, 242);
-                    pdf.rect(50, y, tableWidth, headerHeight, 'F');
+                    pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F');
                     pdf.setTextColor(0, 0, 0);
                     pdf.text('Item', col1X, y + (headerHeight / 2) + 4);
-                    pdf.text('Quantity', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
-                    pdf.text('Unit Price', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
+                    pdf.text('Quantity', col1X + colWidthsArray[0] + (colWidthsArray[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
+                    pdf.text('Unit Price', col1X + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2], y + (headerHeight / 2) + 4, { align: 'right' });
                     pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
                     y += headerHeight;
-                    pdf.setFontSize(11);
+                    pdf.setFontSize(11); // Reset font size for content
                 }
             });
 
-            y += (20 * lineHeightFactor);
+            y += (20 * lineHeightFactor); // Space after table
 
             // Total Bill
             pdf.setFontSize(16);
-            pdf.text('Total Bill:', pdf.internal.pageSize.width - 180, y, { align: 'right' });
+            pdf.text('Total Bill:', rightMargin - 125, y, { align: 'right' }); // Adjusted position
             pdf.setFontSize(20);
-            pdf.text(`${parseFloat(totalBillSpan.textContent)} BDT`, pdf.internal.pageSize.width - 55, y + 5, { align: 'right' });
+            pdf.text(`${parseFloat(totalBillSpan.textContent)} BDT`, rightMargin, y + 5, { align: 'right' });
             y += (30 * lineHeightFactor);
 
             // Customer Information
             pdf.setFontSize(12);
-            pdf.text('Customer Name: ' + document.getElementById('customer-name').value, 50, y);
+            // Ensure inputs are not empty before getting value
+            const customerName = document.getElementById('customer-name').value || 'N/A';
+            const customerPhone = document.getElementById('customer-phone').value || 'N/A';
+            const customerAddress = document.getElementById('customer-address').value || 'N/A';
+
+            pdf.text('Customer Name: ' + customerName, leftMargin, y);
             y += (15 * lineHeightFactor);
-            pdf.text('Mobile No: ' + document.getElementById('customer-phone').value, 50, y);
+            pdf.text('Mobile No: ' + customerPhone, leftMargin, y);
             y += (15 * lineHeightFactor);
             
-            const customerAddressText = 'Address: ' + document.getElementById('customer-address').value;
-            const addressTextWidth = pdf.internal.pageSize.width - 100;
+            // Split long address into multiple lines with a defined width
+            const customerAddressText = 'Address: ' + customerAddress;
+            const addressTextWidth = tableWidth; // Use the same width as table
             const addressLines = pdf.splitTextToSize(customerAddressText, addressTextWidth);
             
-            pdf.text(addressLines, 50, y);
+            pdf.text(addressLines, leftMargin, y);
             y += addressLines.length * (pdf.getFontSize() * lineHeightFactor); 
             y += (20 * lineHeightFactor);
 
@@ -423,6 +441,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!customerName || !customerPhone || !customerAddress) {
             showMessage('Fill Details', 'Please fill in your name, mobile number, and address.'); // Translated message
             return;
+            // The showMessage function will display the alert, then the form submission will stop.
         }
 
         const orderData = {
@@ -446,6 +465,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadingMessageText = 'Your order is being submitted. Please wait...'; // Translated message
             showMessage(loadingMessageTitle, loadingMessageText); 
 
+            // Make sure the form submission UI (orderSummaryModal) is hidden during API call
+            orderSummaryModal.style.display = 'none';
+
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
                 mode: 'no-cors', 
@@ -455,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             console.log('Order data sent to Google Sheet (check your sheet)!');
 
+            // Hide the loading message and show success popup
             document.getElementById('message-box-overlay').style.display = 'none';
             orderSuccessPopup.style.display = 'flex'; 
 
@@ -464,6 +487,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error sending order:', error);
+            // Hide the loading message and show error message
             document.getElementById('message-box-overlay').style.display = 'none';
             showMessage('Order Submission Failed', 'Failed to submit order. Please check your internet connection and try again.'); // Translated message
         }
