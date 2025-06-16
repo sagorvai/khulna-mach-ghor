@@ -4,16 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>খুলনা মাছ ঘর - ফরমালিন মুক্ত তাজা মাছের অনলাইন বাজার</title>
-    <!-- REMOVED: Google Fonts links (Baloo Da 2 and Roboto) -->
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <!-- Custom CSS file -->
     <link rel="stylesheet" href="style.css">
-    <!-- jsPDF Library for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- NEW: Noto Sans Bengali Regular Font for jsPDF. 
-         This script will add the font to jsPDF's internal font list automatically. -->
-    <script src="./fonts/NotoSansBengali-Regular-normal.js"></script> 
+    <!-- REMOVED: jsPDF Library and NotoSansBengali-Regular-normal.js scripts -->
 </head>
 <body>
     <!-- Main Header Section -->
@@ -195,7 +190,7 @@
             <h2 class="success-heading"><i class="fas fa-check-circle"></i> অর্ডার সফল!</h2>
             <p class="success-message">আপনার অর্ডার সফলভাবে জমা হয়েছে।</p>
             <p class="success-message">খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে।</p>
-            <button class="btn secondary-btn" id="download-pdf-btn"><i class="fas fa-file-pdf"></i> রসিদ ডাউনলোড করুন</button>
+            <!-- REMOVED: PDF Download Button -->
             <p class="thank-you-message">খুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!</p>
             <button class="btn primary-btn" id="close-success-popup-btn-bottom">ঠিক আছে</button>
         </div>
@@ -228,4 +223,4 @@
         });
     </script>
 </body>
-                    </html>
+    </html>
