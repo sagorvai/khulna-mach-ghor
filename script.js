@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderSuccessPopup = document.getElementById('order-success-popup');
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // Re-added
+    const downloadPdfBtn = document.getElementById('download-pdf-btn'); 
 
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedProduct = null;
 
     let currentOrderCode = '';
-    let currentInvoiceDate = ''; // Will store the Bengali date string
+    let currentInvoiceDate = ''; 
 
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
 
@@ -357,16 +357,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
-                const maxItemNameWidth = colWidthsArray[0] - 10; 
-                const productNameLines = pdf.splitTextToSize(itemNameForPdf, maxItemNameWidth); 
+                // Keep item name on a single line for PDF, it will be cut off if too long
+                // This means no splitTextToSize for item names
+                const maxItemNameWidth = colWidthsArray[0] - 10; // Column width minus padding
                 
                 const textLineHeight = pdf.getFontSize() * lineHeightFactor;
-                let rowHeight = productNameLines.length * textLineHeight;
-                if (rowHeight < 20) rowHeight = 20; 
+                let rowHeight = textLineHeight; // Default row height for single line item
+                if (rowHeight < 20) rowHeight = 20; // Minimum row height to ensure spacing
 
                 pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); 
 
-                pdf.text(productNameLines, col1X, y + (textLineHeight * 0.75)); 
+                // Use simple text for item name to keep it on one line, potentially cut off by jspdf if too long
+                pdf.text(itemNameForPdf, col1X, y + (textLineHeight * 0.75), { maxWidth: maxItemNameWidth }); 
                 pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X, y + (textLineHeight * 0.75), { align: 'center' });
                 pdf.text(`${item.price} BDT`, col3X, y + (textLineHeight * 0.75), { align: 'right' });
                 pdf.text(`${itemTotal} BDT`, col4X, y + (textLineHeight * 0.75), { align: 'right' });
@@ -397,18 +399,18 @@ document.addEventListener('DOMContentLoaded', () => {
             pdf.text('Total Bill:', rightMargin - 125, y, { align: 'right' }); 
             pdf.setFontSize(20);
             pdf.text(`${orderDetails.totalBill} BDT`, rightMargin, y + 5, { align: 'right' });
-            y += (15 * lineHeightFactor); // Added space for the new line
+            y += (15 * lineHeightFactor); 
 
-            // NEW: Delivery and Packing Charge Note
-            pdf.setFontSize(10); // Smaller font for this note
-            pdf.text('(+) Delivery & Packing Charges Applicable', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-            y += (30 * lineHeightFactor); // Adjusted space after this note
+            // UPDATED: Delivery and Packing Charge Note alignment
+            pdf.setFontSize(10); 
+            // Position this text right-aligned with the total bill amount, using rightMargin
+            pdf.text('(+) Delivery & Packing Charges Applicable', rightMargin, y, { align: 'right' });
+            y += (30 * lineHeightFactor); 
 
             // Customer Information
             pdf.setFontSize(12);
             pdf.text('Customer Name: ' + customerData.customerName, leftMargin, y);
             y += (15 * lineHeightFactor);
-            // Convert mobile number to English numbers for PDF
             const englishMobileNo = convertBengaliNumbersToEnglish(customerData.customerPhone);
             pdf.text('Mobile No: ' + englishMobileNo, leftMargin, y);
             y += (15 * lineHeightFactor);
@@ -479,7 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const currentOrderData = {
             customerName: customerName,
-            customerPhone: customerPhone, // Use converted phone number
+            customerPhone: customerPhone, 
             customerAddress: customerAddress,
             items: cart.map(item => ({ 
                 name: item.name,
