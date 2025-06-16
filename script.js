@@ -282,6 +282,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const leftMargin = 50;
             const rightMargin = pdf.internal.pageSize.width - 50; // Total width - right margin
 
+            // Define column widths array BEFORE calculating column positions
+            const tableWidth = pdf.internal.pageSize.width - (2 * leftMargin);
+            const colWidthsArray = [
+                tableWidth * 0.40, // Item (40%)
+                tableWidth * 0.20, // Quantity (20%)
+                tableWidth * 0.20, // Unit Price (20%)
+                tableWidth * 0.20  // Total Price (20%)
+            ];
+
+            // Calculate column positions using the defined colWidthsArray
+            const col1X = leftMargin + 5; // Item Name (with left padding)
+            const col2X = leftMargin + colWidthsArray[0] + 5; // Quantity (with left padding)
+            const col3X = leftMargin + colWidthsArray[0] + colWidthsArray[1] + 5; // Unit Price (with left padding)
+            const col4X = rightMargin - 5; // Total Price (with right padding)
+
             // Company Header
             pdf.setFontSize(20);
             pdf.text('Khulna Mach Ghar', pdf.internal.pageSize.width / 2, y, { align: 'center' });
@@ -309,24 +324,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Table Header
             pdf.setFontSize(12);
             pdf.setFillColor(242, 242, 242); // Light gray background for header
-            const tableWidth = pdf.internal.pageSize.width - (2 * leftMargin);
             const headerHeight = 20;
             pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F'); 
             pdf.setTextColor(0, 0, 0);
             
-            // Define column widths and starting X positions for precise alignment
-            const col1X = leftMargin + 5; // Item Name
-            const col2X = leftMargin + colWidths[0] + 5; // Quantity (centered relative to its column)
-            const col3X = leftMargin + colWidths[0] + colWidths[1] + 5; // Unit Price (right aligned relative to its column)
-            const col4X = rightMargin - 5; // Total Price (right aligned)
-
-            const colWidthsArray = [
-                tableWidth * 0.40, // Item (40%)
-                tableWidth * 0.20, // Quantity (20%)
-                tableWidth * 0.20, // Unit Price (20%)
-                tableWidth * 0.20  // Total Price (20%)
-            ];
-
             pdf.text('Item', col1X, y + (headerHeight / 2) + 4); 
             pdf.text('Quantity', col1X + colWidthsArray[0] + (colWidthsArray[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
             pdf.text('Unit Price', col1X + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2], y + (headerHeight / 2) + 4, { align: 'right' });
@@ -338,7 +339,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cart.forEach(item => {
                 const itemTotal = item.quantity * item.price;
                 
-                // Use English product name if available, otherwise Bengali which will show as squares (as discussed)
+                // For PDF, use English product names if available, otherwise Bengali will show as squares/garbled
                 const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
                 // Calculate max width for item name to fit into its column
@@ -351,11 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (rowHeight < 20) rowHeight = 20; // Minimum row height to ensure spacing
 
                 // Draw cell background for this row (optional, can be alternating colors)
-                // pdf.setFillColor(255, 255, 255); // White background
                 pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); // 'S' for stroke (border only)
 
                 // Add text content
-                pdf.text(productNameLines, col1X, y + (textLineHeight * 0.75)); // Vertical alignment adjusted
+                // Vertical alignment adjusted by adding a small offset
+                pdf.text(productNameLines, col1X, y + (textLineHeight * 0.75)); 
                 pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col1X + colWidthsArray[0] + (colWidthsArray[1] / 2), y + (textLineHeight * 0.75), { align: 'center' });
                 pdf.text(`${item.price} BDT`, col1X + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2], y + (textLineHeight * 0.75), { align: 'right' });
                 pdf.text(`${itemTotal} BDT`, col4X, y + (textLineHeight * 0.75), { align: 'right' });
