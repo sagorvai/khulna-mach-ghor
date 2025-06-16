@@ -357,9 +357,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
-                // Keep item name on a single line for PDF, it will be cut off if too long
-                // This means no splitTextToSize for item names
-                const maxItemNameWidth = colWidthsArray[0] - 10; // Column width minus padding
+                // Use simple text for item name to keep it on one line.
+                // It will be truncated if too long, as splitTextToSize is removed as per user request for "এক লাইনে থাকুক কেটে না যায়".
+                const maxItemNameWidth = colWidthsArray[0] - 10; 
                 
                 const textLineHeight = pdf.getFontSize() * lineHeightFactor;
                 let rowHeight = textLineHeight; // Default row height for single line item
@@ -367,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); 
 
-                // Use simple text for item name to keep it on one line, potentially cut off by jspdf if too long
+                // Use simple text for item name with maxWidth option
                 pdf.text(itemNameForPdf, col1X, y + (textLineHeight * 0.75), { maxWidth: maxItemNameWidth }); 
                 pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X, y + (textLineHeight * 0.75), { align: 'center' });
                 pdf.text(`${item.price} BDT`, col3X, y + (textLineHeight * 0.75), { align: 'right' });
@@ -403,7 +403,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // UPDATED: Delivery and Packing Charge Note alignment
             pdf.setFontSize(10); 
-            // Position this text right-aligned with the total bill amount, using rightMargin
             pdf.text('(+) Delivery & Packing Charges Applicable', rightMargin, y, { align: 'right' });
             y += (30 * lineHeightFactor); 
 
