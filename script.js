@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    const orderSummaryModal = document = document.getElementById('order-summary-modal'); 
+    const orderSummaryModal = document.getElementById('order-summary-modal'); 
     const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); 
 
     const invoiceDateSpan = document.getElementById('invoice-date');
@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderSuccessPopup = document.getElementById('order-success-popup');
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn');
+    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // Re-added
 
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
@@ -269,70 +269,65 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // NEW: PDF Generation Function - using jsPDF direct text rendering with Noto Sans Bengali font
+    // NEW: PDF Generation Function - using jsPDF with default English font
     async function generateInvoicePdf() {
         try {
             const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
-
-            // --- IMPORTANT: Set the Noto Sans Bengali font ---
-            // The NotoSansBengali-Regular-normal.js script (loaded in index.html)
-            // is expected to have already added this font to jsPDF's internal font list
-            // via jsPDF.API.events.push. So, we just need to set it as the active font.
-            pdf.setFont('Noto Sans Bengali', 'normal');
-            // --- End Font Setup ---
+            
+            // Set default English font (Helvetica is a good standard)
+            pdf.setFont('helvetica', 'normal'); 
             
             let y = 50; // Starting Y position for content
-
-            // Set line height factor for better spacing
             const lineHeightFactor = 1.2; 
 
             // Company Header
             pdf.setFontSize(20);
-            pdf.text('খুলনা মাছ ঘর', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            pdf.text('Khulna Mach Ghar', pdf.internal.pageSize.width / 2, y, { align: 'center' });
             y += (20 * lineHeightFactor);
             pdf.setFontSize(12);
-            pdf.text('ফরমালিন মুক্ত বিষবিহীন তাজা মাছের অনলাইন বাজার', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            pdf.text('Formalin-Free Fresh Fish Online Market', pdf.internal.pageSize.width / 2, y, { align: 'center' });
             y += (15 * lineHeightFactor);
             pdf.setFontSize(10);
-            pdf.text('সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            pdf.text('City Bypass Road Mostofa More, Harintana, Khulna.', pdf.internal.pageSize.width / 2, y, { align: 'center' });
             y += (12 * lineHeightFactor);
-            pdf.text('যোগাযোগ: ০১৭৫৩৯০৩৮৫৪, ০১৯৫১৯১২০৩১', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            pdf.text('Contact: +8801753903854, +8801951912031', pdf.internal.pageSize.width / 2, y, { align: 'center' });
             y += (30 * lineHeightFactor);
 
             // Invoice Details
             pdf.setFontSize(14);
-            pdf.text('চালান:', 50, y);
+            pdf.text('INVOICE:', 50, y);
             y += (15 * lineHeightFactor);
-            pdf.text(`তারিখ: ${currentInvoiceDate}`, 50, y);
+            // Convert currentInvoiceDate (Bengali date) to English for PDF
+            const englishDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            pdf.text(`Date: ${englishDate}`, 50, y);
             y += (15 * lineHeightFactor);
-            pdf.text(`অর্ডার কোড: ${currentOrderCode}`, 50, y);
+            pdf.text(`Order Code: ${currentOrderCode}`, 50, y);
             y += (30 * lineHeightFactor);
 
             // Table Header
             pdf.setFontSize(12);
             pdf.setFillColor(242, 242, 242); // Light gray background for header
-            // Draw filled rectangle for header background, adjust width if needed
             const tableWidth = pdf.internal.pageSize.width - 100;
             const headerHeight = 20;
             pdf.rect(50, y, tableWidth, headerHeight, 'F'); 
             pdf.setTextColor(0, 0, 0);
             
             // Define column widths and starting X positions for precise alignment
-            const col1X = 55; // পণ্য (Product Name)
-            const col2X = 240; // পরিমাণ (Quantity - centered)
-            const col3X = 370; // একক মূল্য (Unit Price - right aligned)
-            const col4X = pdf.internal.pageSize.width - 55; // মোট মূল্য (Total Price - right aligned)
+            const col1X = 55; // Item Name
+            const col2X = 240; // Quantity (centered)
+            const col3X = 370; // Unit Price (right aligned)
+            const col4X = pdf.internal.pageSize.width - 55; // Total Price (right aligned)
             const colWidths = [
-                180, // পণ্য - Increased width
-                80,  // পরিমাণ
-                100, // একক মূল্য
-                100  // মোট মূল্য
+                180, // Item Name
+                80,  // Quantity
+                100, // Unit Price
+                100  // Total Price
             ];
 
-            pdf.text('পণ্য', col1X, y + (headerHeight / 2) + 4); // +4 for vertical centering approximation
-            pdf.text('পরিমাণ', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
-            pdf.text('একক মূল্য', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
-            pdf.text('মোট মূল্য', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
+            pdf.text('Item', col1X, y + (headerHeight / 2) + 4); 
+            pdf.text('Quantity', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
+            pdf.text('Unit Price', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
+            pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
             y += headerHeight;
 
             // Table Rows
@@ -340,17 +335,21 @@ document.addEventListener('DOMContentLoaded', () => {
             cart.forEach(item => {
                 const itemTotal = item.quantity * item.price;
                 
+                // For PDF, we'll use English product names if available, otherwise Bengali which might show as squares
+                // This is a trade-off: English PDF for stability vs. potentially garbled Bengali if no English name
+                const itemNameForPdf = item.nameEn || item.name; // Use English name if available, else Bengali
+                
                 // Use splitTextToSize for product name to handle long names
-                const productNameLines = pdf.splitTextToSize(item.name, colWidths[0] - 5); 
+                const productNameLines = pdf.splitTextToSize(itemNameForPdf, colWidths[0] - 5); 
                 let rowHeight = productNameLines.length * (pdf.getFontSize() * lineHeightFactor);
                 if (rowHeight < 20) rowHeight = 20; // Minimum row height
 
                 pdf.rect(50, y, tableWidth, rowHeight); 
 
                 pdf.text(productNameLines, col1X, y + 14); 
-                pdf.text(`${item.quantity} ${item.unit}`, col2X + (colWidths[1] / 2), y + 14, { align: 'center' });
-                pdf.text(`${item.price} টাকা`, col3X + colWidths[2], y + 14, { align: 'right' });
-                pdf.text(`${itemTotal} টাকা`, col4X, y + 14, { align: 'right' });
+                pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X + (colWidths[1] / 2), y + 14, { align: 'center' });
+                pdf.text(`${item.price} BDT`, col3X + colWidths[2], y + 14, { align: 'right' });
+                pdf.text(`${itemTotal} BDT`, col4X, y + 14, { align: 'right' });
                 y += rowHeight;
 
                 if (y > pdf.internal.pageSize.height - 150 && cart.indexOf(item) < cart.length - 1) {
@@ -360,10 +359,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     pdf.setFillColor(242, 242, 242);
                     pdf.rect(50, y, tableWidth, headerHeight, 'F');
                     pdf.setTextColor(0, 0, 0);
-                    pdf.text('পণ্য', col1X, y + (headerHeight / 2) + 4);
-                    pdf.text('পরিমাণ', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
-                    pdf.text('একক মূল্য', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
-                    pdf.text('মোট মূল্য', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
+                    pdf.text('Item', col1X, y + (headerHeight / 2) + 4);
+                    pdf.text('Quantity', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
+                    pdf.text('Unit Price', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
+                    pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
                     y += headerHeight;
                     pdf.setFontSize(11);
                 }
@@ -373,19 +372,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Total Bill
             pdf.setFontSize(16);
-            pdf.text('মোট বিল:', pdf.internal.pageSize.width - 180, y, { align: 'right' });
+            pdf.text('Total Bill:', pdf.internal.pageSize.width - 180, y, { align: 'right' });
             pdf.setFontSize(20);
-            pdf.text(`${parseFloat(totalBillSpan.textContent)} টাকা`, pdf.internal.pageSize.width - 55, y + 5, { align: 'right' });
+            pdf.text(`${parseFloat(totalBillSpan.textContent)} BDT`, pdf.internal.pageSize.width - 55, y + 5, { align: 'right' });
             y += (30 * lineHeightFactor);
 
             // Customer Information
             pdf.setFontSize(12);
-            pdf.text('গ্রাহকের নাম: ' + document.getElementById('customer-name').value, 50, y);
+            pdf.text('Customer Name: ' + document.getElementById('customer-name').value, 50, y);
             y += (15 * lineHeightFactor);
-            pdf.text('মোবাইল নম্বর: ' + document.getElementById('customer-phone').value, 50, y);
+            pdf.text('Mobile No: ' + document.getElementById('customer-phone').value, 50, y);
             y += (15 * lineHeightFactor);
             
-            const customerAddressText = 'ঠিকানা: ' + document.getElementById('customer-address').value;
+            const customerAddressText = 'Address: ' + document.getElementById('customer-address').value;
             const addressTextWidth = pdf.internal.pageSize.width - 100;
             const addressLines = pdf.splitTextToSize(customerAddressText, addressTextWidth);
             
@@ -395,15 +394,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Thank You Message
             pdf.setFontSize(10);
-            pdf.text('খুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            pdf.text('Thank you for staying with Khulna Mach Ghar!', pdf.internal.pageSize.width / 2, y, { align: 'center' });
             y += (12 * lineHeightFactor);
-            pdf.text('আপনার বিশ্বাসই আমাদের প্রেরণা।', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            pdf.text('Your trust is our inspiration.', pdf.internal.pageSize.width / 2, y, { align: 'center' });
 
-            pdf.save(`চালান_${currentOrderCode}.pdf`);
+            pdf.save(`Invoice_${currentOrderCode}.pdf`);
 
         } catch (error) {
             console.error('Error generating PDF:', error);
-            showMessage('পিডিএফ তৈরি করতে সমস্যা', 'রসিদের পিডিএফ তৈরি করা যায়নি। অনুগ্রহ করে আবার চেষ্টা করুন। ত্রুটি: ' + error.message);
+            showMessage('PDF Generation Issue', 'Failed to generate PDF invoice. Please try again. Error: ' + error.message);
         }
     }
 
@@ -413,7 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
 
         if (cart.length === 0) {
-            showMessage('অর্ডার ত্রুটি', 'অর্ডার করার জন্য কোনো পণ্য নির্বাচন করা হয়নি।');
+            showMessage('Order Error', 'No products selected to order.'); // Translated message
             return;
         }
 
@@ -422,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerAddress = document.getElementById('customer-address').value;
         
         if (!customerName || !customerPhone || !customerAddress) {
-            showMessage('তথ্য পূরণ করুন', 'দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা পূরণ করুন।');
+            showMessage('Fill Details', 'Please fill in your name, mobile number, and address.'); // Translated message
             return;
         }
 
@@ -443,8 +442,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const loadingMessageTitle = 'অর্ডার প্রক্রিয়া চলছে...';
-            const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
+            const loadingMessageTitle = 'Processing Order...'; // Translated message
+            const loadingMessageText = 'Your order is being submitted. Please wait...'; // Translated message
             showMessage(loadingMessageTitle, loadingMessageText); 
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
@@ -466,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error sending order:', error);
             document.getElementById('message-box-overlay').style.display = 'none';
-            showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
+            showMessage('Order Submission Failed', 'Failed to submit order. Please check your internet connection and try again.'); // Translated message
         }
     });
 
