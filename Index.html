@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="style.css">
     <!-- jsPDF Library for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <!-- REMOVED: NotoSansBengali-Regular-normal.js script (not needed for English PDF) -->
 </head>
 <body>
     <!-- Main Header Section -->
@@ -118,13 +117,11 @@
     <section id="order-summary-modal" class="order-popup-overlay" style="display: none;">
         <div class="order-popup-content invoice-content">
             <button class="close-popup-btn" id="close-order-summary-btn">&times;</button>
-            <h3 class="order-summary-heading"><i class="fas fa-file-invoice-dollar"></i> আপনার অর্ডারের চালান</h3>
+            <h3 class="order-summary-heading"><i class="fas fa-file-invoice-dollar"></i> আপনার অর্ডার</h3>
             <div class="invoice-details">
                 <p>তারিখ: <span id="invoice-date"></span></p>
                 <p>অর্ডার কোড: <span id="invoice-order-code"></span></p>
-                <p>কোম্পানি: খুলনা মাছ ঘর</p>
-                <p>ঠিকানা: সিটি বাইপাস সড়ক মোস্তফা মোড়, হরিণটানা, খুলনা।</p>
-                <p>যোগাযোগ: ০১৭৫৩৯০৩৮৫৪</p>
+                <!-- Removed: Company, Address, Contact details from here as per user request -->
             </div>
             <div id="cart-items">
                 <!-- Cart items will be dynamically added here by JavaScript -->
@@ -225,4 +222,4 @@
         });
     </script>
 </body>
-    </html>
+</html>
