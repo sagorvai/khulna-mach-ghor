@@ -736,7 +736,16 @@ section {
     margin-top: 30px;
 }
 
-/* Removed download-pdf-btn styling as the button is removed from HTML */
+#download-pdf-btn {
+    margin-top: 25px;
+    margin-bottom: 20px;
+    background-color: #dc3545;
+    color: #fff;
+}
+
+#download-pdf-btn:hover {
+    background-color: #c82333;
+}
 
 
 /* Message Box Overlay */
