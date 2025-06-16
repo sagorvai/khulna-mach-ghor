@@ -56,6 +56,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const dynamicCategoryGrids = new Map();
 
+    // Function to convert Bengali numbers to English numbers
+    function convertBengaliNumbersToEnglish(inputString) {
+        if (!inputString) return '';
+        const bengaliNumbers = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
+        const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        let convertedString = '';
+        for (let i = 0; i < inputString.length; i++) {
+            const char = inputString[i];
+            const index = bengaliNumbers.indexOf(char);
+            if (index !== -1) {
+                convertedString += englishNumbers[index];
+            } else {
+                convertedString += char;
+            }
+        }
+        return convertedString;
+    }
+
     async function loadProductsFromSheet() {
         try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
@@ -178,8 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
             orderSummaryModal.style.display = 'none';
         }
 
-        // --- IMPORTANT: currentInvoiceDate and currentOrderCode are generated ONCE during updateCartDisplay
-        // This ensures consistency between what's displayed, sent to sheet, and shown in PDF.
         const now = new Date();
         currentInvoiceDate = now.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }); // Bengali date for display
         currentOrderCode = generateOrderCode();
@@ -271,22 +287,18 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // UPDATED: PDF Generation Function - now accurately populating data from cart and form
+    // UPDATED: PDF Generation Function
     async function generateInvoicePdf(customerData, orderDetails) {
-        // This function now expects customerData and orderDetails as arguments
-        // This ensures it uses the same data that was sent to Google Sheet
         try {
             const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
             
-            // Set default English font (Helvetica is a good standard)
             pdf.setFont('helvetica', 'normal'); 
             
-            let y = 50; // Starting Y position for content
+            let y = 50; 
             const lineHeightFactor = 1.2; 
             const leftMargin = 50;
-            const rightMargin = pdf.internal.pageSize.width - 50; // Total width - right margin
+            const rightMargin = pdf.internal.pageSize.width - 50; 
 
-            // Define column widths array BEFORE calculating column positions
             const tableWidth = pdf.internal.pageSize.width - (2 * leftMargin);
             const colWidthsArray = [
                 tableWidth * 0.40, // Item (40%)
@@ -295,11 +307,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 tableWidth * 0.20  // Total Price (20%)
             ];
 
-            // Calculate column positions using the defined colWidthsArray
-            const col1X = leftMargin + 5; // Item Name (with left padding)
-            const col2X = leftMargin + colWidthsArray[0] + (colWidthsArray[1] / 2); // Quantity (centered relative to its column)
-            const col3X = leftMargin + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2]; // Unit Price (right aligned relative to its column)
-            const col4X = rightMargin - 5; // Total Price (with right padding)
+            const col1X = leftMargin + 5; 
+            const col2X = leftMargin + colWidthsArray[0] + (colWidthsArray[1] / 2); 
+            const col3X = leftMargin + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2]; 
+            const col4X = rightMargin - 5; 
 
             // Company Header
             pdf.setFontSize(20);
@@ -319,49 +330,46 @@ document.addEventListener('DOMContentLoaded', () => {
             pdf.text('INVOICE:', leftMargin, y);
             y += (15 * lineHeightFactor);
             
-            // Use the date from orderDetails
-            pdf.text(`Date: ${orderDetails.orderDate}`, leftMargin, y); 
+            // Convert Bengali date to English for PDF
+            const pdfDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            pdf.text(`Date: ${pdfDate}`, leftMargin, y); 
             y += (15 * lineHeightFactor);
-            // Use the order code from orderDetails
             pdf.text(`Order Code: ${orderDetails.orderCode}`, leftMargin, y);
             y += (30 * lineHeightFactor);
 
             // Table Header
             pdf.setFontSize(12);
-            pdf.setFillColor(242, 242, 242); // Light gray background for header
+            pdf.setFillColor(242, 242, 242); 
             const headerHeight = 20;
             pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F'); 
             pdf.setTextColor(0, 0, 0);
             
             pdf.text('Item', col1X, y + (headerHeight / 2) + 4); 
-            pdf.text('Quantity', col2X, y + (headerHeight / 2) + 4, { align: 'center' }); // Align to column center
-            pdf.text('Unit Price', col3X, y + (headerHeight / 2) + 4, { align: 'right' }); // Align to column end
-            pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' }); // Align to column end
+            pdf.text('Quantity', col2X, y + (headerHeight / 2) + 4, { align: 'center' }); 
+            pdf.text('Unit Price', col3X, y + (headerHeight / 2) + 4, { align: 'right' }); 
+            pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' }); 
             y += headerHeight;
 
             // Table Rows
             pdf.setFontSize(11);
-            orderDetails.items.forEach(item => { // Loop through items from orderDetails
-                // For PDF, use English product names if available, otherwise Bengali will show as squares/garbled
+            orderDetails.items.forEach(item => { 
+                const itemTotal = item.quantity * item.price;
+                
                 const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
-                // Calculate max width for item name to fit into its column
-                const maxItemNameWidth = colWidthsArray[0] - 10; // Column width minus padding
+                const maxItemNameWidth = colWidthsArray[0] - 10; 
                 const productNameLines = pdf.splitTextToSize(itemNameForPdf, maxItemNameWidth); 
                 
-                // Calculate row height based on number of lines for product name
                 const textLineHeight = pdf.getFontSize() * lineHeightFactor;
                 let rowHeight = productNameLines.length * textLineHeight;
-                if (rowHeight < 20) rowHeight = 20; // Minimum row height to ensure spacing
+                if (rowHeight < 20) rowHeight = 20; 
 
-                // Draw cell background for this row (optional, can be alternating colors)
-                pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); // 'S' for stroke (border only)
+                pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); 
 
-                // Add text content
                 pdf.text(productNameLines, col1X, y + (textLineHeight * 0.75)); 
                 pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X, y + (textLineHeight * 0.75), { align: 'center' });
                 pdf.text(`${item.price} BDT`, col3X, y + (textLineHeight * 0.75), { align: 'right' });
-                pdf.text(`${item.totalItemPrice} BDT`, col4X, y + (textLineHeight * 0.75), { align: 'right' });
+                pdf.text(`${itemTotal} BDT`, col4X, y + (textLineHeight * 0.75), { align: 'right' });
                 
                 y += rowHeight;
 
@@ -369,7 +377,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (y > pdf.internal.pageSize.height - 150 && orderDetails.items.indexOf(item) < orderDetails.items.length - 1) {
                     pdf.addPage();
                     y = 50; 
-                    // Redraw header on new page
                     pdf.setFontSize(12);
                     pdf.setFillColor(242, 242, 242);
                     pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F');
@@ -379,29 +386,35 @@ document.addEventListener('DOMContentLoaded', () => {
                     pdf.text('Unit Price', col3X, y + (headerHeight / 2) + 4, { align: 'right' });
                     pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
                     y += headerHeight;
-                    pdf.setFontSize(11); // Reset font size for content
+                    pdf.setFontSize(11); 
                 }
             });
 
-            y += (20 * lineHeightFactor); // Space after table
+            y += (20 * lineHeightFactor); 
 
             // Total Bill
             pdf.setFontSize(16);
-            pdf.text('Total Bill:', rightMargin - 125, y, { align: 'right' }); // Adjusted position
+            pdf.text('Total Bill:', rightMargin - 125, y, { align: 'right' }); 
             pdf.setFontSize(20);
             pdf.text(`${orderDetails.totalBill} BDT`, rightMargin, y + 5, { align: 'right' });
-            y += (30 * lineHeightFactor);
+            y += (15 * lineHeightFactor); // Added space for the new line
+
+            // NEW: Delivery and Packing Charge Note
+            pdf.setFontSize(10); // Smaller font for this note
+            pdf.text('(+) Delivery & Packing Charges Applicable', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += (30 * lineHeightFactor); // Adjusted space after this note
 
             // Customer Information
             pdf.setFontSize(12);
             pdf.text('Customer Name: ' + customerData.customerName, leftMargin, y);
             y += (15 * lineHeightFactor);
-            pdf.text('Mobile No: ' + customerData.customerPhone, leftMargin, y);
+            // Convert mobile number to English numbers for PDF
+            const englishMobileNo = convertBengaliNumbersToEnglish(customerData.customerPhone);
+            pdf.text('Mobile No: ' + englishMobileNo, leftMargin, y);
             y += (15 * lineHeightFactor);
             
-            // Split long address into multiple lines with a defined width
             const customerAddressText = 'Address: ' + customerData.customerAddress;
-            const addressTextWidth = tableWidth; // Use the same width as table
+            const addressTextWidth = tableWidth; 
             const addressLines = pdf.splitTextToSize(customerAddressText, addressTextWidth);
             
             pdf.text(addressLines, leftMargin, y);
@@ -422,61 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // MODIFIED: downloadPdfBtn click listener now receives the correct orderData
     downloadPdfBtn.addEventListener('click', () => {
-        // Ensure customer data and cart are still available
-        const customerName = document.getElementById('customer-name').value;
-        const customerPhone = document.getElementById('customer-phone').value;
-        const customerAddress = document.getElementById('customer-address').value;
-
-        // Create customerData and orderDetails objects directly from current state
-        // This is important because the form might have been reset if orderForm.submit completed.
-        // We need to pass the *original* data that was sent to the sheet.
-        // For simplicity here, we're taking from the DOM for PDF,
-        // but for absolute consistency, you'd store the orderData object from the submit event.
-        // Re-construct the order data if the form was reset
-        const customerDataForPdf = {
-            customerName: customerName || 'N/A',
-            customerPhone: customerPhone || 'N/A',
-            customerAddress: customerAddress || 'N/A'
-        };
-        const orderDetailsForPdf = {
-            items: cart.map(item => ({ // Use the current state of the cart (it's cleared after submission)
-                name: item.name,
-                nameEn: item.nameEn,
-                quantity: item.quantity,
-                unit: item.unit,
-                price: item.price,
-                totalItemPrice: item.quantity * item.price
-            })),
-            totalBill: parseFloat(totalBillSpan.textContent) || 0,
-            orderDate: currentInvoiceDate, // Use the date generated for the order
-            orderCode: currentOrderCode // Use the order code generated for the order
-        };
-        
-        // Before calling generateInvoicePdf, ensure cart and customer details are passed as arguments
-        // IMPORTANT: The cart is reset after successful order submission. 
-        // If the user clicks "Download PDF" *after* the order is submitted, the cart will be empty.
-        // To fix this, we need to store the orderData somewhere *before* resetting the cart.
-        // For now, I'm passing the `currentOrderData` that was *just submitted*.
-        // A better approach would be to pass `orderData` from the `submit` event to `generateInvoicePdf`.
-        // Let's modify the `submit` event listener to store the `orderData` globally or pass it directly.
-
-        // Re-fetching or storing the order data is crucial. Let's make it simpler:
-        // We will make `generateInvoicePdf` directly use the form fields and a temporary cart state
-        // OR pass the submitted `orderData` to it.
-        // The most robust way is to pass the `orderData` from the `submit` event.
-        // I will make `generateInvoicePdf` accept `orderData` as a parameter.
-        
-        // This button click happens *after* the order is submitted and cart is cleared.
-        // We need to retrieve the *submitted* order details.
-        // A simple way for now is to rely on global `currentOrderCode` and `currentInvoiceDate`
-        // and re-collecting customer data and a *copy* of the cart BEFORE clearing it.
-        // Let's modify the `orderForm.submit` to temporarily store the `orderData` for PDF.
-        
-        // This part needs the data that was *just submitted*.
-        // Let's store the `orderData` globally after submission for PDF generation.
-        if (lastSubmittedOrderData) { // Check if previous order data exists
+        if (lastSubmittedOrderData) { 
             generateInvoicePdf(
                 { 
                     customerName: lastSubmittedOrderData.customerName,
@@ -495,7 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    let lastSubmittedOrderData = null; // Global variable to store last submitted order data
+    let lastSubmittedOrderData = null; 
 
     orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -506,62 +466,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const customerName = document.getElementById('customer-name').value;
-        const customerPhone = document.getElementById('customer-phone').value;
+        let customerPhone = document.getElementById('customer-phone').value;
         const customerAddress = document.getElementById('customer-address').value;
         
         if (!customerName || !customerPhone || !customerAddress) {
             showMessage('তথ্য পূরণ করুন', 'দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা পূরণ করুন।');
             return;
         }
+        
+        // Convert customer phone number to English numbers for Google Sheet and internal use
+        customerPhone = convertBengaliNumbersToEnglish(customerPhone);
 
-        const orderData = {
+        const currentOrderData = {
             customerName: customerName,
-            customerPhone: customerPhone,
+            customerPhone: customerPhone, // Use converted phone number
             customerAddress: customerAddress,
             items: cart.map(item => ({ 
                 name: item.name,
-                nameEn: item.nameEn, // Include English name if available
+                nameEn: item.nameEn, 
                 quantity: item.quantity,
                 unit: item.unit,
                 price: item.price,
                 totalItemPrice: item.quantity * item.price
             })),
             totalBill: parseFloat(totalBillSpan.textContent),
-            orderDate: currentInvoiceDate, // Use the date generated for display
-            orderCode: currentOrderCode // Use the order code generated for display
+            orderDate: currentInvoiceDate, 
+            orderCode: currentOrderCode 
         };
-
-        // Store the orderData before resetting the cart
-        lastSubmittedOrderData = orderData; 
+        lastSubmittedOrderData = currentOrderData; 
 
         try {
             const loadingMessageTitle = 'অর্ডার প্রক্রিয়া চলছে...';
             const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
             showMessage(loadingMessageTitle, loadingMessageText); 
 
-            // Make sure the form submission UI (orderSummaryModal) is hidden during API call
             orderSummaryModal.style.display = 'none';
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
                 mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(orderData), 
+                body: JSON.stringify(currentOrderData), 
             });
 
             console.log('Order data sent to Google Sheet (check your sheet)!');
 
-            // Hide the loading message and show success popup
             document.getElementById('message-box-overlay').style.display = 'none';
             orderSuccessPopup.style.display = 'flex'; 
 
             orderForm.reset();
             cart = [];
-            updateCartDisplay(); // This will clear the floating cart button
+            updateCartDisplay(); 
             
         } catch (error) {
             console.error('Error sending order:', error);
-            // Hide the loading message and show error message
             document.getElementById('message-box-overlay').style.display = 'none';
             showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
         }
