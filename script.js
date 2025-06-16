@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const orderSuccessPopup = document.getElementById('order-success-popup');
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
-    // REMOVED: downloadPdfBtn as PDF generation is removed.
+    const downloadPdfBtn = document.getElementById('download-pdf-btn'); // Re-added
 
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = '';
 
-    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
+    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFmldXi6umapfA2JS6/exec"; 
 
     const dynamicCategoryGrids = new Map();
 
@@ -219,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedProduct = { name, nameEn, price, unit, description, imageUrl };
             productQuantityPopup.style.display = 'flex';
         } else if (openOrderBtn && openOrderBtn.disabled) {
-            showMessage('স্টক নেই', 'এই পণ্যটি বর্তমানে স্টক নেই।');
+            showMessage('স্টock নেই', 'এই পণ্যটি বর্তমানে স্টক নেই।');
         }
     });
 
@@ -269,14 +269,144 @@ document.addEventListener('DOMContentLoaded', () => {
         orderSummaryModal.style.display = 'none';
     });
 
-    // REMOVED: PDF Generation Function (generateInvoicePdf)
-    // REMOVED: downloadPdfBtn.addEventListener('click', generateInvoicePdf);
+    // NEW: PDF Generation Function - using jsPDF with default English font
+    async function generateInvoicePdf() {
+        try {
+            const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
+            
+            // Set default English font (Helvetica is a good standard)
+            pdf.setFont('helvetica', 'normal'); 
+            
+            let y = 50; // Starting Y position for content
+            const lineHeightFactor = 1.2; 
+
+            // Company Header
+            pdf.setFontSize(20);
+            pdf.text('Khulna Mach Ghar', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += (20 * lineHeightFactor);
+            pdf.setFontSize(12);
+            pdf.text('Formalin-Free Fresh Fish Online Market', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += (15 * lineHeightFactor);
+            pdf.setFontSize(10);
+            pdf.text('City Bypass Road Mostofa More, Harintana, Khulna.', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += (12 * lineHeightFactor);
+            pdf.text('Contact: +8801753903854, +8801951912031', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += (30 * lineHeightFactor);
+
+            // Invoice Details
+            pdf.setFontSize(14);
+            pdf.text('INVOICE:', 50, y);
+            y += (15 * lineHeightFactor);
+            pdf.text(`Date: ${currentInvoiceDate}`, 50, y);
+            y += (15 * lineHeightFactor);
+            pdf.text(`Order Code: ${currentOrderCode}`, 50, y);
+            y += (30 * lineHeightFactor);
+
+            // Table Header
+            pdf.setFontSize(12);
+            pdf.setFillColor(242, 242, 242); // Light gray background for header
+            const tableWidth = pdf.internal.pageSize.width - 100;
+            const headerHeight = 20;
+            pdf.rect(50, y, tableWidth, headerHeight, 'F'); 
+            pdf.setTextColor(0, 0, 0);
+            
+            // Define column widths and starting X positions for precise alignment
+            const col1X = 55; // Item Name
+            const col2X = 240; // Quantity (centered)
+            const col3X = 370; // Unit Price (right aligned)
+            const col4X = pdf.internal.pageSize.width - 55; // Total Price (right aligned)
+            const colWidths = [
+                180, // Item Name
+                80,  // Quantity
+                100, // Unit Price
+                100  // Total Price
+            ];
+
+            pdf.text('Item', col1X, y + (headerHeight / 2) + 4); 
+            pdf.text('Quantity', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
+            pdf.text('Unit Price', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
+            pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
+            y += headerHeight;
+
+            // Table Rows
+            pdf.setFontSize(11);
+            cart.forEach(item => {
+                const itemTotal = item.quantity * item.price;
+                
+                // Use splitTextToSize for product name to handle long names
+                const productNameLines = pdf.splitTextToSize(item.name, colWidths[0] - 5); // Use Bengali name here, but font will be English. This might look strange.
+                let rowHeight = productNameLines.length * (pdf.getFontSize() * lineHeightFactor);
+                if (rowHeight < 20) rowHeight = 20; // Minimum row height
+
+                pdf.rect(50, y, tableWidth, rowHeight); 
+
+                pdf.text(productNameLines, col1X, y + 14); 
+                pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X + (colWidths[1] / 2), y + 14, { align: 'center' });
+                pdf.text(`${item.price} BDT`, col3X + colWidths[2], y + 14, { align: 'right' });
+                pdf.text(`${itemTotal} BDT`, col4X, y + 14, { align: 'right' });
+                y += rowHeight;
+
+                if (y > pdf.internal.pageSize.height - 150 && cart.indexOf(item) < cart.length - 1) {
+                    pdf.addPage();
+                    y = 50; 
+                    pdf.setFontSize(12);
+                    pdf.setFillColor(242, 242, 242);
+                    pdf.rect(50, y, tableWidth, headerHeight, 'F');
+                    pdf.setTextColor(0, 0, 0);
+                    pdf.text('Item', col1X, y + (headerHeight / 2) + 4);
+                    pdf.text('Quantity', col2X + (colWidths[1] / 2), y + (headerHeight / 2) + 4, { align: 'center' });
+                    pdf.text('Unit Price', col3X + colWidths[2], y + (headerHeight / 2) + 4, { align: 'right' });
+                    pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
+                    y += headerHeight;
+                    pdf.setFontSize(11);
+                }
+            });
+
+            y += (20 * lineHeightFactor);
+
+            // Total Bill
+            pdf.setFontSize(16);
+            pdf.text('Total Bill:', pdf.internal.pageSize.width - 180, y, { align: 'right' });
+            pdf.setFontSize(20);
+            pdf.text(`${parseFloat(totalBillSpan.textContent)} BDT`, pdf.internal.pageSize.width - 55, y + 5, { align: 'right' });
+            y += (30 * lineHeightFactor);
+
+            // Customer Information
+            pdf.setFontSize(12);
+            pdf.text('Customer Name: ' + document.getElementById('customer-name').value, 50, y);
+            y += (15 * lineHeightFactor);
+            pdf.text('Mobile No: ' + document.getElementById('customer-phone').value, 50, y);
+            y += (15 * lineHeightFactor);
+            
+            const customerAddressText = 'Address: ' + document.getElementById('customer-address').value;
+            const addressTextWidth = pdf.internal.pageSize.width - 100;
+            const addressLines = pdf.splitTextToSize(customerAddressText, addressTextWidth);
+            
+            pdf.text(addressLines, 50, y);
+            y += addressLines.length * (pdf.getFontSize() * lineHeightFactor); 
+            y += (20 * lineHeightFactor);
+
+            // Thank You Message
+            pdf.setFontSize(10);
+            pdf.text('Thank you for staying with Khulna Mach Ghar!', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+            y += (12 * lineHeightFactor);
+            pdf.text('Your trust is our inspiration.', pdf.internal.pageSize.width / 2, y, { align: 'center' });
+
+            pdf.save(`Invoice_${currentOrderCode}.pdf`);
+
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            showMessage('PDF Generation Issue', 'Failed to generate PDF invoice. Please try again. Error: ' + error.message);
+        }
+    }
+
+    downloadPdfBtn.addEventListener('click', generateInvoicePdf); // Re-added event listener
 
     orderForm.addEventListener('submit', async (e) => {
         e.preventDefault();
 
         if (cart.length === 0) {
-            showMessage('অর্ডার ত্রুটি', 'অর্ডার করার জন্য কোনো পণ্য নির্বাচন করা হয়নি।');
+            showMessage('Order Error', 'No products selected to order.'); // Translated message
             return;
         }
 
@@ -285,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const customerAddress = document.getElementById('customer-address').value;
         
         if (!customerName || !customerPhone || !customerAddress) {
-            showMessage('তথ্য পূরণ করুন', 'দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা পূরণ করুন।');
+            showMessage('Fill Details', 'Please fill in your name, mobile number, and address.'); // Translated message
             return;
         }
 
@@ -306,8 +436,8 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const loadingMessageTitle = 'অর্ডার প্রক্রিয়া চলছে...';
-            const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
+            const loadingMessageTitle = 'Processing Order...'; // Translated message
+            const loadingMessageText = 'Your order is being submitted. Please wait...'; // Translated message
             showMessage(loadingMessageTitle, loadingMessageText); 
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
@@ -329,7 +459,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (error) {
             console.error('Error sending order:', error);
             document.getElementById('message-box-overlay').style.display = 'none';
-            showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
+            showMessage('Order Submission Failed', 'Failed to submit order. Please check your internet connection and try again.'); // Translated message
         }
     });
 
