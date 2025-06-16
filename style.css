@@ -464,27 +464,26 @@ section {
 
 .order-popup-content {
     background-color: #fff;
-    padding: 25px; /* Reduced padding slightly */
+    padding: 20px; /* Adjusted padding to be smaller */
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     width: 90%;
     max-width: 600px;
     position: relative;
     animation: slideUp 0.3s ease-out;
-    margin-top: 10px; /* Reduced margin to maximize vertical space */
-    margin-bottom: 10px; /* Reduced margin to maximize vertical space */
-    max-height: calc(100vh - 20px); /* Adjusted max-height based on new margins */
+    margin: 10px auto; /* Centered horizontally, 10px top/bottom margin */
+    max-height: calc(100vh - 20px); /* Adjusted max-height based on 10px top/bottom margin */
     overflow-y: auto; /* Ensure content is scrollable if it exceeds max-height */
     text-align: left;
 }
 
 .close-popup-btn {
     position: absolute;
-    top: 10px; /* Adjusted closer to top */
-    right: 10px; /* Adjusted closer to right */
+    top: 8px; /* Adjusted closer to top */
+    right: 8px; /* Adjusted closer to right */
     background: none;
     border: none;
-    font-size: 1.8rem; /* Slightly smaller close button */
+    font-size: 1.6rem; /* Slightly smaller close button */
     color: #888;
     cursor: pointer;
     line-height: 1;
@@ -497,34 +496,34 @@ section {
 .order-summary-heading,
 .customer-info-heading {
     color: #0056b3;
-    font-size: 1.6rem; /* Slightly smaller heading */
-    margin-bottom: 20px; /* Reduced margin */
+    font-size: 1.5rem; /* Slightly smaller heading */
+    margin-bottom: 15px; /* Reduced margin */
     display: flex;
     align-items: center;
-    gap: 8px; /* Reduced gap */
+    gap: 6px; /* Reduced gap */
 }
 
 .invoice-details {
     background-color: #f0f8ff;
-    padding: 12px; /* Reduced padding */
+    padding: 10px; /* Reduced padding */
     border-radius: 8px;
-    margin-bottom: 15px; /* Reduced margin */
-    font-size: 0.9rem; /* Slightly smaller font */
+    margin-bottom: 12px; /* Reduced margin */
+    font-size: 0.85rem; /* Slightly smaller font */
     border: 1px solid #e0f0ff;
 }
 
 .invoice-details p {
-    margin: 4px 0; /* Reduced margin */
+    margin: 3px 0; /* Reduced margin */
 }
 
 .cart-item {
     display: flex;
     align-items: center;
-    padding: 8px 0; /* Reduced padding */
+    padding: 6px 0; /* Reduced padding */
     border-bottom: 1px dashed #eee;
-    font-size: 1rem; /* Slightly smaller font */
-    flex-wrap: nowrap; /* Prevent wrapping for cart items in popups */
-    gap: 6px; /* Reduced gap for more compactness */
+    font-size: 0.95rem; /* Slightly smaller font */
+    flex-wrap: nowrap; /* Keep cart items on single line */
+    gap: 5px; /* Reduced gap */
 }
 
 .cart-item:last-child {
@@ -536,7 +535,7 @@ section {
     color: #555;
     white-space: nowrap; /* Prevent wrapping for item details */
     overflow: hidden; /* Hide overflowing text */
-    text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    text-overflow: ellipsis; /* Add ellipsis for overflowing text if it's too long in UI */
 }
 
 .item-total {
@@ -545,17 +544,17 @@ section {
     color: #333;
     text-align: right; /* Align total to right */
     margin-left: auto; /* Push to the right */
-    padding-left: 10px; /* Add some padding if text is too close */
+    padding-left: 8px; /* Add some padding if text is too close */
 }
 
 .remove-item-btn {
     background: none;
     border: none;
     color: #dc3545;
-    font-size: 1.1rem; /* Slightly smaller close button */
+    font-size: 1rem; /* Slightly smaller close button */
     cursor: pointer;
     margin-left: 5px; /* Adjusted margin */
-    padding: 3px; /* Reduced padding */
+    padding: 2px; /* Reduced padding */
     border-radius: 5px;
     transition: background-color 0.2s ease;
     flex-shrink: 0;
@@ -569,54 +568,54 @@ section {
     display: flex;
     justify-content: flex-end;
     align-items: baseline;
-    margin-top: 15px; /* Reduced margin */
-    padding-top: 12px; /* Reduced padding */
+    margin-top: 12px; /* Reduced margin */
+    padding-top: 10px; /* Reduced padding */
     border-top: 2px solid #007bff;
 }
 
 .total-label {
-    font-size: 1.2rem; /* Slightly smaller font */
+    font-size: 1.1rem; /* Slightly smaller font */
     font-weight: bold;
     color: #333;
-    margin-right: 8px; /* Reduced margin */
+    margin-right: 6px; /* Reduced margin */
 }
 
 .total-amount {
-    font-size: 1.8rem; /* Slightly smaller font */
+    font-size: 1.6rem; /* Slightly smaller font */
     font-weight: bold;
     color: #28a745;
 }
 
 /* Order Form */
 #order-form {
-    margin-top: 25px; /* Reduced margin */
-    padding-top: 15px; /* Reduced padding */
+    margin-top: 20px; /* Reduced margin */
+    padding-top: 12px; /* Reduced padding */
     border-top: 1px dashed #ddd;
 }
 
 #order-form input[type="text"],
 #order-form input[type="tel"],
 #order-form textarea {
-    width: calc(100% - 20px);
-    padding: 10px; /* Reduced padding */
-    margin-bottom: 12px; /* Reduced margin */
+    width: calc(100% - 16px); /* Adjusted width for new padding */
+    padding: 8px; /* Reduced padding */
+    margin-bottom: 10px; /* Reduced margin */
     border: 1px solid #ccc;
     border-radius: 8px;
-    font-size: 0.95rem; /* Slightly smaller font */
+    font-size: 0.9rem; /* Slightly smaller font */
     font-family: 'Noto Sans Bengali', sans-serif;
 }
 
 #order-form textarea {
     resize: vertical;
-    min-height: 70px; /* Slightly reduced min-height */
+    min-height: 60px; /* Slightly reduced min-height */
 }
 
 .order-confirm-btn {
     background-color: #28a745;
     color: #fff;
-    padding: 12px 25px; /* Reduced padding */
+    padding: 10px 20px; /* Reduced padding */
     border-radius: 8px;
-    font-size: 1rem; /* Slightly smaller font */
+    font-size: 0.95rem; /* Slightly smaller font */
     font-weight: bold;
     width: 100%;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -629,145 +628,149 @@ section {
 
 /* Product Quantity Popup */
 #product-quantity-popup .order-popup-content {
-    max-width: 400px; /* Slightly smaller max-width */
-    padding: 20px; /* Adjusted padding */
+    max-width: 380px; /* Slightly smaller max-width */
+    padding: 18px; /* Adjusted padding */
 }
 
 .popup-product-details {
-    display: flex;
-    align-items: center;
-    gap: 15px; /* Reduced gap */
-    margin-bottom: 20px; /* Reduced margin */
-    padding-bottom: 15px; /* Reduced padding */
-    border-bottom: 1px solid #eee;
+    gap: 12px; /* Reduced gap */
+    margin-bottom: 18px; /* Reduced margin */
+    padding-bottom: 12px; /* Reduced padding */
 }
 
 .popup-product-details img {
-    width: 100px; /* Slightly smaller image */
-    height: 100px;
-}
-
-.popup-product-details .text-details {
-    text-align: left;
-    flex-grow: 1;
+    width: 90px; /* Slightly smaller image */
+    height: 90px;
 }
 
 #popup-product-name {
-    font-size: 1.4rem; /* Slightly smaller font */
-    margin: 0 0 4px; /* Adjusted margin */
+    font-size: 1.3rem; /* Slightly smaller font */
+    margin: 0 0 3px; /* Adjusted margin */
 }
 
 #popup-product-name-en {
-    font-size: 0.85rem; /* Slightly smaller font */
-    margin-bottom: 6px; /* Adjusted margin */
+    font-size: 0.8rem; /* Slightly smaller font */
+    margin-bottom: 5px; /* Adjusted margin */
 }
 
 .popup-product-description {
-    font-size: 0.85rem; /* Slightly smaller font */
-    margin-bottom: 8px; /* Adjusted margin */
+    font-size: 0.8rem; /* Slightly smaller font */
+    margin-bottom: 7px; /* Adjusted margin */
 }
 
 .popup-price-display {
-    font-size: 1rem; /* Slightly smaller font */
-}
-
-.order-controls {
-    gap: 8px; /* Reduced gap */
-    margin-bottom: 20px; /* Reduced margin */
-}
-
-.order-controls label {
-    font-size: 1rem; /* Slightly smaller font */
-}
-
-.order-controls input[type="number"] {
-    width: 70px; /* Slightly smaller width */
-    padding: 8px; /* Reduced padding */
     font-size: 0.95rem; /* Slightly smaller font */
 }
 
-#add-to-cart-from-popup-btn {
-    width: 100%;
+.order-controls {
+    gap: 6px; /* Reduced gap */
+    margin-bottom: 18px; /* Reduced margin */
+}
+
+.order-controls label {
+    font-size: 0.95rem; /* Slightly smaller font */
+}
+
+.order-controls input[type="number"] {
+    width: 60px; /* Slightly smaller width */
+    padding: 7px; /* Reduced padding */
+    font-size: 0.9rem; /* Slightly smaller font */
 }
 
 /* Order Success Popup */
 .success-content {
-    text-align: center;
-    padding: 30px 25px; /* Reduced padding */
+    padding: 25px 20px; /* Reduced padding */
 }
 
 .success-heading {
-    font-size: 2.2rem; /* Slightly smaller font */
-    margin-bottom: 15px; /* Reduced margin */
-    gap: 10px; /* Reduced gap */
+    font-size: 2rem; /* Slightly smaller font */
+    margin-bottom: 12px; /* Reduced margin */
+    gap: 8px; /* Reduced gap */
 }
 
 .success-message {
-    font-size: 1rem; /* Slightly smaller font */
-    margin-bottom: 8px; /* Reduced margin */
+    font-size: 0.95rem; /* Slightly smaller font */
+    margin-bottom: 7px; /* Reduced margin */
 }
 
 .thank-you-message {
-    font-size: 1.1rem; /* Slightly smaller font */
-    margin-top: 25px; /* Reduced margin */
+    font-size: 1rem; /* Slightly smaller font */
+    margin-top: 20px; /* Reduced margin */
 }
 
 #download-pdf-btn {
-    margin-top: 20px; /* Reduced margin */
-    margin-bottom: 15px; /* Reduced margin */
-    padding: 10px 20px; /* Reduced padding */
-    font-size: 0.95rem; /* Slightly smaller font */
+    margin-top: 18px; /* Reduced margin */
+    margin-bottom: 12px; /* Reduced margin */
+    padding: 8px 18px; /* Reduced padding */
+    font-size: 0.9rem; /* Slightly smaller font */
 }
 
 
 /* Message Box Overlay */
 #message-box-content {
-    max-width: 380px; /* Slightly smaller max-width */
-    padding-bottom: 15px; /* Reduced padding */
+    max-width: 350px; /* Slightly smaller max-width */
+    padding-bottom: 12px; /* Reduced padding */
 }
 
 #message-box-title {
-    font-size: 1.5rem; /* Slightly smaller font */
-    margin-bottom: 12px; /* Reduced margin */
+    font-size: 1.4rem; /* Slightly smaller font */
+    margin-bottom: 10px; /* Reduced margin */
 }
 
 #message-box-text {
-    font-size: 1rem; /* Slightly smaller font */
-    margin-bottom: 20px; /* Reduced margin */
+    font-size: 0.95rem; /* Slightly smaller font */
+    margin-bottom: 18px; /* Reduced margin */
 }
 
 #message-box-ok-btn {
-    padding: 8px 20px; /* Reduced padding */
-    font-size: 0.95rem; /* Slightly smaller font */
-}
-
-
-/* Footer */
-footer {
-    padding: 25px 0; /* Reduced padding */
+    padding: 7px 18px; /* Reduced padding */
+    font-size: 0.9rem; /* Slightly smaller font */
 }
 
 
 /* Floating Cart Button */
 .floating-button {
-    width: 55px; /* Slightly smaller */
-    height: 55px; /* Slightly smaller */
-    font-size: 1.6rem; /* Slightly smaller */
-    bottom: 18px; /* Adjusted position */
-    right: 18px; /* Adjusted position */
+    width: 50px; /* Smaller */
+    height: 50px; /* Smaller */
+    font-size: 1.5rem; /* Smaller */
+    bottom: 15px; /* Adjusted position */
+    right: 15px; /* Adjusted position */
+    z-index: 1050; /* Increased z-index to ensure it's on top */
 }
 
 .floating-button .cart-count {
-    font-size: 0.75rem; /* Slightly smaller */
-    padding: 4px 7px; /* Adjusted padding */
-    min-width: 18px; /* Adjusted min-width */
+    font-size: 0.7rem; /* Smaller */
+    padding: 3px 6px; /* Adjusted padding */
+    min-width: 16px; /* Adjusted min-width */
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    /* No major changes needed here, as base adjustments are applied */
+    /* Main popup content for smaller screens */
     .order-popup-content {
-        padding: 15px; /* Further reduce padding on smaller screens */
+        padding: 15px; 
+    }
+    .order-summary-heading, .customer-info-heading {
+        font-size: 1.4rem;
+    }
+    .item-details, .item-total {
+        font-size: 0.9rem;
+    }
+    .total-label {
+        font-size: 1rem;
+    }
+    .total-amount {
+        font-size: 1.4rem;
+    }
+    #order-form input, #order-form textarea {
+        font-size: 0.85rem;
+    }
+    .order-confirm-btn {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+    .success-heading {
+        font-size: 1.8rem;
     }
 }
 
@@ -777,19 +780,144 @@ footer {
         margin-top: 5px; 
         margin-bottom: 5px;
         max-height: calc(100vh - 10px); 
-        padding: 10px; /* Even less padding */
+        padding: 10px; 
     }
 
     .close-popup-btn {
-        font-size: 1.5rem; /* Smaller close button on very small screens */
+        font-size: 1.4rem; 
+        top: 5px;
+        right: 5px;
     }
 
     .order-summary-heading,
     .customer-info-heading {
-        font-size: 1.4rem; /* Smaller heading on very small screens */
+        font-size: 1.2rem; 
+        margin-bottom: 10px;
+    }
+
+    .invoice-details {
+        padding: 8px;
+        margin-bottom: 10px;
+    }
+
+    .invoice-details p {
+        font-size: 0.8rem;
+        margin: 2px 0;
     }
 
     .cart-item {
-        font-size: 0.9rem; /* Smaller font for cart items on very small screens */
+        font-size: 0.85rem; 
+        padding: 4px 0;
+    }
+    .item-total {
+        padding-left: 5px;
+    }
+
+    .remove-item-btn {
+        font-size: 0.9rem;
+    }
+    
+    .cart-total-section {
+        margin-top: 10px;
+        padding-top: 8px;
+    }
+
+    .total-label {
+        font-size: 0.9rem;
+    }
+
+    .total-amount {
+        font-size: 1.2rem;
+    }
+
+    #order-form {
+        margin-top: 15px;
+        padding-top: 10px;
+    }
+
+    #order-form input, #order-form textarea {
+        padding: 7px;
+        margin-bottom: 8px;
+        font-size: 0.8rem;
+    }
+
+    #order-form textarea {
+        min-height: 50px;
+    }
+
+    .order-confirm-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    #product-quantity-popup .order-popup-content {
+        max-width: 300px;
+        padding: 15px;
+    }
+    .popup-product-details {
+        gap: 10px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    .popup-product-details img {
+        width: 70px;
+        height: 70px;
+    }
+    #popup-product-name {
+        font-size: 1.1rem;
+    }
+    #popup-product-name-en, .popup-product-description, .popup-price-display {
+        font-size: 0.75rem;
+    }
+    .order-controls label, .order-controls input {
+        font-size: 0.85rem;
+    }
+    .order-controls input[type="number"] {
+        width: 50px;
+    }
+
+    .success-content {
+        padding: 20px 15px;
+    }
+    .success-heading {
+        font-size: 1.6rem;
+    }
+    .success-message {
+        font-size: 0.85rem;
+    }
+    .thank-you-message {
+        font-size: 0.9rem;
+    }
+    #download-pdf-btn {
+        padding: 7px 15px;
+        font-size: 0.85rem;
+    }
+
+    #message-box-content {
+        max-width: 280px;
+        padding-bottom: 10px;
+    }
+    #message-box-title {
+        font-size: 1.2rem;
+    }
+    #message-box-text {
+        font-size: 0.85rem;
+    }
+    #message-box-ok-btn {
+        padding: 6px 15px;
+        font-size: 0.85rem;
+    }
+
+    .floating-button {
+        width: 45px; 
+        height: 45px;
+        font-size: 1.3rem;
+        bottom: 10px; 
+        right: 10px; 
+    }
+    .floating-button .cart-count {
+        font-size: 0.65rem;
+        padding: 2px 5px;
+        min-width: 14px;
     }
 }
