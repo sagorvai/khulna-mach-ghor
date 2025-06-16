@@ -1,15 +1,15 @@
-/* Importing Tiro Bangla font directly for web display */
+/* Importing Noto Sans Bengali font directly for web display */
 @font-face {
-    font-family: 'Tiro Bangla';
-    src: url('./fonts/TiroBangla-Regular.ttf') format('truetype');
+    font-family: 'Noto Sans Bengali';
+    src: url('./fonts/NotoSansBengali-Regular.ttf') format('truetype');
     /* Ensure the path to your .ttf file is correct */
     font-weight: normal;
     font-style: normal;
 }
 
-/* Apply Tiro Bangla globally */
+/* Apply Noto Sans Bengali globally */
 body {
-    font-family: 'Tiro Bangla', sans-serif;
+    font-family: 'Noto Sans Bengali', sans-serif;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -19,7 +19,7 @@ body {
     overflow-x: hidden; /* Prevent horizontal scroll */
 }
 
-/* Specific elements that might override global font, ensure they use Tiro Bangla */
+/* Specific elements that might override global font, ensure they use Noto Sans Bengali */
 h1, h2, h3, h4, h5, h6,
 .slogan,
 .btn,
@@ -28,7 +28,7 @@ h1, h2, h3, h4, h5, h6,
 .customer-info-heading,
 .success-heading,
 .message-box-title {
-    font-family: 'Tiro Bangla', sans-serif;
+    font-family: 'Noto Sans Bengali', sans-serif;
 }
 
 
@@ -602,7 +602,7 @@ section {
     border: 1px solid #ccc;
     border-radius: 8px;
     font-size: 1rem;
-    font-family: 'Tiro Bangla', sans-serif; /* Ensure form fields use Tiro Bangla */
+    font-family: 'Noto Sans Bengali', sans-serif; /* Ensure form fields use Noto Sans Bengali */
 }
 
 #order-form textarea {
@@ -700,7 +700,7 @@ section {
     border-radius: 8px;
     font-size: 1rem;
     text-align: center;
-    font-family: 'Tiro Bangla', sans-serif; /* Ensure input uses Tiro Bangla */
+    font-family: 'Noto Sans Bengali', sans-serif; /* Ensure input uses Noto Sans Bengali */
 }
 
 #add-to-cart-from-popup-btn {
