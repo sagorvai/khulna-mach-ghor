@@ -23,14 +23,14 @@ body {
 h1, h2, h3, h4, h5, h6,
 .slogan,
 .btn,
-.product-item h4,
-.order-summary-heading,
+.design-item h4,
+.popup-heading,
+.payment-heading,
 .customer-info-heading,
 .success-heading,
 .message-box-title {
     font-family: 'Noto Sans Bengali', sans-serif;
 }
-
 
 /* General Styles */
 .container {
@@ -59,8 +59,7 @@ section {
 }
 
 .primary-btn {
-    background-color: #28a745;
-    /* Green */
+    background-color: #28a745; /* Green */
     color: #fff;
 }
 
@@ -70,26 +69,24 @@ section {
     transform: translateY(-2px);
 }
 
-.whatsapp-btn {
-    background-color: #25d366;
-    /* WhatsApp Green */
-    color: #fff;
-}
-
-.whatsapp-btn:hover {
-    background-color: #1da851;
-    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-    transform: translateY(-2px);
-}
-
 .secondary-btn {
-    background-color: #007bff;
-    /* Blue */
+    background-color: #007bff; /* Blue */
     color: #fff;
 }
 
 .secondary-btn:hover {
     background-color: #0056b3;
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+}
+
+.whatsapp-btn {
+    background-color: #25d366; /* WhatsApp Green */
+    color: #fff;
+}
+
+.whatsapp-btn:hover {
+    background-color: #1da851;
     box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
     transform: translateY(-2px);
 }
@@ -116,22 +113,13 @@ section {
     align-items: center;
 }
 
-.company-logo {
-    width: 100px;
-    /* Adjust as needed */
-    height: 100px;
-    /* Adjust as needed */
-    border-radius: 50%;
-    border: 3px solid #fff;
-    object-fit: cover;
-    margin-bottom: 10px;
-}
-
 .company-name {
-    font-size: 2.2rem;
+    font-size: 2.8rem;
     margin: 0;
-    display: none;
-    /* Hidden to prioritize slogan visually */
+    font-weight: bold;
+    /* Fotolipi text based logo style */
+    letter-spacing: 2px;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
 
 .slogan {
@@ -160,10 +148,9 @@ section {
 
 /* Hero Section */
 .hero-section {
-    /* Set background image here */
     background: url('https://i.imgur.com/lK1SmT3.jpeg') no-repeat center center/cover;
     color: #fff;
-    padding: 100px 0;
+    padding: 120px 0; /* Increased padding for better visual */
     position: relative;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -175,8 +162,7 @@ section {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4);
-    /* Dark overlay */
+    background-color: rgba(0, 0, 0, 0.4); /* Dark overlay */
 }
 
 .hero-content {
@@ -187,13 +173,13 @@ section {
 }
 
 .hero-content h2 {
-    font-size: 2.8rem;
+    font-size: 3rem;
     margin-bottom: 20px;
     line-height: 1.3;
 }
 
 .hero-content p {
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin-bottom: 30px;
 }
 
@@ -204,16 +190,14 @@ section {
     gap: 20px;
 }
 
-/* Why Us Section */
-.why-us-section {
+/* Sections General */
+.designs-section, .services-section, .how-it-works-section, .about-us-section, .contact-section {
     background-color: #fff;
+    padding: 80px 0;
 }
 
-.why-us-section h2,
-.process-section h2,
-.products-section h2,
-.contact-section h2 {
-    font-size: 2.2rem;
+h2 {
+    font-size: 2.5rem;
     margin-bottom: 40px;
     color: #0056b3;
     display: flex;
@@ -222,51 +206,119 @@ section {
     gap: 10px;
 }
 
-.features-grid {
+.section-description {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 40px;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* --- Design Categories Container --- */
+#featured-categories-container, #regular-categories-container {
+    margin-top: 30px;
+}
+
+.design-category-group {
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid #eee;
+}
+
+.design-category-group:last-of-type {
+    border-bottom: none;
+}
+
+.design-category-heading {
+    font-size: 2rem;
+    color: #0056b3;
+    margin-bottom: 30px;
+    position: relative;
+    display: inline-block;
+    padding-bottom: 10px;
+}
+
+.design-category-heading::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 3px;
+    background-color: #28a745;
+    border-radius: 2px;
+}
+
+
+/* Design Grids (inside Categories) */
+.design-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
     gap: 30px;
     padding: 20px;
 }
 
-.feature-item {
-    background-color: #e9f7ff;
-    /* Light blue background */
-    padding: 30px;
+.design-item {
+    background-color: #f9f9f9;
     border-radius: 12px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    /* Allow height to adjust based on image */
+    height: auto; 
 }
 
-.feature-item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+.design-item:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
 }
 
-.feature-icon {
-    font-size: 3.5rem;
-    color: #007bff;
-    margin-bottom: 15px;
+.design-item img {
+    width: 100%;
+    height: auto;
+    /* IMPORTANT: Ensures entire image is visible, no cropping */
+    object-fit: contain;
+    /* Optional: Set a max-height for very tall images to prevent overly long items */
+    max-height: 250px; 
+    border-bottom: 1px solid #eee;
+    display: block; /* Remove extra space below image */
+    padding: 10px; /* Added padding to image as per previous design */
+    background-color: #f0f0f0; /* Light background for image container */
 }
 
-.feature-item h3 {
-    font-size: 1.6rem;
-    color: #0056b3;
-    margin-bottom: 10px;
+
+.design-item-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
 }
 
-.feature-item p {
-    font-size: 1rem;
-    color: #555;
+.design-item h4 {
+    font-size: 1.4rem;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 8px;
+    line-height: 1.2;
 }
 
-/* Delivery Process Section */
-.process-section {
-    background-color: #f0f8ff;
-    /* Very light blue */
+.design-item .price {
+    font-size: 1.1rem;
+    color: #28a745;
+    font-weight: bold;
+    margin: 0;
+}
+
+/* How It Works Section */
+.how-it-works-section {
+    background-color: #f0f8ff; /* Very light blue */
 }
 
 .process-steps {
@@ -282,10 +334,8 @@ section {
     padding: 30px;
     border-radius: 12px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
-    flex: 1 1 calc(25% - 30px);
-    /* Four items per row on desktop */
-    min-width: 250px;
-    /* Minimum width for smaller screens */
+    flex: 1 1 calc(25% - 30px); /* Four items per row on desktop */
+    min-width: 250px; /* Minimum width for smaller screens */
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -296,7 +346,7 @@ section {
 
 .process-icon {
     font-size: 3.5rem;
-    color: #28a745;
+    color: #007bff;
     margin-bottom: 15px;
 }
 
@@ -311,150 +361,64 @@ section {
     color: #666;
 }
 
-
-/* Products Section */
-.products-section {
-    background-color: #fff;
-}
-
-.section-description {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 40px;
-}
-
-.product-category {
-    margin-bottom: 50px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 30px;
-}
-
-.product-category:last-of-type {
-    border-bottom: none;
-}
-
-.product-category h3 {
-    font-size: 2rem;
-    color: #0056b3;
-    margin-bottom: 30px;
-    position: relative;
-    display: inline-block;
-    padding-bottom: 10px;
-}
-
-.product-category h3::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 0;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background-color: #28a745;
-    border-radius: 2px;
-}
-
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    padding: 20px;
-}
-
-.product-item {
+/* About Us Section */
+.about-us-section {
     background-color: #f9f9f9;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
+    padding: 80px 0;
+}
+.about-us-section .section-description {
     text-align: left;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    cursor: pointer;
 }
 
-.product-item.unavailable {
-    opacity: 0.6;
-    cursor: not-allowed;
+/* Contact Section */
+.contact-section {
+    background-color: #e9f7ff;
+    padding: 80px 0;
 }
-
-.product-item.unavailable .open-order-form-btn {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.product-item:hover:not(.unavailable) {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-}
-
-.product-item img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
-    border-bottom: 1px solid #eee;
-}
-
-.product-bottom-section {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    flex-grow: 1;
-}
-
-.product-info-inline {
-    margin-bottom: 15px;
-}
-
-.product-item h4 {
-    font-size: 1.4rem;
-    color: #333;
-    margin-top: 0;
-    margin-bottom: 8px;
-    line-height: 1.2;
-}
-
-.product-item .price {
+.contact-section p {
     font-size: 1.1rem;
-    color: #28a745;
+    margin-bottom: 10px;
+}
+.contact-section a {
+    color: #007bff;
+    text-decoration: none;
     font-weight: bold;
+}
+.contact-section .social-links {
+    margin-top: 30px;
+}
+.contact-section .social-icon {
+    font-size: 2.5rem;
+    margin: 0 15px;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+.contact-section .social-icon:hover {
+    color: #0056b3;
+}
+
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: #fff;
+    padding: 30px 0;
+    font-size: 0.9rem;
+    margin-top: 40px;
+}
+
+footer p {
     margin: 0;
 }
 
-.open-order-form-btn {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
-    width: 100%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.open-order-form-btn:hover:not(:disabled) {
-    background-color: #0056b3;
-}
-
-.open-order-form-btn.unavailable-btn {
-    background-color: #ccc;
-    cursor: not-allowed;
-    color: #666;
-}
-
-/* Order Summary Modal (Popup Overlay) */
-.order-popup-overlay {
+/* Popups General */
+.popup-overlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.6);
-    /* Dark overlay */
+    background-color: rgba(0, 0, 0, 0.6); /* Dark overlay */
     display: flex;
     justify-content: center;
     align-items: center; /* Vertically center all popups */
@@ -462,9 +426,9 @@ section {
     animation: fadeIn 0.3s ease-out;
 }
 
-.order-popup-content {
+.popup-content {
     background-color: #fff;
-    padding: 20px; /* Adjusted padding to be smaller */
+    padding: 25px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     width: 90%;
@@ -472,18 +436,20 @@ section {
     position: relative;
     animation: slideUp 0.3s ease-out;
     margin: 10px auto; /* Centered horizontally, 10px top/bottom margin */
-    max-height: calc(100vh - 20px); /* Adjusted max-height based on 10px top/bottom margin */
+    /* *** MODIFIED FOR SCROLLING FIX *** */
+    max-height: calc(100vh - 40px); /* Adjust based on desired top/bottom margin */
     overflow-y: auto; /* Ensure content is scrollable if it exceeds max-height */
+    /* ********************************* */
     text-align: left;
 }
 
 .close-popup-btn {
     position: absolute;
-    top: 8px; /* Adjusted closer to top */
-    right: 8px; /* Adjusted closer to right */
+    top: 10px;
+    right: 10px;
     background: none;
     border: none;
-    font-size: 1.6rem; /* Slightly smaller close button */
+    font-size: 1.8rem;
     color: #888;
     cursor: pointer;
     line-height: 1;
@@ -493,277 +459,298 @@ section {
     color: #333;
 }
 
-.order-summary-heading,
-.customer-info-heading {
+.popup-heading, .payment-heading {
     color: #0056b3;
-    font-size: 1.5rem; /* Slightly smaller heading */
-    margin-bottom: 15px; /* Reduced margin */
+    font-size: 1.8rem;
+    margin-bottom: 25px;
     display: flex;
     align-items: center;
-    gap: 6px; /* Reduced gap */
+    gap: 10px;
 }
 
-.invoice-details {
-    background-color: #f0f8ff;
-    padding: 10px; /* Reduced padding */
+/* Design Detail Popup Specific */
+.popup-design-details {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.popup-design-details img {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
     border-radius: 8px;
-    margin-bottom: 12px; /* Reduced margin */
-    font-size: 0.85rem; /* Slightly smaller font */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+}
+
+.popup-design-details .text-details {
+    flex-grow: 1;
+}
+
+#popup-design-name {
+    font-size: 1.6rem;
+    color: #333;
+    margin: 0 0 10px;
+}
+
+.popup-design-description {
+    font-size: 1rem;
+    color: #666;
+    margin-bottom: 10px;
+}
+
+.popup-price-display {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #28a745;
+}
+
+/* Order Details & File Upload Popup Specific */
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: #333;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group textarea,
+.form-group input[type="file"] {
+    width: calc(100% - 22px); /* Adjust for padding and border */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Noto Sans Bengali', sans-serif;
+}
+
+.form-group input[type="file"] {
+    padding: 8px;
+    background-color: #f0f0f0;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.file-upload-instruction {
+    font-size: 0.95rem;
+    color: #777;
+    margin-top: 5px; /* Adjust spacing */
+    margin-bottom: 15px; /* Spacing below instruction */
+    background-color: #e3f2fd;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #bbdefb;
+    text-align: center;
+}
+
+#add-to-cart-btn {
+    width: 100%;
+    margin-top: 20px;
+}
+
+/* Order Summary & Payment Popup Specific */
+.invoice-header {
+    background-color: #f0f8ff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
     border: 1px solid #e0f0ff;
 }
 
-.invoice-details p {
-    margin: 3px 0; /* Reduced margin */
+.invoice-header p {
+    margin: 5px 0;
 }
 
-.cart-item {
+#cart-summary-items {
+    border-top: 1px dashed #eee;
+    padding-top: 15px;
+    margin-bottom: 20px;
+}
+
+.cart-summary-item {
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    padding: 6px 0; /* Reduced padding */
+    padding: 10px 0;
     border-bottom: 1px dashed #eee;
-    font-size: 0.95rem; /* Slightly smaller font */
-    flex-wrap: nowrap; /* Keep cart items on single line */
-    gap: 5px; /* Reduced gap */
+    font-size: 1rem;
 }
 
-.cart-item:last-child {
+.cart-summary-item:last-child {
     border-bottom: none;
 }
 
-.item-details {
-    flex: 1 1 auto; /* Allows it to take available space */
+.item-name-summary {
+    flex-grow: 1;
+    text-align: left;
     color: #555;
-    white-space: nowrap; /* Prevent wrapping for item details */
-    overflow: hidden; /* Hide overflowing text */
-    text-overflow: ellipsis; /* Add ellipsis for overflowing text if it's too long in UI */
+    white-space: nowrap; /* Keep on single line */
+    overflow: hidden; /* Hide overflow */
+    text-overflow: ellipsis; /* Add ellipsis */
 }
 
-.item-total {
-    flex-shrink: 0; /* Prevent shrinking */
+.item-price-summary {
     font-weight: bold;
     color: #333;
-    text-align: right; /* Align total to right */
-    margin-left: auto; /* Push to the right */
-    padding-left: 8px; /* Add some padding if text is too close */
+    flex-shrink: 0;
+    margin-left: 10px;
 }
 
 .remove-item-btn {
     background: none;
     border: none;
-    color: #dc3545;
-    font-size: 1rem; /* Slightly smaller close button */
+    color: #dc3545; /* Red for delete */
+    font-size: 1.1rem;
     cursor: pointer;
-    margin-left: 5px; /* Adjusted margin */
-    padding: 2px; /* Reduced padding */
+    margin-left: 8px;
+    padding: 5px;
     border-radius: 5px;
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
     flex-shrink: 0;
 }
 
 .remove-item-btn:hover {
     background-color: #f8d7da;
+    color: #a71d2a;
 }
 
 .cart-total-section {
     display: flex;
     justify-content: flex-end;
     align-items: baseline;
-    margin-top: 12px; /* Reduced margin */
-    padding-top: 10px; /* Reduced padding */
+    margin-top: 20px;
+    padding-top: 15px;
     border-top: 2px solid #007bff;
 }
 
 .total-label {
-    font-size: 1.1rem; /* Slightly smaller font */
+    font-size: 1.3rem;
     font-weight: bold;
     color: #333;
-    margin-right: 6px; /* Reduced margin */
+    margin-right: 10px;
 }
 
 .total-amount {
-    font-size: 1.6rem; /* Slightly smaller font */
+    font-size: 2rem;
     font-weight: bold;
     color: #28a745;
 }
 
-/* Order Form */
-#order-form {
-    margin-top: 20px; /* Reduced margin */
-    padding-top: 12px; /* Reduced padding */
-    border-top: 1px dashed #ddd;
+.payment-heading {
+    font-size: 1.5rem;
+    margin-top: 30px;
+    margin-bottom: 15px;
 }
 
-#order-form input[type="text"],
-#order-form input[type="tel"],
-#order-form textarea {
-    width: calc(100% - 16px); /* Adjusted width for new padding */
-    padding: 8px; /* Reduced padding */
-    margin-bottom: 10px; /* Reduced margin */
-    border: 1px solid #ccc;
+.payment-instructions {
+    background-color: #fff3cd; /* Light yellow background */
+    border: 1px solid #ffeeba;
     border-radius: 8px;
-    font-size: 0.9rem; /* Slightly smaller font */
-    font-family: 'Noto Sans Bengali', sans-serif;
-}
-
-#order-form textarea {
-    resize: vertical;
-    min-height: 60px; /* Slightly reduced min-height */
-}
-
-.order-confirm-btn {
-    background-color: #28a745;
-    color: #fff;
-    padding: 10px 20px; /* Reduced padding */
-    border-radius: 8px;
-    font-size: 0.95rem; /* Slightly smaller font */
-    font-weight: bold;
-    width: 100%;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: background-color 0.3s ease;
-}
-
-.order-confirm-btn:hover {
-    background-color: #218838;
-}
-
-/* Product Quantity Popup */
-#product-quantity-popup .order-popup-content {
-    max-width: 380px; /* Slightly smaller max-width */
-    padding: 18px; /* Adjusted padding */
-}
-
-.popup-product-details {
-    display: flex; /* Ensures image and text details are side by side */
-    align-items: flex-start; /* Aligns items to the top if their content varies in height */
-    gap: 12px; /* Reduced gap */
-    margin-bottom: 18px; /* Reduced margin */
-    padding-bottom: 12px; /* Reduced padding */
-    border-bottom: 1px solid #eee;
-}
-
-.popup-product-details img {
-    width: 90px; /* Slightly smaller image */
-    height: 90px;
-    flex-shrink: 0; /* Prevents image from shrinking */
-    object-fit: cover; /* Ensures image covers area without distortion */
-}
-
-.popup-product-details .text-details {
-    text-align: left;
-    flex-grow: 1;
-    /* Ensure text details flow correctly */
-    min-width: 0; /* Allows text-details to shrink if necessary */
-}
-
-#popup-product-name {
-    font-size: 1.3rem; /* Slightly smaller font */
-    margin: 0 0 3px; /* Adjusted margin */
-}
-
-#popup-product-name-en {
-    font-size: 0.8rem; /* Slightly smaller font */
-    margin-bottom: 5px; /* Adjusted margin */
-    display: block; /* Ensure it takes full width */
-    white-space: normal; /* Allow wrapping */
-    overflow: visible; /* Allow content to be visible */
-    text-overflow: clip; /* No ellipsis for this */
-}
-
-.popup-product-description {
-    font-size: 0.8rem; /* Slightly smaller font */
-    margin-bottom: 7px; /* Adjusted margin */
-    white-space: normal; /* Allow wrapping for description */
-    overflow: visible;
-    text-overflow: clip;
-}
-
-.popup-price-display {
-    font-size: 0.95rem; /* Slightly smaller font */
-    white-space: normal; /* Allow wrapping for price display */
-    overflow: visible;
-    text-overflow: clip;
-}
-
-.order-controls {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px; /* Reduced gap */
-    margin-bottom: 18px; /* Reduced margin */
-}
-
-.order-controls label {
-    font-size: 0.95rem; /* Slightly smaller font */
-}
-
-.order-controls input[type="number"] {
-    width: 60px; /* Slightly smaller width */
-    padding: 7px; /* Reduced padding */
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    font-size: 0.9rem; /* Slightly smaller font */
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #856404; /* Dark yellow text */
     text-align: center;
+}
+
+.payment-instructions .bKash-number {
+    font-weight: bold;
+    color: #218838; /* Green for bKash number */
+}
+
+#payment-form input {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
     font-family: 'Noto Sans Bengali', sans-serif;
 }
 
-#add-to-cart-from-popup-btn {
-    width: 100%;
-}
-
-/* Order Success Popup */
+/* Order Success Popup Specific */
 .success-content {
     text-align: center;
-    padding: 25px 20px; /* Reduced padding */
+    padding: 40px 30px;
 }
 
 .success-heading {
-    font-size: 2.2rem; /* Slightly smaller font */
-    margin-bottom: 12px; /* Reduced margin */
-    gap: 8px; /* Reduced gap */
+    color: #28a745;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
 }
 
 .success-message {
-    font-size: 0.95rem; /* Slightly smaller font */
-    margin-bottom: 7px; /* Reduced margin */
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 10px;
 }
 
 .thank-you-message {
-    font-size: 1rem; /* Slightly smaller font */
-    margin-top: 20px; /* Reduced margin */
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #0056b3;
+    margin-top: 30px;
 }
 
 #download-pdf-btn {
-    margin-top: 18px; /* Reduced margin */
-    margin-bottom: 12px; /* Reduced margin */
-    padding: 8px 18px; /* Reduced padding */
-    font-size: 0.9rem; /* Slightly smaller font */
+    margin-top: 25px;
+    margin-bottom: 20px;
+    background-color: #dc3545; /* Red for PDF download */
+    color: #fff;
 }
 
+#download-pdf-btn:hover {
+    background-color: #c82333;
+}
 
-/* Message Box Overlay */
+#whatsapp-file-share-btn {
+    margin-top: 15px;
+}
+
+/* Custom Message Box Overlay */
 #message-box-content {
-    max-width: 350px; /* Slightly smaller max-width */
-    padding-bottom: 12px; /* Reduced padding */
+    text-align: center;
+    max-width: 400px;
+    padding-bottom: 20px;
 }
 
 #message-box-title {
     color: #dc3545;
-    font-size: 1.4rem; /* Slightly smaller font */
-    margin-bottom: 10px; /* Reduced margin */
+    font-size: 1.6rem;
+    margin-bottom: 15px;
 }
 
 #message-box-text {
-    font-size: 0.95rem; /* Slightly smaller font */
+    font-size: 1.1rem;
     color: #333;
-    margin-bottom: 18px; /* Reduced margin */
+    margin-bottom: 25px;
 }
 
 #message-box-ok-btn {
     background-color: #007bff;
     color: #fff;
-    padding: 7px 18px; /* Reduced padding */
+    padding: 10px 25px;
     border-radius: 8px;
-    font-size: 0.9rem; /* Slightly smaller font */
+    font-size: 1rem;
     font-weight: bold;
     border: none;
     cursor: pointer;
@@ -774,32 +761,24 @@ section {
     background-color: #0056b3;
 }
 
-
-/* Footer */
-footer {
-    padding: 25px 0; /* Reduced padding */
-    margin-top: 40px; /* Ensure sufficient margin from content above */
-}
-
-
 /* Floating Cart Button */
 .floating-button {
-    position: fixed; /* Ensures it stays fixed on scroll */
-    bottom: 20px; /* Distance from bottom */
-    right: 20px; /* Distance from right */
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
     background-color: #007bff;
     color: #fff;
-    width: 60px; /* Restored original size */
-    height: 60px; /* Restored original size */
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
-    font-size: 1.8rem; /* Restored original font size */
+    font-size: 1.8rem;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     cursor: grab;
     transition: background-color 0.3s ease;
-    z-index: 1050; /* Higher z-index to ensure it's always on top */
+    z-index: 1100; /* Higher z-index to be above all popups */
 }
 
 .floating-button:hover {
@@ -812,11 +791,11 @@ footer {
     right: -5px;
     background-color: #dc3545;
     color: #fff;
-    font-size: 0.8rem; /* Restored original font size */
+    font-size: 0.8rem;
     font-weight: bold;
     border-radius: 50%;
-    padding: 5px 8px; /* Restored original padding */
-    min-width: 20px; /* Restored original min-width */
+    padding: 5px 8px;
+    min-width: 20px;
     text-align: center;
     line-height: 1;
     border: 2px solid #fff;
@@ -824,275 +803,219 @@ footer {
 
 /* Animations */
 @keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-
-    to {
-        opacity: 1;
-    }
+    from { opacity: 0; }
+    to { opacity: 1; }
 }
 
 @keyframes slideUp {
-    from {
-        transform: translateY(50px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
 }
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    .main-header .container {
-        flex-direction: column;
-        gap: 10px;
+    .main-header nav {
+        flex-wrap: wrap;
+        justify-content: center;
     }
-
     .main-header nav a {
-        margin: 0 8px;
+        margin: 5px 8px;
         font-size: 0.9rem;
-        padding: 5px;
     }
-
     .hero-content h2 {
         font-size: 2.2rem;
     }
-
     .hero-content p {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
-
     .hero-buttons {
         flex-direction: column;
-        gap: 10px;
+        gap: 15px;
     }
-
     .btn {
-        width: 80%;
+        width: 90%;
         max-width: 300px;
-        margin: 5px auto;
     }
-
-    .features-grid,
-    .product-grid {
+    h2 {
+        font-size: 2rem;
+    }
+    .section-description {
+        font-size: 1rem;
+    }
+    .design-grid, .process-steps {
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
     }
-
-    .step-item {
-        flex: 1 1 calc(50% - 30px);
-        /* Two items per row on tablets */
+    /* Retain dynamic image sizing from previous design */
+    .design-item img {
+        max-height: 200px;
+        padding: 8px; /* Adjusted for mobile */
     }
-
-    .order-popup-content {
-        width: 95%;
-        padding: 15px; /* Further reduce padding on smaller screens */
+    .popup-content {
+        padding: 20px;
+        /* *** MODIFIED FOR SCROLLING FIX *** */
+        max-height: calc(100vh - 40px); /* Adjust based on desired top/bottom margin for mobile */
+        /* ********************************* */
     }
-
-    .order-summary-heading, .customer-info-heading {
+    .popup-heading {
+        font-size: 1.5rem;
+    }
+    .popup-design-details {
+        flex-direction: column;
+        text-align: center;
+    }
+    .popup-design-details img {
+        width: 120px; /* Adjusted size for mobile */
+        height: auto;
+        max-height: 150px;
+    }
+    .popup-design-details .text-details {
+        text-align: center;
+    }
+    #popup-design-name {
         font-size: 1.4rem;
     }
-    .invoice-details p {
+    .popup-design-description {
+        font-size: 0.9rem;
+    }
+    .form-group input, .form-group textarea {
+        font-size: 0.9rem;
+    }
+    .file-upload-instruction {
         font-size: 0.85rem;
     }
-    .cart-item {
+    .cart-summary-item {
         font-size: 0.9rem;
     }
     .total-label {
-        font-size: 1rem;
+        font-size: 1.1rem;
     }
     .total-amount {
-        font-size: 1.4rem;
-    }
-    #order-form input, #order-form textarea {
-        font-size: 0.85rem;
-    }
-    .order-confirm-btn {
-        font-size: 0.9rem;
-        padding: 10px 15px;
-    }
-    .success-heading {
         font-size: 1.8rem;
     }
-
-    /* Smaller product quantity popup for smaller screens */
-    #product-quantity-popup .order-popup-content {
-        max-width: 320px;
-        padding: 15px;
+    .payment-instructions {
+        font-size: 0.95rem;
     }
-    .popup-product-details img {
-        width: 80px;
-        height: 80px;
-    }
-    #popup-product-name {
-        font-size: 1.2rem;
-    }
-    #popup-product-name-en, .popup-product-description, .popup-price-display {
-        font-size: 0.75rem;
-    }
-    .order-controls label, .order-controls input {
+    #payment-form input {
         font-size: 0.9rem;
     }
-    .order-controls input[type="number"] {
-        width: 55px;
-    }
-
     .floating-button {
-        width: 55px;
-        height: 55px;
-        font-size: 1.6rem;
-        bottom: 18px;
-        right: 18px;
+        width: 50px;
+        height: 50px;
+        font-size: 1.5rem;
+        bottom: 15px;
+        right: 15px;
     }
     .floating-button .cart-count {
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         padding: 4px 7px;
         min-width: 18px;
     }
 }
 
 @media (max-width: 480px) {
-    /* Further adjustments for very small screens */
-    .order-popup-content {
-        margin-top: 5px; 
-        margin-bottom: 5px;
-        max-height: calc(100vh - 10px); 
-        padding: 10px; 
+    .main-header .company-name {
+        font-size: 2.2rem;
     }
-
+    .slogan {
+        font-size: 1rem;
+    }
+    .hero-content h2 {
+        font-size: 1.8rem;
+    }
+    .hero-content p {
+        font-size: 0.9rem;
+    }
+    h2 {
+        font-size: 1.8rem;
+    }
+    .section-description {
+        font-size: 0.9rem;
+    }
+    .design-grid {
+        grid-template-columns: 1fr;
+    }
+    .step-item {
+        flex: 1 1 100%;
+    }
+    .popup-content {
+        padding: 15px;
+        margin: 5px auto;
+        /* *** MODIFIED FOR SCROLLING FIX *** */
+        max-height: calc(100vh - 20px); /* Even tighter for very small screens */
+        /* ********************************* */
+    }
     .close-popup-btn {
-        font-size: 1.4rem; 
+        font-size: 1.5rem;
         top: 5px;
         right: 5px;
     }
-
-    .order-summary-heading,
-    .customer-info-heading {
-        font-size: 1.2rem; 
-        margin-bottom: 10px;
+    .popup-heading {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
     }
-
-    .invoice-details {
-        padding: 8px;
-        margin-bottom: 10px;
-    }
-
-    .invoice-details p {
-        font-size: 0.8rem;
-        margin: 2px 0;
-    }
-
-    .cart-item {
-        font-size: 0.85rem; 
-        padding: 4px 0;
-    }
-    .item-total {
-        padding-left: 5px;
-    }
-
-    .remove-item-btn {
-        font-size: 0.9rem;
-    }
-    
-    .cart-total-section {
-        margin-top: 10px;
-        padding-top: 8px;
-    }
-
-    .total-label {
-        font-size: 0.9rem;
-    }
-
-    .total-amount {
+    #popup-design-name {
         font-size: 1.2rem;
     }
-
-    #order-form {
-        margin-top: 15px;
-        padding-top: 10px;
-    }
-
-    #order-form input, #order-form textarea {
-        padding: 7px;
-        margin-bottom: 8px;
-        font-size: 0.8rem;
-    }
-
-    #order-form textarea {
-        min-height: 50px;
-    }
-
-    .order-confirm-btn {
-        padding: 8px 12px;
+    .popup-design-description, .popup-price-display {
         font-size: 0.85rem;
     }
-
-    #product-quantity-popup .order-popup-content {
-        max-width: 280px; /* Even smaller for very small screens */
-        padding: 10px;
-    }
-    .popup-product-details img {
-        width: 60px;
-        height: 60px;
-    }
-    #popup-product-name {
-        font-size: 1rem;
-    }
-    #popup-product-name-en, .popup-product-description, .popup-price-display {
-        font-size: 0.7rem;
-    }
-    .order-controls label, .order-controls input {
-        font-size: 0.8rem;
-    }
-    .order-controls input[type="number"] {
-        width: 45px;
-    }
-
-    .success-content {
-        padding: 20px 15px;
-    }
-    .success-heading {
-        font-size: 1.6rem;
-    }
-    .success-message {
-        font-size: 0.85rem;
-    }
-    .thank-you-message {
+    .form-group label {
         font-size: 0.9rem;
     }
-    #download-pdf-btn {
-        padding: 7px 15px;
+    .form-group input, .form-group textarea {
+        padding: 8px;
         font-size: 0.85rem;
     }
-
-    #message-box-content {
-        max-width: 250px;
-        padding-bottom: 10px;
-    }
-    #message-box-title {
-        font-size: 1.1rem;
-    }
-    #message-box-text {
+    .file-upload-instruction {
         font-size: 0.8rem;
+        padding: 6px;
     }
-    #message-box-ok-btn {
-        padding: 6px 15px;
+    #add-to-cart-btn {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+    .cart-summary-item {
         font-size: 0.85rem;
     }
-
+    .total-label {
+        font-size: 1rem;
+    }
+    .total-amount {
+        font-size: 1.6rem;
+    }
+    .payment-instructions {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    .payment-instructions .bKash-number {
+        font-size: 0.95rem;
+    }
+    #payment-form input {
+        font-size: 0.85rem;
+    }
+    .success-heading {
+        font-size: 1.8rem;
+    }
+    .success-message {
+        font-size: 0.95rem;
+    }
+    .thank-you-message {
+        font-size: 1rem;
+    }
+    #download-pdf-btn, #whatsapp-file-share-btn {
+        font-size: 0.9rem;
+        padding: 8px 18px;
+    }
     .floating-button {
-        width: 45px; 
+        width: 45px;
         height: 45px;
         font-size: 1.3rem;
-        bottom: 10px; 
-        right: 10px; 
+        bottom: 10px;
+        right: 10px;
     }
     .floating-button .cart-count {
         font-size: 0.65rem;
-        padding: 2px 5px;
-        min-width: 14px;
+        padding: 3px 6px;
+        min-width: 16px;
     }
 }
