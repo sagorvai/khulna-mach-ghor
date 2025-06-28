@@ -446,7 +446,7 @@ section {
     color: #666;
 }
 
-/* Order Summary Modal (Popup Overlay) */
+/* Base style for popup overlays (used for quantity, success, message box) */
 .order-popup-overlay {
     position: fixed;
     top: 0;
@@ -454,30 +454,62 @@ section {
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.6);
-    /* Dark overlay */
     display: flex;
     justify-content: center;
-    align-items: center; /* Vertically center all popups */
+    align-items: center;
     z-index: 1000;
     animation: fadeIn 0.3s ease-out;
 }
 
 .order-popup-content {
     background-color: #fff;
-    padding: 20px; /* Adjusted padding to be smaller */
+    padding: 20px;
     border-radius: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     width: 90%;
     max-width: 600px;
     position: relative;
     animation: slideUp 0.3s ease-out;
-    /* MODIFIED FOR SCROLLING FIX */
-    margin: 20px auto; /* Centered horizontally, increased top/bottom margin */
-    max-height: calc(100vh - 40px); /* Adjust max-height to account for new margins */
-    overflow-y: auto; /* Ensure content is scrollable if it exceeds max-height */
-    /* END MODIFIED */
+    margin: 10px auto;
+    max-height: calc(100vh - 20px);
+    overflow-y: auto;
     text-align: left;
 }
+
+/* NEW: Styles for the full-page order summary */
+.full-page-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #f8f8f8; /* Light background similar to body */
+    z-index: 1000; /* Ensure it's on top of main content */
+    display: flex; /* Use flex to center content if needed */
+    justify-content: center;
+    align-items: flex-start; /* Align content to top */
+    overflow-y: auto; /* Crucial for scrolling */
+    animation: fadeIn 0.3s ease-out;
+    padding: 20px; /* Add some padding around the full page content */
+    box-sizing: border-box; /* Include padding in width/height */
+}
+
+.full-page-content {
+    background-color: #fff;
+    padding: 25px; /* Generous padding for the content area */
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    width: 100%; /* Take full width of parent (full-page-overlay) padding considered */
+    max-width: 700px; /* Max width for readability on larger screens */
+    position: relative;
+    animation: slideUp 0.3s ease-out;
+    margin: auto; /* Center content horizontally if max-width is hit */
+    box-sizing: border-box;
+    min-height: calc(100% - 40px); /* Ensure it takes substantial height */
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+}
+
 
 .close-popup-btn {
     position: absolute;
@@ -746,14 +778,29 @@ section {
     min-width: 16px; /* Adjusted min-width */
 }
 
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { transform: translateY(50px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-    /* Main popup content for smaller screens */
+    /* Full Page Overlay adjustments */
+    .full-page-overlay {
+        padding: 10px; /* Less padding on smaller screens */
+    }
+    .full-page-content {
+        padding: 20px;
+    }
     .order-popup-content {
         padding: 15px; 
-        /* MODIFIED FOR SCROLLING FIX */
         max-height: calc(100vh - 30px); /* Adjust based on desired top/bottom margin for mobile */
-        /* END MODIFIED */
     }
     .order-summary-heading, .customer-info-heading {
         font-size: 1.4rem;
@@ -780,7 +827,19 @@ section {
 }
 
 @media (max-width: 480px) {
-    /* Further adjustments for very small screens */
+    /* Full Page Overlay adjustments */
+    .full-page-overlay {
+        padding: 0; /* No padding on very small screens, let content handle it */
+    }
+    .full-page-content {
+        padding: 15px;
+        border-radius: 0; /* No border-radius for true full screen on mobile */
+        max-width: 100%; /* Ensure it takes full width */
+        min-height: 100vh; /* Take full viewport height */
+        box-shadow: none; /* No shadow */
+    }
+
+    /* Further adjustments for very small screens for popups */
     .order-popup-content {
         margin-top: 5px; 
         margin-bottom: 5px;
@@ -925,4 +984,4 @@ section {
         padding: 2px 5px;
         min-width: 14px;
     }
-                               }
+                          }
