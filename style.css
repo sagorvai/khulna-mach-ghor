@@ -91,9 +91,9 @@ section {
     transform: translateY(-2px);
 }
 
-/* Header Section */
+/* Header Section (Adjusted to match screenshot for 'খুলনা মাছ ঘর') */
 .main-header {
-    background: linear-gradient(135deg, #007bff, #0056b3);
+    background-color: #007bff; /* Solid blue background for header */
     color: #fff;
     padding: 20px 0;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
@@ -108,24 +108,47 @@ section {
 }
 
 .logo-placeholder {
+    /* Styles for the circular logo area from the screenshot */
+    background-color: #fff; /* White background for the circle */
+    border-radius: 50%; /* Make it a circle */
+    width: 200px; /* Adjust size as needed */
+    height: 200px; /* Adjust size as needed */
     display: flex;
-    flex-direction: column;
+    flex-direction: column; /* To center content vertically */
+    justify-content: center;
     align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    margin-bottom: 20px; /* Space below the logo */
+}
+
+.logo-placeholder img { /* If using an actual image logo inside */
+    max-width: 80%;
+    max-height: 80%;
+    object-fit: contain;
 }
 
 .company-name {
-    font-size: 2.8rem;
+    /* Styles for "খুলনা মাছ ঘর" text within the logo */
+    font-size: 2.8rem; /* Adjusted font size to fit */
     margin: 0;
     font-weight: bold;
-    /* Fotolipi text based logo style */
+    color: #dc3545; /* Red color from screenshot */
     letter-spacing: 2px;
     text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
 }
+/* If the logo is a single image, this H1 might not be directly visible, adjust accordingly */
 
 .slogan {
     font-size: 1.2rem;
     font-weight: 300;
     margin: 0;
+    color: #e0e0e0; /* Lighter color for slogan */
+}
+
+.main-header nav {
+    background-color: rgba(0, 0, 0, 0.1); /* Slightly transparent background for nav */
+    border-radius: 5px;
+    padding: 5px 10px;
 }
 
 .main-header nav a {
@@ -133,7 +156,7 @@ section {
     text-decoration: none;
     margin: 0 15px;
     font-weight: 500;
-    transition: color 0.3s ease;
+    transition: color 0.3s ease, border-bottom 0.3s ease;
     display: inline-flex;
     align-items: center;
     gap: 5px;
@@ -146,41 +169,32 @@ section {
     border-bottom: 2px solid #a0d3ff;
 }
 
-/* Hero Section */
+/* Hero Section (Reverted to a more general look if not using specific image/text like Fotolipi) */
 .hero-section {
-    background: url('https://i.imgur.com/lK1SmT3.jpeg') no-repeat center center/cover;
-    color: #fff;
-    padding: 120px 0; /* Increased padding for better visual */
+    background-color: #e9f7ff; /* Light blue/white background from screenshot's general feel */
+    color: #333;
+    padding: 80px 0;
     position: relative;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    text-align: center;
 }
-
-.hero-section::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.4); /* Dark overlay */
-}
+/* No specific background image or overlay from original "খুলনা মাছ ঘর" screenshot for hero */
 
 .hero-content {
-    position: relative;
-    z-index: 1;
     max-width: 800px;
     margin: 0 auto;
 }
 
 .hero-content h2 {
-    font-size: 3rem;
+    font-size: 2.5rem; /* Adjusted from 3rem */
     margin-bottom: 20px;
     line-height: 1.3;
+    color: #0056b3; /* Darker blue */
 }
 
 .hero-content p {
-    font-size: 1.3rem;
+    font-size: 1.1rem; /* Adjusted from 1.3rem */
     margin-bottom: 30px;
+    color: #555;
 }
 
 .hero-buttons {
@@ -252,31 +266,31 @@ h2 {
 }
 
 
-/* Design Grids (inside Categories) */
+/* Design Grids (inside Categories) - Adjusted for screenshot layout */
 .design-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 30px;
-    padding: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Min-width adjusted to 300px for better fit */
+    gap: 20px; /* Reduced gap for tighter packing */
+    padding: 10px; /* Less padding around grid */
+    justify-content: center; /* Center items if they don't fill the row */
 }
 
 .design-item {
     background-color: #f9f9f9;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    border-radius: 8px; /* Slightly less rounded than before for match */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Lighter shadow */
     overflow: hidden;
     display: flex;
     flex-direction: column;
     text-align: left;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
-    /* Allow height to adjust based on image */
-    height: auto; 
+    height: auto; /* Allow height to adjust based on image */
 }
 
 .design-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .design-item img {
@@ -285,16 +299,16 @@ h2 {
     /* IMPORTANT: Ensures entire image is visible, no cropping */
     object-fit: contain;
     /* Optional: Set a max-height for very tall images to prevent overly long items */
-    max-height: 250px; 
+    max-height: 250px; /* Adjusted max-height based on screenshot observation */
     border-bottom: 1px solid #eee;
     display: block; /* Remove extra space below image */
-    padding: 10px; /* Added padding to image as per previous design */
-    background-color: #f0f0f0; /* Light background for image container */
+    padding: 5px; /* Reduced padding around image inside item */
+    background-color: #fff; /* White background for image container */
 }
 
 
 .design-item-content {
-    padding: 20px;
+    padding: 15px; /* Reduced padding */
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -302,19 +316,29 @@ h2 {
 }
 
 .design-item h4 {
-    font-size: 1.4rem;
+    font-size: 1.2rem; /* Adjusted font size */
     color: #333;
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 5px; /* Reduced margin */
     line-height: 1.2;
 }
 
 .design-item .price {
-    font-size: 1.1rem;
+    font-size: 1.05rem; /* Adjusted font size */
     color: #28a745;
     font-weight: bold;
     margin: 0;
 }
+/* "অর্ডার দিন ও যুক্ত করুন" button style for product items from screenshot */
+.design-item .btn {
+    width: calc(100% - 20px); /* Fill product item width */
+    margin: 10px;
+    padding: 8px 15px;
+    font-size: 0.9rem;
+    border-radius: 5px;
+    box-shadow: none; /* No shadow for this button */
+}
+
 
 /* How It Works Section */
 .how-it-works-section {
@@ -1018,4 +1042,4 @@ footer p {
         padding: 3px 6px;
         min-width: 16px;
     }
-    }
+}
