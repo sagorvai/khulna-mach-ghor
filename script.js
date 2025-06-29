@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    // MODIFIED: Reference the order summary as a page
+    // Reference the order summary as a page
     const orderSummaryPage = document.getElementById('order-summary-modal'); // Renamed to clarify it's a page, but kept original ID
     const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); 
 
@@ -55,8 +55,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // FIXED: Correct Google Apps Script URL for products
-    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
+    // IMPORTANT FIX: Updated with your new Google Apps Script Web App URL
+    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzF744HikAy54VZdx19EnTwkutLmS_SfvnjTMUBwt3I21LpOS14ALF0KS9WM70cIf1D/exec"; 
 
     const dynamicCategoryGrids = new Map();
 
@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const productsData = await response.json();
             
+            // Check for error property in the response from Apps Script
             if (productsData.error) {
                 showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে পণ্য ডেটা লোড করা যায়নি: ' + productsData.error);
                 console.error('Apps Script Error:', productsData.error);
@@ -95,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error loading products from sheet:', error);
-            showMessage('পণ্য লোড করতে সমস্যা', 'পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।');
+            showMessage('পণ্য লোড করতে সমস্যা', 'পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ বা Apps Script Deployment চেক করুন।');
         }
     }
 
@@ -105,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
         dynamicCategoryGrids.clear();
 
         productsToRender.forEach(product => {
+            // Validate essential data points for a product
             if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
                 !product.Price || product.Price.toString().trim() === '' ||
                 !product.Category || product.Category.toString().trim() === '') {
@@ -236,8 +238,8 @@ document.addEventListener('DOMContentLoaded', () => {
             popupProductImage.src = imageUrl;
             popupProductPrice.textContent = `${price} টাকা${unit === 'কেজি' ? '/কেজি' : ''}`;
             popupQuantityInput.value = '1';
-            popupQuantityInput.min = '0.1'; // Changed from 0.5 as per previous instruction
-            popupQuantityInput.step = '0.1'; // Changed from 0.5 as per previous instruction
+            popupQuantityInput.min = '0.1'; 
+            popupQuantityInput.step = '0.1'; 
             popupProductUnit.textContent = unit;
             selectedProduct = { name, nameEn, price, unit, description, imageUrl };
             productQuantityPopup.style.display = 'flex';
@@ -513,7 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
-                mode: 'no-cors', 
+                mode: 'no-cors', // This is crucial for cross-origin requests to Apps Script
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(currentOrderData), 
             });
