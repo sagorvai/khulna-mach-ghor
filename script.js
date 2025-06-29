@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // IMPORTANT: Your provided Google Apps Script Web App URL
+    // IMPORTANT: Your provided Google Apps Script Web App URL (CONFIRMED FROM LAST SCREENSHOT)
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4h_Q1GODPYgspMT5bxEAqVrYUS9jsYDH_-gRFLn1Hh1R3xdukUMuzC2IT4gPkYBWxJg/exec"; 
 
     const dynamicCategoryGrids = new Map();
@@ -641,17 +641,4 @@ document.addEventListener('DOMContentLoaded', () => {
         let ruleExists = false;
         for (let i = 0; i < styleSheet.cssRules.length; i++) {
             if (styleSheet.cssRules[i].cssText.includes('body.no-scroll')) {
-                ruleExists = true;
-                break;
-            }
-        }
-        if (!ruleExists) {
-            styleSheet.insertRule('body.no-scroll { overflow: hidden !important; }', styleSheet.cssRules.length);
-        }
-    }
-
-
-    // Initial setup
-    updateCartDisplay();
-    loadProductsFromSheet();
-});
+        ... (rest of the code)
