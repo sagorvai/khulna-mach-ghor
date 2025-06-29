@@ -32,8 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    // Reference the order summary as a page
-    const orderSummaryPage = document.getElementById('order-summary-modal'); // Renamed to clarify it's a page, but kept original ID
+    const orderSummaryPage = document.getElementById('order-summary-modal'); 
     const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); 
 
     const invoiceDateSpan = document.getElementById('invoice-date');
@@ -54,8 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // IMPORTANT: This is your provided Google Apps Script Web App URL
-    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzF744HikAy54VZdx19EnTwkutLmS_SfvnjTMUBwt3I21LpOS14ALF0KS9WM70cIf1D/exec"; 
+    // IMPORTANT FIX: Updated with your NEW Google Apps Script Web App URL
+    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4h_Q1GODPYgspMT5bxEAqVrYUS9jsYDH_-gRFLn1Hh1R3xdukUMuzC2IT4gPkYBWxJg/exec"; 
 
     const dynamicCategoryGrids = new Map();
 
@@ -81,7 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('Attempting to load products from Google Apps Script...');
         console.log('Using URL:', GOOGLE_APPS_SCRIPT_URL);
         try {
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
+            // FIX: Added cache: "no-store" to prevent browser caching issues
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { cache: "no-store" }); 
             console.log('Fetch response received:', response);
 
             if (!response.ok) {
@@ -119,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!productsToRender || productsToRender.length === 0) {
             console.warn('renderProducts called with no data.');
-            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
+            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
             return;
         }
 
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (productsSectionContainer.children.length === 0) {
-            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem;">কোনো উপযুক্ত মাছের তথ্য পাওয়া যায়নি। আপনার শীটে সঠিক ডেটা আছে কিনা নিশ্চিত করুন।</p>`;
+            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো উপযুক্ত মাছের তথ্য পাওয়া যায়নি। আপনার শীটে সঠিক ডেটা আছে কিনা নিশ্চিত করুন।</p>`;
         }
     }
 
@@ -201,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.forEach((item, index) => {
             const itemTotal = item.quantity * item.price;
             total += itemTotal;
-            totalItemCount++; // Summing up quantities for total count (might not be accurate for "items in cart" count)
+            totalItemCount++; 
             
             const itemElement = document.createElement('div');
             itemElement.classList.add('cart-item');
@@ -215,16 +215,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalBillSpan.textContent = total;
 
-        if (cart.length > 0) { // Check cart array length for distinct items
+        if (cart.length > 0) { 
             floatingCartButton.style.display = 'flex';
-            cartItemCountSpan.textContent = cart.length; // Show number of distinct items
+            cartItemCountSpan.textContent = cart.length; 
         } else {
             floatingCartButton.style.display = 'none';
             cartItemCountSpan.textContent = 0;
         }
 
         const now = new Date();
-        currentInvoiceDate = now.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }); // Bengali date for display
+        currentInvoiceDate = now.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }); 
         currentOrderCode = generateOrderCode();
 
         invoiceDateSpan.textContent = currentInvoiceDate;
@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
         const day = now.getDate().toString().padStart(2, '0');
         const uniqueId = Math.random().toString(36).substr(2, 4).toUpperCase();
-        return `KMG-${year}${month}${day}-${uniqueId}`; // KMG for Khulna Mach Ghar
+        return `KMG-${year}${month}${day}-${uniqueId}`; 
     }
 
     document.querySelector('.products-section').addEventListener('click', (e) => {
@@ -303,22 +303,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // MODIFIED: Floating Cart Button click to open Order Summary PAGE
     floatingCartButton.addEventListener('click', () => {
         if (cart.length > 0) {
-            updateCartDisplay(); // Refresh display before showing
-            document.body.classList.add('no-scroll'); // Prevent main page scroll
-            orderSummaryPage.style.display = 'flex'; // Show the full-page order summary
+            updateCartDisplay(); 
+            document.body.classList.add('no-scroll'); 
+            orderSummaryPage.style.display = 'flex'; 
         }
     });
 
-    // MODIFIED: Close Order Summary PAGE
     closeOrderSummaryBtn.addEventListener('click', () => {
         orderSummaryPage.style.display = 'none';
-        document.body.classList.remove('no-scroll'); // Re-enable main page scroll
+        document.body.classList.remove('no-scroll'); 
     });
 
-    // UPDATED: PDF Generation Function
     async function generateInvoicePdf(customerData, orderDetails) {
         try {
             const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
@@ -332,10 +329,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const tableWidth = pdf.internal.pageSize.width - (2 * leftMargin);
             const colWidthsArray = [
-                tableWidth * 0.40, // Item (40%)
-                tableWidth * 0.20, // Quantity (20%)
-                tableWidth * 0.15, // Unit Price (15%)
-                tableWidth * 0.25  // Total Price (25%)
+                tableWidth * 0.40, 
+                tableWidth * 0.20, 
+                tableWidth * 0.15, 
+                tableWidth * 0.25  
             ];
 
             const col1X = leftMargin + 5; 
@@ -361,7 +358,6 @@ document.addEventListener('DOMContentLoaded', () => {
             pdf.text('INVOICE:', leftMargin, y);
             y += (15 * lineHeightFactor);
             
-            // Convert Bengali date to English for PDF
             const pdfDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
             pdf.text(`Date: ${pdfDate}`, leftMargin, y); 
             y += (15 * lineHeightFactor);
@@ -388,16 +384,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
-                // Use simple text for item name to keep it on one line.
                 const maxItemNameWidth = colWidthsArray[0] - 10; 
                 
                 const textLineHeight = pdf.getFontSize() * lineHeightFactor;
-                let rowHeight = textLineHeight; // Default row height for single line item
-                if (rowHeight < 20) rowHeight = 20; // Minimum row height to ensure spacing
+                let rowHeight = textLineHeight; 
+                if (rowHeight < 20) rowHeight = 20; 
 
                 pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); 
 
-                // Use simple text for item name with maxWidth option
                 pdf.text(itemNameForPdf, col1X, y + (textLineHeight * 0.75), { maxWidth: maxItemNameWidth }); 
                 pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X, y + (textLineHeight * 0.75), { align: 'center' });
                 pdf.text(`${item.price} BDT`, col3X, y + (textLineHeight * 0.75), { align: 'right' });
@@ -405,7 +399,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 y += rowHeight;
 
-                // Page breaking logic
                 if (y > pdf.internal.pageSize.height - 150 && orderDetails.items.indexOf(item) < orderDetails.items.length - 1) {
                     pdf.addPage();
                     y = 50; 
@@ -424,19 +417,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
             y += (20 * lineHeightFactor); 
 
-            // Total Bill
             pdf.setFontSize(16);
             pdf.text('Total Bill:', rightMargin - 125, y, { align: 'right' }); 
             pdf.setFontSize(20);
             pdf.text(`${orderDetails.totalBill} BDT`, rightMargin, y + 5, { align: 'right' });
             y += (15 * lineHeightFactor); 
 
-            // UPDATED: Delivery and Packing Charge Note alignment
             pdf.setFontSize(10); 
             pdf.text('(+) Delivery & Packing Charges Applicable', rightMargin, y, { align: 'right' });
             y += (30 * lineHeightFactor); 
 
-            // Customer Information
             pdf.setFontSize(12);
             pdf.text('Customer Name: ' + customerData.customerName, leftMargin, y);
             y += (15 * lineHeightFactor);
@@ -452,7 +442,6 @@ document.addEventListener('DOMContentLoaded', () => {
             y += addressLines.length * (pdf.getFontSize() * lineHeightFactor); 
             y += (20 * lineHeightFactor);
 
-            // Thank You Message
             pdf.setFontSize(10);
             pdf.text('Thank you for staying with Khulna Mach Ghar!', pdf.internal.pageSize.width / 2, y, { align: 'center' });
             y += (12 * lineHeightFactor);
@@ -505,7 +494,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         
-        // Convert customer phone number to English numbers for Google Sheet and internal use
         customerPhone = convertBengaliNumbersToEnglish(customerPhone);
 
         const currentOrderData = {
@@ -535,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
-                mode: 'no-cors', // This is crucial for cross-origin requests to Apps Script
+                mode: 'no-cors', 
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(currentOrderData), 
             });
