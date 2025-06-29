@@ -55,6 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
+    // FIXED: Correct Google Apps Script URL for products
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzk7ds_HA-wHiGumbysQ7h-4uXcj3QsXrgRRAIwkjhOqwVyWZCFwmdXi6umapfA2JS6/exec"; 
 
     const dynamicCategoryGrids = new Map();
