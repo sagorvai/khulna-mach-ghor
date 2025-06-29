@@ -636,7 +636,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Class to prevent body scrolling when a full-page overlay is active
-    // This rule is added dynamically if not present
     const styleSheet = document.styleSheets[0];
     if (styleSheet) { 
         let ruleExists = false;
