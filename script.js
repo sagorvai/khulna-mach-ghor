@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // IMPORTANT FIX: Updated with your NEW Google Apps Script Web App URL
+    // IMPORTANT: Your provided Google Apps Script Web App URL
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4h_Q1GODPYgspMT5bxEAqVrYUS9jsYDH_-gRFLn1Hh1R3xdukUMuzC2IT4gPkYBWxJg/exec"; 
 
     const dynamicCategoryGrids = new Map();
@@ -77,59 +77,65 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadProductsFromSheet() {
-        console.log('Attempting to load products from Google Apps Script...');
-        console.log('Using URL:', GOOGLE_APPS_SCRIPT_URL);
+        console.log('--- loadProductsFromSheet started ---');
+        console.log('Attempting to fetch products from URL:', GOOGLE_APPS_SCRIPT_URL);
         try {
-            // FIX: Added cache: "no-store" to prevent browser caching issues
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { cache: "no-store" }); 
-            console.log('Fetch response received:', response);
+            console.log('Fetch response object received:', response);
 
             if (!response.ok) {
-                console.error('HTTP error! Status:', response.status);
+                console.error('Fetch failed: HTTP status not OK. Status:', response.status, 'Status Text:', response.statusText);
+                showMessage('পণ্য লোড করতে সমস্যা', `HTTP ত্রুটি: ${response.status}। অনুগ্রহ করে Apps Script Deployment সেটিংস বা URL চেক করুন।`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             
             const productsData = await response.json();
-            console.log('Products data received:', productsData);
+            console.log('Parsed JSON data (productsData):', productsData);
             
-            // Check for error property in the response from Apps Script
-            if (productsData.error) {
-                showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে পণ্য ডেটা লোড করা যায়নি: ' + productsData.error + ' অনুগ্রহ করে Apps Script লগ চেক করুন।');
-                console.error('Apps Script Error in response:', productsData.error);
+            if (productsData && productsData.error) {
+                showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে ডেটা লোড করা যায়নি: ' + productsData.error + ' অনুগ্রহ করে Apps Script লগ চেক করুন।');
+                console.error('Apps Script reported an error in JSON response:', productsData.error);
                 return;
             }
             
-            if (productsData.length === 0) {
-                showMessage('পণ্য নেই', 'Apps Script থেকে কোনো পণ্য পাওয়া যায়নি। অনুগ্রহ করে আপনার প্রোডাক্ট শিট চেক করুন।');
-                console.warn('No products data found in the response.');
-            } else {
-                renderProducts(productsData); 
-                console.log('Products rendered successfully.');
-            }
+            if (!productsData || productsData.length === 0) {
+                showMessage('পণ্য নেই', 'Apps Script থেকে কোনো পণ্য পাওয়া যায়নি। অনুগ্রহ করে আপনার প্রোডাক্ট শিট চেক করুন এবং ডেটা সঠিকভাবে আছে কিনা দেখুন।');
+                console.warn('No products data found or received empty array.');
+                productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
+                return;
+            } 
+            
+            console.log('Number of products to render:', productsData.length);
+            renderProducts(productsData); 
+            console.log('Products rendering process completed.');
+            console.log('--- loadProductsFromSheet finished ---');
+
 
         } catch (error) {
-            console.error('Error loading products from sheet:', error);
-            showMessage('পণ্য লোড করতে সমস্যা', 'পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ বা Apps Script Deployment চেক করুন। বিস্তারিত ত্রুটি: ' + error.message);
+            console.error('Error during loadProductsFromSheet:', error);
+            showMessage('পণ্য লোড করতে সমস্যা', `পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ বা Apps Script Deployment চেক করুন। বিস্তারিত ত্রুটি: ${error.message}`);
         }
     }
 
     function renderProducts(productsToRender) {
+        console.log('renderProducts function started.');
         productsSectionContainer.innerHTML = ''; // Clear existing products
         dynamicCategoryGrids.clear();
 
         if (!productsToRender || productsToRender.length === 0) {
-            console.warn('renderProducts called with no data.');
+            console.warn('renderProducts called with no data or empty array. Displaying fallback message.');
             productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
             return;
         }
 
+        let productsRenderedCount = 0;
         productsToRender.forEach(product => {
             // Validate essential data points for a product
             if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
                 !product.Price || product.Price.toString().trim() === '' ||
                 !product.Category || product.Category.toString().trim() === '') {
-                console.warn('Skipping invalid product row (missing essential data):', product);
-                return;
+                console.warn('Skipping invalid product row (missing essential data or empty values):', product);
+                return; // Skip this product if essential data is missing
             }
 
             const isAvailable = (product.Available && product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
@@ -180,17 +186,21 @@ document.addEventListener('DOMContentLoaded', () => {
                 categoryDiv.appendChild(categoryHeading);
                 categoryDiv.appendChild(productGridDiv);
                 productsSectionContainer.appendChild(categoryDiv);
+                console.log('Created new category container for:', originalCategoryName);
 
                 dynamicCategoryGrids.set(normalizedCategoryName, productGridDiv);
                 currentProductGrid = productGridDiv;
             }
 
             currentProductGrid.appendChild(productItem); 
+            productsRenderedCount++;
         });
 
-        if (productsSectionContainer.children.length === 0) {
+        if (productsRenderedCount === 0) {
+            console.warn('No valid products were rendered after processing data. Displaying fallback message.');
             productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো উপযুক্ত মাছের তথ্য পাওয়া যায়নি। আপনার শীটে সঠিক ডেটা আছে কিনা নিশ্চিত করুন।</p>`;
         }
+        console.log('renderProducts function finished. Total products rendered:', productsRenderedCount);
     }
 
     function updateCartDisplay() {
@@ -623,11 +633,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // ADDED: Class to prevent body scrolling when a full-page overlay is active
-    // This needs to be applied/removed to the body element in JS
-    // Add `body.no-scroll { overflow: hidden; }` to CSS.
+    // Class to prevent body scrolling when a full-page overlay is active
     const styleSheet = document.styleSheets[0];
-    if (styleSheet) { // Check if stylesheet exists before inserting rule
+    if (styleSheet) { 
         let ruleExists = false;
         for (let i = 0; i < styleSheet.cssRules.length; i++) {
             if (styleSheet.cssRules[i].cssText.includes('body.no-scroll')) {
