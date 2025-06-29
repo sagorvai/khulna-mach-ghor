@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // IMPORTANT: This is your provided Google Apps Script Web App URL
+    // IMPORTANT: Your provided Google Apps Script Web App URL
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4h_Q1GODPYgspMT5bxEAqVrYUS9jsYDH_-gRFLn1Hh1R3xdukUMuzC2IT4gPkYBWxJg/exec"; 
 
     const dynamicCategoryGrids = new Map();
