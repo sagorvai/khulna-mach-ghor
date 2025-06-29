@@ -43,7 +43,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
     const downloadPdfBtn = document.getElementById('download-pdf-btn'); 
-    // ADDED: WhatsApp share button from success popup (if exists in HTML)
     const whatsappShareBtn = document.getElementById('whatsapp-share-btn'); 
 
     const floatingCartButton = document.getElementById('floating-cart-button');
@@ -55,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // IMPORTANT FIX: Updated with your new Google Apps Script Web App URL
+    // IMPORTANT: This is your provided Google Apps Script Web App URL
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzF744HikAy54VZdx19EnTwkutLmS_SfvnjTMUBwt3I21LpOS14ALF0KS9WM70cIf1D/exec"; 
 
     const dynamicCategoryGrids = new Map();
@@ -79,38 +78,57 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function loadProductsFromSheet() {
+        console.log('Attempting to load products from Google Apps Script...');
+        console.log('Using URL:', GOOGLE_APPS_SCRIPT_URL);
         try {
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
+            console.log('Fetch response received:', response);
+
             if (!response.ok) {
+                console.error('HTTP error! Status:', response.status);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            
             const productsData = await response.json();
+            console.log('Products data received:', productsData);
             
             // Check for error property in the response from Apps Script
             if (productsData.error) {
-                showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে পণ্য ডেটা লোড করা যায়নি: ' + productsData.error);
-                console.error('Apps Script Error:', productsData.error);
+                showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে পণ্য ডেটা লোড করা যায়নি: ' + productsData.error + ' অনুগ্রহ করে Apps Script লগ চেক করুন।');
+                console.error('Apps Script Error in response:', productsData.error);
                 return;
             }
-            renderProducts(productsData); 
+            
+            if (productsData.length === 0) {
+                showMessage('পণ্য নেই', 'Apps Script থেকে কোনো পণ্য পাওয়া যায়নি। অনুগ্রহ করে আপনার প্রোডাক্ট শিট চেক করুন।');
+                console.warn('No products data found in the response.');
+            } else {
+                renderProducts(productsData); 
+                console.log('Products rendered successfully.');
+            }
 
         } catch (error) {
             console.error('Error loading products from sheet:', error);
-            showMessage('পণ্য লোড করতে সমস্যা', 'পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ বা Apps Script Deployment চেক করুন।');
+            showMessage('পণ্য লোড করতে সমস্যা', 'পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ বা Apps Script Deployment চেক করুন। বিস্তারিত ত্রুটি: ' + error.message);
         }
     }
 
     function renderProducts(productsToRender) {
-        const existingDynamicContent = productsSectionContainer.querySelectorAll('.product-category');
-        existingDynamicContent.forEach(element => element.remove());
+        productsSectionContainer.innerHTML = ''; // Clear existing products
         dynamicCategoryGrids.clear();
+
+        if (!productsToRender || productsToRender.length === 0) {
+            console.warn('renderProducts called with no data.');
+            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
+            return;
+        }
 
         productsToRender.forEach(product => {
             // Validate essential data points for a product
             if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
                 !product.Price || product.Price.toString().trim() === '' ||
                 !product.Category || product.Category.toString().trim() === '') {
-                console.warn('Skipping invalid product row (client-side filter):', product);
+                console.warn('Skipping invalid product row (missing essential data):', product);
                 return;
             }
 
@@ -169,6 +187,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentProductGrid.appendChild(productItem); 
         });
+
+        if (productsSectionContainer.children.length === 0) {
+            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem;">কোনো উপযুক্ত মাছের তথ্য পাওয়া যায়নি। আপনার শীটে সঠিক ডেটা আছে কিনা নিশ্চিত করুন।</p>`;
+        }
     }
 
     function updateCartDisplay() {
@@ -199,8 +221,6 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             floatingCartButton.style.display = 'none';
             cartItemCountSpan.textContent = 0;
-            // orderSummaryPage.style.display = 'none'; // Only hide if it's currently open
-            // Do not hide the page here, let the close button handle it.
         }
 
         const now = new Date();
@@ -511,7 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
             showMessage(loadingMessageTitle, loadingMessageText); 
 
-            orderSummaryPage.style.display = 'none'; // MODIFIED: Hide order summary page
+            orderSummaryPage.style.display = 'none'; 
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
@@ -525,8 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('message-box-overlay').style.display = 'none';
             orderSuccessPopup.style.display = 'flex'; 
 
-            // ADDED: Update WhatsApp share button with dynamic order code and customer mobile
-            if (whatsappShareBtn) { // Check if the button exists
+            if (whatsappShareBtn) { 
                 const whatsappMessage = `প্রিয় খুলনা মাছ ঘর টিম, আমার অর্ডার কোড: ${currentOrderCode}%0Aআমার মোবাইল: ${customerPhone}%0A%0Aআমি আমার অর্ডারের বিবরণ শেয়ার করতে চাই।`;
                 whatsappShareBtn.href = `https://wa.me/8801951912031?text=${encodeURIComponent(whatsappMessage)}`;
             }
@@ -534,13 +553,13 @@ document.addEventListener('DOMContentLoaded', () => {
             orderForm.reset();
             cart = [];
             updateCartDisplay(); 
-            document.body.classList.remove('no-scroll'); // ADDED: Re-enable body scrolling after successful order
+            document.body.classList.remove('no-scroll'); 
             
         } catch (error) {
             console.error('Error sending order:', error);
             document.getElementById('message-box-overlay').style.display = 'none';
             showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
-            document.body.classList.remove('no-scroll'); // ADDED: Re-enable body scrolling on error
+            document.body.classList.remove('no-scroll'); 
         }
     });
 
