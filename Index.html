@@ -113,9 +113,9 @@
         </div>
     </section>
 
-    <!-- Order Summary Section (Now a modal-like overlay) -->
-    <section id="order-summary-modal" class="order-popup-overlay" style="display: none;">
-        <div class="order-popup-content invoice-content">
+    <!-- Order Summary Section (NOW A FULL PAGE OVERLAY) -->
+    <section id="order-summary-modal" class="full-page-overlay" style="display: none;">
+        <div class="full-page-content">
             <button class="close-popup-btn" id="close-order-summary-btn">&times;</button>
             <!-- Changed heading as per user request -->
             <h3 class="order-summary-heading"><i class="fas fa-file-invoice-dollar"></i> আপনার অর্ডার</h3>
@@ -176,7 +176,7 @@
             </div>
             <div class="order-controls">
                 <label for="popup-quantity">পরিমাণ:</label>
-                <input type="number" id="popup-quantity" value="1" min="0.5" step="0.5">
+                <input type="number" id="popup-quantity" value="1" min="0.1" step="0.1">
                 <span id="popup-product-unit">কেজি</span>
             </div>
             <button class="btn primary-btn" id="add-to-cart-from-popup-btn">কার্টে যুক্ত করুন</button>
@@ -211,7 +211,7 @@
         <span id="cart-item-count" class="cart-count">0</span>
     </div>
 
-    <!-- Custom JavaScript file -->
+
     <script src="script.js"></script>
     <script>
         // Set current year in footer
