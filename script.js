@@ -53,7 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentOrderCode = '';
     let currentInvoiceDate = ''; 
 
-    // IMPORTANT: Your provided Google Apps Script Web App URL
+    // IMPORTANT: This is your provided Google Apps Script Web App URL
     const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz4h_Q1GODPYgspMT5bxEAqVrYUS9jsYDH_-gRFLn1Hh1R3xdukUMuzC2IT4gPkYBWxJg/exec"; 
 
     const dynamicCategoryGrids = new Map();
@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('--- loadProductsFromSheet started ---');
         console.log('Attempting to fetch products from URL:', GOOGLE_APPS_SCRIPT_URL);
         try {
+            // FIX: Added cache: "no-store" to prevent browser caching issues
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { cache: "no-store" }); 
             console.log('Fetch response object received:', response);
 
@@ -131,15 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
         let productsRenderedCount = 0;
         productsToRender.forEach(product => {
             // Validate essential data points for a product
-            if (!product.Name_BN || product.Name_BN.toString().trim() === '' ||
-                !product.Price || product.Price.toString().trim() === '' ||
-                !product.Category || product.Category.toString().trim() === '') {
-                console.warn('Skipping invalid product row (missing essential data or empty values):', product);
-                return; // Skip this product if essential data is missing
+            // UPDATED: Check for specific required fields and their non-empty string/number values
+            if (!product.Name_BN || typeof product.Name_BN !== 'string' || product.Name_BN.trim() === '' ||
+                !product.Price || (typeof product.Price !== 'number' && typeof product.Price !== 'string') || isNaN(parseFloat(product.Price)) ||
+                !product.Category || typeof product.Category !== 'string' || product.Category.trim() === '') {
+                console.warn('Skipping invalid product row (missing essential data or empty values or wrong type):', product);
+                return; // Skip this product if essential data is missing or invalid type
             }
 
-            const isAvailable = (product.Available && product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
-                                 product.Available && product.Available.toString().toLowerCase().trim() === 'true'); 
+            const isAvailable = (product.Available && (product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
+                                 product.Available.toString().toLowerCase().trim() === 'true')); 
             
             const productItem = document.createElement('div');
             productItem.classList.add('product-item');
