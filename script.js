@@ -32,7 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    const orderSummaryModal = document.getElementById('order-summary-modal'); 
+    // MODIFIED: Reference the order summary as a page
+    const orderSummaryPage = document.getElementById('order-summary-modal'); // Renamed to clarify it's a page, but kept original ID
     const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); 
 
     const invoiceDateSpan = document.getElementById('invoice-date');
@@ -42,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
     const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
     const downloadPdfBtn = document.getElementById('download-pdf-btn'); 
+    // ADDED: WhatsApp share button from success popup (if exists in HTML)
+    const whatsappShareBtn = document.getElementById('whatsapp-share-btn'); 
 
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
@@ -173,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         cart.forEach((item, index) => {
             const itemTotal = item.quantity * item.price;
             total += itemTotal;
-            totalItemCount++;
+            totalItemCount++; // Summing up quantities for total count (might not be accurate for "items in cart" count)
             
             const itemElement = document.createElement('div');
             itemElement.classList.add('cart-item');
@@ -187,13 +190,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         totalBillSpan.textContent = total;
 
-        if (totalItemCount > 0) {
+        if (cart.length > 0) { // Check cart array length for distinct items
             floatingCartButton.style.display = 'flex';
-            cartItemCountSpan.textContent = totalItemCount;
+            cartItemCountSpan.textContent = cart.length; // Show number of distinct items
         } else {
             floatingCartButton.style.display = 'none';
             cartItemCountSpan.textContent = 0;
-            orderSummaryModal.style.display = 'none';
+            // orderSummaryPage.style.display = 'none'; // Only hide if it's currently open
+            // Do not hide the page here, let the close button handle it.
         }
 
         const now = new Date();
@@ -210,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
         const day = now.getDate().toString().padStart(2, '0');
         const uniqueId = Math.random().toString(36).substr(2, 4).toUpperCase();
-        return `KMG-${year}${month}${day}-${uniqueId}`;
+        return `KMG-${year}${month}${day}-${uniqueId}`; // KMG for Khulna Mach Ghar
     }
 
     document.querySelector('.products-section').addEventListener('click', (e) => {
@@ -231,8 +235,8 @@ document.addEventListener('DOMContentLoaded', () => {
             popupProductImage.src = imageUrl;
             popupProductPrice.textContent = `${price} টাকা${unit === 'কেজি' ? '/কেজি' : ''}`;
             popupQuantityInput.value = '1';
-            popupQuantityInput.min = '0.5';
-            popupQuantityInput.step = '0.5';
+            popupQuantityInput.min = '0.1'; // Changed from 0.5 as per previous instruction
+            popupQuantityInput.step = '0.1'; // Changed from 0.5 as per previous instruction
             popupProductUnit.textContent = unit;
             selectedProduct = { name, nameEn, price, unit, description, imageUrl };
             productQuantityPopup.style.display = 'flex';
@@ -276,15 +280,19 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // MODIFIED: Floating Cart Button click to open Order Summary PAGE
     floatingCartButton.addEventListener('click', () => {
         if (cart.length > 0) {
-            updateCartDisplay();
-            orderSummaryModal.style.display = 'flex';
+            updateCartDisplay(); // Refresh display before showing
+            document.body.classList.add('no-scroll'); // Prevent main page scroll
+            orderSummaryPage.style.display = 'flex'; // Show the full-page order summary
         }
     });
 
+    // MODIFIED: Close Order Summary PAGE
     closeOrderSummaryBtn.addEventListener('click', () => {
-        orderSummaryModal.style.display = 'none';
+        orderSummaryPage.style.display = 'none';
+        document.body.classList.remove('no-scroll'); // Re-enable main page scroll
     });
 
     // UPDATED: PDF Generation Function
@@ -303,8 +311,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const colWidthsArray = [
                 tableWidth * 0.40, // Item (40%)
                 tableWidth * 0.20, // Quantity (20%)
-                tableWidth * 0.20, // Unit Price (20%)
-                tableWidth * 0.20  // Total Price (20%)
+                tableWidth * 0.15, // Unit Price (15%)
+                tableWidth * 0.25  // Total Price (25%)
             ];
 
             const col1X = leftMargin + 5; 
@@ -358,7 +366,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
                 
                 // Use simple text for item name to keep it on one line.
-                // It will be truncated if too long, as splitTextToSize is removed as per user request for "এক লাইনে থাকুক কেটে না যায়".
                 const maxItemNameWidth = colWidthsArray[0] - 10; 
                 
                 const textLineHeight = pdf.getFontSize() * lineHeightFactor;
@@ -501,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
             showMessage(loadingMessageTitle, loadingMessageText); 
 
-            orderSummaryModal.style.display = 'none';
+            orderSummaryPage.style.display = 'none'; // MODIFIED: Hide order summary page
 
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
                 method: 'POST',
@@ -515,14 +522,22 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('message-box-overlay').style.display = 'none';
             orderSuccessPopup.style.display = 'flex'; 
 
+            // ADDED: Update WhatsApp share button with dynamic order code and customer mobile
+            if (whatsappShareBtn) { // Check if the button exists
+                const whatsappMessage = `প্রিয় খুলনা মাছ ঘর টিম, আমার অর্ডার কোড: ${currentOrderCode}%0Aআমার মোবাইল: ${customerPhone}%0A%0Aআমি আমার অর্ডারের বিবরণ শেয়ার করতে চাই।`;
+                whatsappShareBtn.href = `https://wa.me/8801951912031?text=${encodeURIComponent(whatsappMessage)}`;
+            }
+
             orderForm.reset();
             cart = [];
             updateCartDisplay(); 
+            document.body.classList.remove('no-scroll'); // ADDED: Re-enable body scrolling after successful order
             
         } catch (error) {
             console.error('Error sending order:', error);
             document.getElementById('message-box-overlay').style.display = 'none';
             showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
+            document.body.classList.remove('no-scroll'); // ADDED: Re-enable body scrolling on error
         }
     });
 
@@ -596,6 +611,24 @@ document.addEventListener('DOMContentLoaded', () => {
         isDragging = false;
         floatingCartButton.style.cursor = 'grab';
     });
+
+
+    // ADDED: Class to prevent body scrolling when a full-page overlay is active
+    // This needs to be applied/removed to the body element in JS
+    // Add `body.no-scroll { overflow: hidden; }` to CSS.
+    const styleSheet = document.styleSheets[0];
+    if (styleSheet) { // Check if stylesheet exists before inserting rule
+        let ruleExists = false;
+        for (let i = 0; i < styleSheet.cssRules.length; i++) {
+            if (styleSheet.cssRules[i].cssText.includes('body.no-scroll')) {
+                ruleExists = true;
+                break;
+            }
+        }
+        if (!ruleExists) {
+            styleSheet.insertRule('body.no-scroll { overflow: hidden !important; }', styleSheet.cssRules.length);
+        }
+    }
 
 
     // Initial setup
