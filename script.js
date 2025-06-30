@@ -80,7 +80,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('--- loadProductsFromSheet started ---');
         console.log('Attempting to fetch products from URL:', GOOGLE_APPS_SCRIPT_URL);
         try {
-            // FIX: Added cache: "no-store" to prevent browser caching issues
+            // Added cache: "no-store" to prevent browser caching issues
             const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { cache: "no-store" }); 
             console.log('Fetch response object received:', response);
 
@@ -132,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let productsRenderedCount = 0;
         productsToRender.forEach(product => {
             // Validate essential data points for a product
-            // UPDATED: Check for specific required fields and their non-empty string/number values
             if (!product.Name_BN || typeof product.Name_BN !== 'string' || product.Name_BN.trim() === '' ||
                 !product.Price || (typeof product.Price !== 'number' && typeof product.Price !== 'string') || isNaN(parseFloat(product.Price)) ||
                 !product.Category || typeof product.Category !== 'string' || product.Category.trim() === '') {
@@ -276,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedProduct = { name, nameEn, price, unit, description, imageUrl };
             productQuantityPopup.style.display = 'flex';
         } else if (openOrderBtn && openOrderBtn.disabled) {
-            showMessage('স্টক নেই', 'এই পণ্যটি বর্তমানে স্টক নেই।');
+            showMessage('স্টক নেই', 'এই পণ্যটি বর্তমানে স্টক নেই!');
         }
     });
 
@@ -320,6 +319,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateCartDisplay(); 
             document.body.classList.add('no-scroll'); 
             orderSummaryPage.style.display = 'flex'; 
+        } else {
+            showMessage('কার্ট খালি', 'আপনার কার্টে কোনো পণ্য নেই। অর্ডার করতে প্রথমে পণ্য যোগ করুন।');
         }
     });
 
@@ -636,8 +637,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Class to prevent body scrolling when a full-page overlay is active
+    // This rule is already in style.css, so we just need to add/remove the class.
+    // Ensure this JS section is present in your script.js to manage the class.
+    /*
     const styleSheet = document.styleSheets[0];
-    if (styleSheet) { 
+    if (styleSheet) {
         let ruleExists = false;
         for (let i = 0; i < styleSheet.cssRules.length; i++) {
             if (styleSheet.cssRules[i].cssText.includes('body.no-scroll')) {
@@ -649,7 +653,8 @@ document.addEventListener('DOMContentLoaded', () => {
             styleSheet.insertRule('body.no-scroll { overflow: hidden !important; }', styleSheet.cssRules.length);
         }
     }
-
+    */ // Commented out as it's better to manage in CSS directly.
+    // The class 'no-scroll' is added/removed in floatingCartButton.addEventListener and closeOrderSummaryBtn.addEventListener.
 
     // Initial setup
     updateCartDisplay();
