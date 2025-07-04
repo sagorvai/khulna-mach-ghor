@@ -304,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
             customerAddress,
             totalBill,
             items: cart.map(item => ({
+                id: item.id, // Include ID for consistency
                 name: item.name,
                 nameEn: item.nameEn,
                 quantity: item.quantity,
