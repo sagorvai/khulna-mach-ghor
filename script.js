@@ -15,10 +15,16 @@ function showMessage(title, message) {
     };
 }
 
+
 document.addEventListener('DOMContentLoaded', () => {
-    // Get references to various HTML elements
+    // --- Configuration ---
+    // Make sure this URL is your deployed Google Apps Script Web App URL
+    const GOOGLE_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwujqTeRdbVR6mqLDKngq_RViI7Fwha5dH1VvD_CfmkZvWma32JSLEB1vgIs9J1gfn8pQ/exec';
+
+    // --- HTML Element References ---
     const productsSectionContainer = document.querySelector('.products-section .container');
-    const productQuantityPopup = document.getElementById('product-quantity-popup'); 
+    const productGridPlaceholder = document.querySelector('.product-grid-placeholder');
+    const productQuantityPopup = document.getElementById('product-quantity-popup');
     const popupProductName = document.getElementById('popup-product-name');
     const popupProductNameEn = document.getElementById('popup-product-name-en');
     const popupProductDescription = document.querySelector('.popup-product-description');
@@ -26,553 +32,434 @@ document.addEventListener('DOMContentLoaded', () => {
     const popupProductPrice = document.getElementById('popup-product-price');
     const popupQuantityInput = document.getElementById('popup-quantity');
     const popupProductUnit = document.getElementById('popup-product-unit');
-    const addToCartFromPopupBtn = document.getElementById('add-to-cart-from-popup-btn');
-    const closeProductQuantityPopupBtn = document.getElementById('close-product-quantity-popup-btn'); 
-
+    const closeProductQuantityPopupBtn = document.getElementById('close-product-quantity-popup-btn');
+    const addProductToCartFromPopupBtn = document.getElementById('add-to-cart-from-popup-btn');
+    const orderSummaryModal = document.getElementById('order-summary-modal');
+    const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn');
     const cartItemsContainer = document.getElementById('cart-items');
     const totalBillSpan = document.getElementById('total-bill');
     const orderForm = document.getElementById('order-form');
-    const orderSummaryPage = document.getElementById('order-summary-modal'); 
-    const closeOrderSummaryBtn = document.getElementById('close-order-summary-btn'); 
-
-    const invoiceDateSpan = document.getElementById('invoice-date');
-    const invoiceOrderCodeSpan = document.getElementById('invoice-order-code');
-
+    const customerNameInput = document.getElementById('customer-name');
+    const customerPhoneInput = document.getElementById('customer-phone');
+    const customerAddressInput = document.getElementById('customer-address');
     const orderSuccessPopup = document.getElementById('order-success-popup');
-    const closeSuccessPopupBtn = document.getElementById('close-success-popup-btn');
-    const closeSuccessPopupBtnBottom = document.getElementById('close-success-popup-btn-bottom');
-    const downloadPdfBtn = document.getElementById('download-pdf-btn'); 
-    const whatsappShareBtn = document.getElementById('whatsapp-share-btn'); 
-
+    const invoiceOrderCodeSpan = document.getElementById('invoice-order-code');
+    const invoiceDateSpan = document.getElementById('invoice-date');
+    const whatsappShareBtn = document.getElementById('whatsapp-share-btn');
+    const downloadPdfBtn = document.getElementById('download-pdf-btn');
     const floatingCartButton = document.getElementById('floating-cart-button');
     const cartItemCountSpan = document.getElementById('cart-item-count');
-
-    let cart = [];
-    let selectedProduct = null;
-
-    let currentOrderCode = '';
-    let currentInvoiceDate = ''; 
-
-    // IMPORTANT: Your provided Google Apps Script Web App URL
-    const GOOGLE_APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxWSenaSF3Pst3kkvxrBEN079LB2LZ6VAFTQCT6FRNQbyWOuBKTGICaZrsVBgyFN2Hsyg/exec"; 
-
-    const dynamicCategoryGrids = new Map();
-
-    // Function to convert Bengali numbers to English numbers
-    function convertBengaliNumbersToEnglish(inputString) {
-        if (!inputString) return '';
-        const bengaliNumbers = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-        const englishNumbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-        let convertedString = '';
-        for (let i = 0; i < inputString.length; i++) {
-            const char = inputString[i];
-            const index = bengaliNumbers.indexOf(char);
-            if (index !== -1) {
-                convertedString += englishNumbers[index];
-            } else {
-                convertedString += char;
-            }
-        }
-        return convertedString;
-    }
-
-    async function loadProductsFromSheet() {
-        console.log('--- loadProductsFromSheet started ---');
-        console.log('Attempting to fetch products from URL:', GOOGLE_APPS_SCRIPT_URL);
-        try {
-            // Added cache: "no-store" to prevent browser caching issues
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { cache: "no-store" }); 
-            console.log('Fetch response object received:', response);
-
-            if (!response.ok) {
-                console.error('Fetch failed: HTTP status not OK. Status:', response.status, 'Status Text:', response.statusText);
-                showMessage('পণ্য লোড করতে সমস্যা', `HTTP ত্রুটি: ${response.status}। অনুগ্রহ করে Apps Script Deployment সেটিংস বা URL চেক করুন।`);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            
-            const productsData = await response.json();
-            console.log('Parsed JSON data (productsData):', productsData);
-            
-            if (productsData && productsData.error) {
-                showMessage('পণ্য লোড করতে সমস্যা', 'Apps Script থেকে ডেটা লোড করা যায়নি: ' + productsData.error + ' অনুগ্রহ করে Apps Script লগ চেক করুন।');
-                console.error('Apps Script reported an error in JSON response:', productsData.error);
-                return;
-            }
-            
-            if (!productsData || productsData.length === 0) {
-                showMessage('পণ্য নেই', 'Apps Script থেকে কোনো পণ্য পাওয়া যায়নি। অনুগ্রহ করে আপনার প্রোডাক্ট শিট চেক করুন এবং ডেটা সঠিকভাবে আছে কিনা দেখুন।');
-                console.warn('No products data found or received empty array.');
-                productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
-                return;
-            } 
-            
-            console.log('Number of products to render:', productsData.length);
-            renderProducts(productsData); 
-            console.log('Products rendering process completed.');
-            console.log('--- loadProductsFromSheet finished ---');
+    const quantityUnitSpan = document.getElementById('quantity-unit');
 
 
-        } catch (error) {
-            console.error('Error during loadProductsFromSheet:', error);
-            showMessage('পণ্য লোড করতে সমস্যা', `পণ্য তালিকা লোড করা যায়নি। অনুগ্রহ করে আপনার ইন্টারনেট সংযোগ বা Apps Script Deployment চেক করুন। বিস্তারিত ত্রুটি: ${error.message}`);
-        }
-    }
+    let products = []; // To store products fetched from the Google Sheet
+    let cart = JSON.parse(localStorage.getItem('cart')) || []; // Load cart from localStorage
+    let selectedProduct = null; // Product currently selected in the quantity popup
 
-    function renderProducts(productsToRender) {
-        console.log('renderProducts function started.');
-        productsSectionContainer.innerHTML = ''; // Clear existing products
-        dynamicCategoryGrids.clear();
+    // --- Utility Functions ---
 
-        if (!productsToRender || productsToRender.length === 0) {
-            console.warn('renderProducts called with no data or empty array. Displaying fallback message.');
-            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো মাছের তথ্য লোড করা যায়নি। অনুগ্রহ করে কিছুক্ষণ পর আবার চেষ্টা করুন বা অ্যাডমিনের সাথে যোগাযোগ করুন।</p>`;
-            return;
-        }
-
-        let productsRenderedCount = 0;
-        productsToRender.forEach(product => {
-            // Validate essential data points for a product
-            if (!product.Name_BN || typeof product.Name_BN !== 'string' || product.Name_BN.trim() === '' ||
-                !product.Price || (typeof product.Price !== 'number' && typeof product.Price !== 'string') || isNaN(parseFloat(product.Price)) ||
-                !product.Category || typeof product.Category !== 'string' || product.Category.trim() === '') {
-                console.warn('Skipping invalid product row (missing essential data or empty values or wrong type):', product);
-                return; // Skip this product if essential data is missing or invalid type
-            }
-
-            const isAvailable = (product.Available && (product.Available.toString().toLowerCase().trim() === 'হ্যাঁ' || 
-                                 product.Available.toString().toLowerCase().trim() === 'true')); 
-            
-            const productItem = document.createElement('div');
-            productItem.classList.add('product-item');
-            if (!isAvailable) {
-                productItem.classList.add('unavailable');
-            }
-
-            productItem.dataset.name = product.Name_BN;
-            productItem.dataset.nameEn = product.Name_EN || '';
-            productItem.dataset.price = product.Price;
-            productItem.dataset.unit = product.Unit || 'কেজি';
-            productItem.dataset.description = product.Description || 'এই মাছ সম্পর্কে কোনো বিবরণ নেই।';
-            productItem.dataset.imageUrl = product['Image URL'] || 'https://placehold.co/300x200/cccccc/333333?text=ছবি+নেই';
-
-            productItem.innerHTML = `
-                <img src="${productItem.dataset.imageUrl}" alt="${product.Name_BN} মাছ">
-                <div class="product-bottom-section">
-                    <div class="product-info-inline">
-                        <h4>${product.Name_BN}</h4>
-                        <p class="price">${product.Price} টাকা ${product.Unit}</p>
-                    </div>
-                    ${isAvailable ? 
-                        `<button class="open-order-form-btn">পরিমাণ নির্ধারণ ও যুক্ত করুন</button>` : 
-                        `<button class="open-order-form-btn unavailable-btn" disabled>স্টক নেই</button>`
-                    }
-                </div>
-            `;
-
-            const originalCategoryName = product.Category;
-            const normalizedCategoryName = originalCategoryName.toString().toLowerCase().trim(); 
-
-            let currentProductGrid = dynamicCategoryGrids.get(normalizedCategoryName);
-
-            if (!currentProductGrid) {
-                const categoryDiv = document.createElement('div');
-                categoryDiv.classList.add('product-category');
-
-                const categoryHeading = document.createElement('h3');
-                categoryHeading.textContent = originalCategoryName; 
-
-                const productGridDiv = document.createElement('div');
-                productGridDiv.classList.add('product-grid');
-                
-                categoryDiv.appendChild(categoryHeading);
-                categoryDiv.appendChild(productGridDiv);
-                productsSectionContainer.appendChild(categoryDiv);
-                console.log('Created new category container for:', originalCategoryName);
-
-                dynamicCategoryGrids.set(normalizedCategoryName, productGridDiv);
-                currentProductGrid = productGridDiv;
-            }
-
-            currentProductGrid.appendChild(productItem); 
-            productsRenderedCount++;
-        });
-
-        if (productsRenderedCount === 0) {
-            console.warn('No valid products were rendered after processing data. Displaying fallback message.');
-            productsSectionContainer.innerHTML = `<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো উপযুক্ত মাছের তথ্য পাওয়া যায়নি। আপনার শীটে সঠিক ডেটা আছে কিনা নিশ্চিত করুন।</p>`;
-        }
-        console.log('renderProducts function finished. Total products rendered:', productsRenderedCount);
-    }
-
-    function updateCartDisplay() {
-        cartItemsContainer.innerHTML = '';
-        let total = 0;
-        let totalItemCount = 0;
-
-        cart.forEach((item, index) => {
-            const itemTotal = item.quantity * item.price;
-            total += itemTotal;
-            totalItemCount++; 
-            
-            const itemElement = document.createElement('div');
-            itemElement.classList.add('cart-item');
-            itemElement.innerHTML = `
-                <span class="item-details">★ ${item.name} (${item.quantity} ${item.unit}) × ${item.price} টাকা</span>
-                <span class="item-total">${itemTotal} টাকা</span>
-                <button class="remove-item-btn" data-index="${index}"><i class="fas fa-trash-alt"></i></button>
-            `;
-            cartItemsContainer.appendChild(itemElement);
-        });
-
-        totalBillSpan.textContent = total;
-
-        if (cart.length > 0) { 
-            floatingCartButton.style.display = 'flex';
-            cartItemCountSpan.textContent = cart.length; 
-        } else {
-            floatingCartButton.style.display = 'none';
-            cartItemCountSpan.textContent = 0;
-        }
-
-        const now = new Date();
-        currentInvoiceDate = now.toLocaleDateString('bn-BD', { year: 'numeric', month: 'long', day: 'numeric' }); 
-        currentOrderCode = generateOrderCode();
-
-        invoiceDateSpan.textContent = currentInvoiceDate;
-        invoiceOrderCodeSpan.textContent = currentOrderCode;
-    }
-
+    // Function to generate a unique order code
     function generateOrderCode() {
         const now = new Date();
-        const year = now.getFullYear();
+        const year = now.getFullYear().toString().slice(-2);
         const month = (now.getMonth() + 1).toString().padStart(2, '0');
         const day = now.getDate().toString().padStart(2, '0');
-        const uniqueId = Math.random().toString(36).substr(2, 4).toUpperCase();
-        return `KMG-${year}${month}${day}-${uniqueId}`; 
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        const seconds = now.getSeconds().toString().padStart(2, '0');
+        const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0'); // 3 random digits
+        return `KMG-${year}${month}${day}-${hours}${minutes}${seconds}-${random}`;
     }
 
-    document.querySelector('.products-section').addEventListener('click', (e) => {
-        const productItem = e.target.closest('.product-item');
-        const openOrderBtn = e.target.closest('.open-order-form-btn');
+    // Function to format date for display
+    function getFormattedDate(date) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+        return new Date(date).toLocaleString('bn-BD', options);
+    }
 
-        if (productItem && openOrderBtn && !openOrderBtn.disabled) {
-            const name = productItem.dataset.name;
-            const nameEn = productItem.dataset.nameEn || '';
-            const price = parseFloat(productItem.dataset.price);
-            const unit = productItem.dataset.unit;
-            const description = productItem.dataset.description || 'এই মাছ সম্পর্কে কোনো বিবরণ নেই।';
-            const imageUrl = productItem.querySelector('img').src;
+    // --- Product Display ---
 
-            popupProductName.textContent = name;
-            popupProductNameEn.textContent = nameEn;
-            popupProductDescription.textContent = description;
-            popupProductImage.src = imageUrl;
-            popupProductPrice.textContent = `${price} টাকা${unit === 'কেজি' ? '/কেজি' : ''}`;
-            popupQuantityInput.value = '1';
-            popupQuantityInput.min = '0.1'; 
-            popupQuantityInput.step = '0.1'; 
-            popupProductUnit.textContent = unit;
-            selectedProduct = { name, nameEn, price, unit, description, imageUrl };
-            productQuantityPopup.style.display = 'flex';
-        } else if (openOrderBtn && openOrderBtn.disabled) {
-            showMessage('স্টক নেই', 'এই পণ্যটি বর্তমানে স্টক নেই!');
-        }
-    });
+    // Function to load products from Google Sheet
+    async function loadProductsFromSheet() {
+        try {
+            productGridPlaceholder.innerHTML = '<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">পণ্য লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</p>';
+            
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL);
+            
+            if (!response.ok) {
+                const errorText = await response.text(); // Get raw error response
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+            }
+            
+            products = await response.json();
+            
+            if (products.error) { // Check if the Apps Script returned an error object
+                throw new Error(products.error);
+            }
 
-    addToCartFromPopupBtn.addEventListener('click', () => {
-        if (selectedProduct) {
-            const quantity = parseFloat(popupQuantityInput.value);
-            if (isNaN(quantity) || quantity <= 0) {
-                showMessage('ভুল পরিমাণ', 'দয়া করে সঠিক পরিমাণ দিন।');
+            if (!Array.isArray(products) || products.length === 0) {
+                productGridPlaceholder.innerHTML = '<p style="text-align: center; color: #555; font-size: 1.1rem; padding: 50px;">কোনো মাছ পাওয়া যায়নি। অনুগ্রহ করে পরে আবার চেষ্টা করুন।</p>';
+                floatingCartButton.style.display = 'none'; // Hide cart if no products
                 return;
             }
 
-            const existingItemIndex = cart.findIndex(item => item.name === selectedProduct.name);
+            // Clear placeholder and display products
+            productGridPlaceholder.innerHTML = '';
+            displayProducts(products);
+            floatingCartButton.style.display = 'flex'; // Show cart once products are loaded
 
-            if (existingItemIndex > -1) {
-                cart[existingItemIndex].quantity += quantity;
-            } else {
-                cart.push({ ...selectedProduct, quantity });
-            }
-            updateCartDisplay();
-            productQuantityPopup.style.display = 'none';
-            selectedProduct = null;
+        } catch (error) {
+            console.error('Error loading products:', error);
+            productGridPlaceholder.innerHTML = `<p style="text-align: center; color: #FF0000; font-size: 1.1rem; padding: 50px;">মাছ লোড করা যায়নি: ${error.message}<br> অনুগ্রহ করে পরে আবার চেষ্টা করুন বা অ্যাডমিনকে জানান।</p>`;
+            floatingCartButton.style.display = 'none'; // Hide cart on error
         }
-    });
+    }
 
+
+    // Function to display products on the page
+    function displayProducts(productsToDisplay) {
+        productGridPlaceholder.innerHTML = ''; // Clear previous content
+        const productGrid = document.createElement('div');
+        productGrid.className = 'product-grid';
+
+        productsToDisplay.forEach(product => {
+            const productItem = document.createElement('div');
+            productItem.className = 'product-item';
+            productItem.innerHTML = `
+                <img src="${product.ছবি || 'https://placehold.co/200x150?text=ছবি+নেই'}" alt="${product.নাম_বাংলা}">
+                <h4 class="product-name-bn">${product.নাম_বাংলা}</h4>
+                <p class="product-name-en">${product.Name_English}</p>
+                <p class="product-price">মূল্য: ${product.মূল্য} টাকা প্রতি ${product.ইউনিট}</p>
+                <button class="btn add-to-cart-btn" data-product-id="${product.ID}">অর্ডার করুন</button>
+            `;
+            productGrid.appendChild(productItem);
+        });
+        productGridPlaceholder.appendChild(productGrid); // Append the grid to the placeholder
+
+        // Add event listeners to "অর্ডার করুন" buttons
+        document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const productId = event.target.dataset.productId;
+                selectedProduct = products.find(p => p.ID == productId); // Use == for loose comparison as ID might be number/string
+                if (selectedProduct) {
+                    showProductQuantityPopup(selectedProduct);
+                } else {
+                    showMessage('ত্রুটি', 'পণ্য খুঁজে পাওয়া যায়নি।');
+                }
+            });
+        });
+    }
+
+    // --- Cart and Order Logic ---
+
+    // Show quantity selection popup
+    function showProductQuantityPopup(product) {
+        popupProductName.textContent = product.নাম_বাংলা;
+        popupProductNameEn.textContent = product.Name_English;
+        popupProductDescription.textContent = product.বিবরণ || '';
+        popupProductImage.src = product.ছবি || 'https://placehold.co/100x100?text=ছবি';
+        popupProductPrice.textContent = product.মূল্য;
+        popupProductUnit.textContent = product.ইউনিট;
+        quantityUnitSpan.textContent = product.ইউনিট;
+
+        // Reset quantity input to 1 or last added quantity if product is already in cart
+        const existingCartItem = cart.find(item => item.id === product.ID);
+        popupQuantityInput.value = existingCartItem ? existingCartItem.quantity : 1;
+
+        productQuantityPopup.style.display = 'flex';
+    }
+
+    // Close quantity selection popup
     closeProductQuantityPopupBtn.addEventListener('click', () => {
         productQuantityPopup.style.display = 'none';
         selectedProduct = null;
     });
 
-    cartItemsContainer.addEventListener('click', (e) => {
-        if (e.target.classList.contains('remove-item-btn') || e.target.closest('.remove-item-btn')) {
-            const button = e.target.closest('.remove-item-btn');
-            const indexToRemove = parseInt(button.dataset.index);
-            cart.splice(indexToRemove, 1);
-            updateCartDisplay();
-        }
-    });
+    // Add product to cart from popup
+    addProductToCartFromPopupBtn.addEventListener('click', () => {
+        if (!selectedProduct) return;
 
-    floatingCartButton.addEventListener('click', () => {
-        if (cart.length > 0) {
-            updateCartDisplay(); 
-            document.body.classList.add('no-scroll'); 
-            orderSummaryPage.style.display = 'flex'; 
+        const quantity = parseFloat(popupQuantityInput.value);
+        if (isNaN(quantity) || quantity <= 0) {
+            showMessage('পরিমাণের ত্রুটি', 'দয়া করে একটি বৈধ পরিমাণ লিখুন।');
+            return;
+        }
+
+        const itemTotal = quantity * selectedProduct.মূল্য;
+
+        const existingItemIndex = cart.findIndex(item => item.id === selectedProduct.ID);
+
+        if (existingItemIndex > -1) {
+            // Update existing item
+            cart[existingItemIndex].quantity = quantity;
+            cart[existingItemIndex].totalItemPrice = itemTotal;
         } else {
-            showMessage('কার্ট খালি', 'আপনার কার্টে কোনো পণ্য নেই। অর্ডার করতে প্রথমে পণ্য যোগ করুন।');
-        }
-    });
-
-    closeOrderSummaryBtn.addEventListener('click', () => {
-        orderSummaryPage.style.display = 'none';
-        document.body.classList.remove('no-scroll'); 
-    });
-
-    async function generateInvoicePdf(customerData, orderDetails) {
-        try {
-            const pdf = new window.jspdf.jsPDF('portrait', 'pt', 'a4');
-            
-            pdf.setFont('helvetica', 'normal'); 
-            
-            let y = 50; 
-            const lineHeightFactor = 1.2; 
-            const leftMargin = 50;
-            const rightMargin = pdf.internal.pageSize.width - 50; 
-
-            const tableWidth = pdf.internal.pageSize.width - (2 * leftMargin);
-            const colWidthsArray = [
-                tableWidth * 0.40, 
-                tableWidth * 0.20, 
-                tableWidth * 0.15, 
-                tableWidth * 0.25  
-            ];
-
-            const col1X = leftMargin + 5; 
-            const col2X = leftMargin + colWidthsArray[0] + (colWidthsArray[1] / 2); 
-            const col3X = leftMargin + colWidthsArray[0] + colWidthsArray[1] + colWidthsArray[2]; 
-            const col4X = rightMargin - 5; 
-
-            // Company Header
-            pdf.setFontSize(20);
-            pdf.text('Khulna Mach Ghar', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-            y += (20 * lineHeightFactor);
-            pdf.setFontSize(12);
-            pdf.text('Formalin-Free Fresh Fish Online Market', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-            y += (15 * lineHeightFactor);
-            pdf.setFontSize(10);
-            pdf.text('City Bypass Road Mostofa More, Harintana, Khulna.', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-            y += (12 * lineHeightFactor);
-            pdf.text('Contact: +8801753903854, +8801951912031', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-            y += (30 * lineHeightFactor);
-
-            // Invoice Details
-            pdf.setFontSize(14);
-            pdf.text('INVOICE:', leftMargin, y);
-            y += (15 * lineHeightFactor);
-            
-            const pdfDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-            pdf.text(`Date: ${pdfDate}`, leftMargin, y); 
-            y += (15 * lineHeightFactor);
-            pdf.text(`Order Code: ${orderDetails.orderCode}`, leftMargin, y);
-            y += (30 * lineHeightFactor);
-
-            // Table Header
-            pdf.setFontSize(12);
-            pdf.setFillColor(242, 242, 242); 
-            const headerHeight = 20;
-            pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F'); 
-            pdf.setTextColor(0, 0, 0);
-            
-            pdf.text('Item', col1X, y + (headerHeight / 2) + 4); 
-            pdf.text('Quantity', col2X, y + (headerHeight / 2) + 4, { align: 'center' }); 
-            pdf.text('Unit Price', col3X, y + (headerHeight / 2) + 4, { align: 'right' }); 
-            pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' }); 
-            y += headerHeight;
-
-            // Table Rows
-            pdf.setFontSize(11);
-            orderDetails.items.forEach(item => { 
-                const itemTotal = item.quantity * item.price;
-                
-                const itemNameForPdf = item.nameEn && item.nameEn.trim() !== '' ? item.nameEn : item.name;
-                
-                const maxItemNameWidth = colWidthsArray[0] - 10; 
-                
-                const textLineHeight = pdf.getFontSize() * lineHeightFactor;
-                let rowHeight = textLineHeight; 
-                if (rowHeight < 20) rowHeight = 20; 
-
-                pdf.rect(leftMargin, y, tableWidth, rowHeight, 'S'); 
-
-                pdf.text(itemNameForPdf, col1X, y + (textLineHeight * 0.75), { maxWidth: maxItemNameWidth }); 
-                pdf.text(`${item.quantity} ${item.unit === 'কেজি' ? 'KG' : item.unit}`, col2X, y + (textLineHeight * 0.75), { align: 'center' });
-                pdf.text(`${item.price} BDT`, col3X, y + (textLineHeight * 0.75), { align: 'right' });
-                pdf.text(`${itemTotal} BDT`, col4X, y + (textLineHeight * 0.75), { align: 'right' });
-                
-                y += rowHeight;
-
-                if (y > pdf.internal.pageSize.height - 150 && orderDetails.items.indexOf(item) < orderDetails.items.length - 1) {
-                    pdf.addPage();
-                    y = 50; 
-                    pdf.setFontSize(12);
-                    pdf.setFillColor(242, 242, 242);
-                    pdf.rect(leftMargin, y, tableWidth, headerHeight, 'F');
-                    pdf.setTextColor(0, 0, 0);
-                    pdf.text('Item', col1X, y + (headerHeight / 2) + 4);
-                    pdf.text('Quantity', col2X, y + (headerHeight / 2) + 4, { align: 'center' });
-                    pdf.text('Unit Price', col3X, y + (headerHeight / 2) + 4, { align: 'right' });
-                    pdf.text('Total Price', col4X, y + (headerHeight / 2) + 4, { align: 'right' });
-                    y += headerHeight;
-                    pdf.setFontSize(11); 
-                }
+            // Add new item
+            cart.push({
+                id: selectedProduct.ID,
+                name: selectedProduct.নাম_বাংলা,
+                nameEn: selectedProduct.Name_English,
+                price: selectedProduct.মূল্য,
+                unit: selectedProduct.ইউনিট,
+                quantity: quantity,
+                totalItemPrice: itemTotal
             });
+        }
 
-            y += (20 * lineHeightFactor); 
+        localStorage.setItem('cart', JSON.stringify(cart)); // Save cart to localStorage
+        updateCartDisplay();
+        productQuantityPopup.style.display = 'none';
+        showMessage('সফল!', `${selectedProduct.নাম_বাংলা} ${quantity} ${selectedProduct.ইউনিট} আপনার কার্টে যোগ করা হয়েছে।`);
+    });
 
-            pdf.setFontSize(16);
-            pdf.text('Total Bill:', rightMargin - 125, y, { align: 'right' }); 
-            pdf.setFontSize(20);
-            pdf.text(`${orderDetails.totalBill} BDT`, rightMargin, y + 5, { align: 'right' });
-            y += (15 * lineHeightFactor); 
+    // Update cart item count and total bill
+    function updateCartDisplay() {
+        const totalItemsInCart = cart.reduce((sum, item) => sum + item.quantity, 0);
+        cartItemCountSpan.textContent = totalItemsInCart.toFixed(1); // Display with one decimal place
 
-            pdf.setFontSize(10); 
-            pdf.text('(+) Delivery & Packing Charges Applicable', rightMargin, y, { align: 'right' });
-            y += (30 * lineHeightFactor); 
-
-            pdf.setFontSize(12);
-            pdf.text('Customer Name: ' + customerData.customerName, leftMargin, y);
-            y += (15 * lineHeightFactor);
-            const englishMobileNo = convertBengaliNumbersToEnglish(customerData.customerPhone);
-            pdf.text('Mobile No: ' + englishMobileNo, leftMargin, y);
-            y += (15 * lineHeightFactor);
-            
-            const customerAddressText = 'Address: ' + customerData.customerAddress;
-            const addressTextWidth = tableWidth; 
-            const addressLines = pdf.splitTextToSize(customerAddressText, addressTextWidth);
-            
-            pdf.text(addressLines, leftMargin, y);
-            y += addressLines.length * (pdf.getFontSize() * lineHeightFactor); 
-            y += (20 * lineHeightFactor);
-
-            pdf.setFontSize(10);
-            pdf.text('Thank you for staying with Khulna Mach Ghar!', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-            y += (12 * lineHeightFactor);
-            pdf.text('Your trust is our inspiration.', pdf.internal.pageSize.width / 2, y, { align: 'center' });
-
-            pdf.save(`Invoice_${orderDetails.orderCode}.pdf`);
-
-        } catch (error) {
-            console.error('Error generating PDF:', error);
-            showMessage('PDF Generation Issue', 'Failed to generate PDF invoice. Please try again. Error: ' + error.message);
+        // Show/hide floating cart button based on cart items
+        if (totalItemsInCart > 0 && products.length > 0) { // Also check if products are loaded
+            floatingCartButton.style.display = 'flex';
+        } else {
+            floatingCartButton.style.display = 'none';
         }
     }
 
-    downloadPdfBtn.addEventListener('click', () => {
-        if (lastSubmittedOrderData) { 
-            generateInvoicePdf(
-                { 
-                    customerName: lastSubmittedOrderData.customerName,
-                    customerPhone: lastSubmittedOrderData.customerPhone,
-                    customerAddress: lastSubmittedOrderData.customerAddress
-                }, 
-                {
-                    items: lastSubmittedOrderData.items,
-                    totalBill: lastSubmittedOrderData.totalBill,
-                    orderDate: lastSubmittedOrderData.orderDate,
-                    orderCode: lastSubmittedOrderData.orderCode
-                }
-            );
-        } else {
-            showMessage('PDF Error', 'No recent order data found to generate PDF.');
+    // Show order summary modal
+    floatingCartButton.addEventListener('click', () => {
+        if (cart.length === 0) {
+            showMessage('কার্ট খালি', 'আপনার কার্টে কোনো পণ্য নেই। কিছু মাছ যোগ করুন!');
+            return;
         }
+        renderCartSummary();
+        orderSummaryModal.style.display = 'flex';
     });
 
-    let lastSubmittedOrderData = null; 
+    // Close order summary modal
+    closeOrderSummaryBtn.addEventListener('click', () => {
+        orderSummaryModal.style.display = 'none';
+    });
 
-    orderForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // Render cart items in the order summary modal
+    function renderCartSummary() {
+        cartItemsContainer.innerHTML = ''; // Clear previous items
+        let totalBill = 0;
 
         if (cart.length === 0) {
-            showMessage('অর্ডার ত্রুটি', 'অর্ডার করার জন্য কোনো পণ্য নির্বাচন করা হয়নি।');
+            cartItemsContainer.innerHTML = '<p class="empty-cart-message">আপনার কার্টে কোনো পণ্য নেই।</p>';
+            totalBillSpan.textContent = '0';
             return;
         }
 
-        const customerName = document.getElementById('customer-name').value;
-        let customerPhone = document.getElementById('customer-phone').value;
-        const customerAddress = document.getElementById('customer-address').value;
-        
-        if (!customerName || !customerPhone || !customerAddress) {
-            showMessage('তথ্য পূরণ করুন', 'দয়া করে আপনার নাম, মোবাইল নম্বর এবং ঠিকানা পূরণ করুন।');
+        cart.forEach(item => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'cart-summary-item';
+            itemDiv.innerHTML = `
+                <span>${item.name} (${item.quantity} ${item.unit})</span>
+                <span>${item.totalItemPrice} টাকা</span>
+                <button class="remove-item-btn" data-item-id="${item.id}"><i class="fas fa-trash-alt"></i></button>
+            `;
+            cartItemsContainer.appendChild(itemDiv);
+            totalBill += item.totalItemPrice;
+        });
+
+        totalBillSpan.textContent = totalBill.toFixed(2); // Display total bill with 2 decimal places
+
+        // Add event listeners for remove buttons
+        document.querySelectorAll('.remove-item-btn').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const itemIdToRemove = event.target.dataset.itemId;
+                cart = cart.filter(item => item.id != itemIdToRemove); // Filter out the item
+                localStorage.setItem('cart', JSON.stringify(cart)); // Update localStorage
+                updateCartDisplay(); // Update cart count
+                renderCartSummary(); // Re-render summary
+                if (cart.length === 0) {
+                    orderSummaryModal.style.display = 'none'; // Close modal if cart becomes empty
+                }
+            });
+        });
+    }
+
+    // Handle order submission
+    orderForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Prevent default form submission
+
+        if (cart.length === 0) {
+            showMessage('কার্ট খালি', 'অর্ডার করার জন্য আপনার কার্টে কোনো পণ্য নেই।');
             return;
         }
-        
-        customerPhone = convertBengaliNumbersToEnglish(customerPhone);
 
-        const currentOrderData = {
-            customerName: customerName,
-            customerPhone: customerPhone, 
-            customerAddress: customerAddress,
-            items: cart.map(item => ({ 
+        const orderCode = generateOrderCode();
+        const orderDate = new Date().toISOString(); // ISO string for consistent date handling
+        const customerName = customerNameInput.value;
+        const customerPhone = customerPhoneInput.value;
+        const customerAddress = customerAddressInput.value;
+        const totalBill = parseFloat(totalBillSpan.textContent);
+
+        const orderData = {
+            orderCode,
+            orderDate,
+            customerName,
+            customerPhone,
+            customerAddress,
+            totalBill,
+            items: cart.map(item => ({
                 name: item.name,
-                nameEn: item.nameEn, 
+                nameEn: item.nameEn,
                 quantity: item.quantity,
                 unit: item.unit,
                 price: item.price,
-                totalItemPrice: item.quantity * item.price
-            })),
-            totalBill: parseFloat(totalBillSpan.textContent),
-            orderDate: currentInvoiceDate, 
-            orderCode: currentOrderCode 
+                totalItemPrice: item.totalItemPrice
+            }))
         };
-        lastSubmittedOrderData = currentOrderData; 
+
+        // Disable form elements and show loading indicator
+        orderForm.querySelector('button[type="submit"]').disabled = true;
+        orderForm.querySelector('button[type="submit"]').textContent = 'অর্ডার পাঠানো হচ্ছে...';
+        orderForm.style.opacity = 0.7;
+        orderForm.style.pointerEvents = 'none';
+
 
         try {
-            const loadingMessageTitle = 'অর্ডার প্রক্রিয়া চলছে...';
-            const loadingMessageText = 'আপনার অর্ডার জমা দেওয়া হচ্ছে। অনুগ্রহ করে অপেক্ষা করুন...';
-            showMessage(loadingMessageTitle, loadingMessageText); 
-
-            orderSummaryPage.style.display = 'none'; 
-
-            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, { 
+            const response = await fetch(GOOGLE_APPS_SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', 
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(currentOrderData), 
+                mode: 'cors', // Ensure CORS is enabled
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(orderData),
             });
 
-            console.log('Order data sent to Google Sheet (check your sheet)!');
-
-            document.getElementById('message-box-overlay').style.display = 'none';
-            orderSuccessPopup.style.display = 'flex'; 
-
-            if (whatsappShareBtn) { 
-                const whatsappMessage = `প্রিয় খুলনা মাছ ঘর টিম, আমার অর্ডার কোড: ${currentOrderCode}%0Aআমার মোবাইল: ${customerPhone}%0A%0Aআমি আমার অর্ডারের বিবরণ শেয়ার করতে চাই।`;
-                whatsappShareBtn.href = `https://wa.me/8801951912031?text=${encodeURIComponent(whatsappMessage)}`;
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
             }
 
-            orderForm.reset();
-            cart = [];
-            updateCartDisplay(); 
-            document.body.classList.remove('no-scroll'); 
-            
+            const result = await response.json();
+
+            if (result.success) {
+                // Show success popup
+                invoiceOrderCodeSpan.textContent = orderCode;
+                invoiceDateSpan.textContent = getFormattedDate(orderDate);
+                orderSummaryModal.style.display = 'none';
+                orderSuccessPopup.style.display = 'flex';
+
+                // Setup WhatsApp share button
+                whatsappShareBtn.onclick = () => shareOnWhatsApp(orderData);
+
+                // Setup PDF download button
+                downloadPdfBtn.onclick = () => generatePdfInvoice(orderData);
+
+                // Clear cart after successful order
+                cart = [];
+                localStorage.removeItem('cart');
+                updateCartDisplay();
+
+                // Clear form fields
+                orderForm.reset();
+
+            } else {
+                showMessage('অর্ডার ব্যর্থ', `অর্ডার জমা দিতে সমস্যা হয়েছে: ${result.error || 'অজানা ত্রুটি'}`);
+                console.error('Order submission failed:', result.error);
+            }
         } catch (error) {
-            console.error('Error sending order:', error);
-            document.getElementById('message-box-overlay').style.display = 'none';
-            showMessage('অর্ডার জমা দিতে সমস্যা', 'অর্ডার জমা দিতে সমস্যা হয়েছে। দয়া করে আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন এবং আবার চেষ্টা করুন।');
-            document.body.classList.remove('no-scroll'); 
+            showMessage('যোগাযোগের ত্রুটি', `অর্ডার জমা দেওয়া যায়নি: ${error.message}। আপনার ইন্টারনেট সংযোগ পরীক্ষা করুন বা পরে আবার চেষ্টা করুন।`);
+            console.error('Fetch error:', error);
+        } finally {
+            // Re-enable form elements
+            orderForm.querySelector('button[type="submit"]').disabled = false;
+            orderForm.querySelector('button[type="submit"]').textContent = 'অর্ডার নিশ্চিত করুন';
+            orderForm.style.opacity = 1;
+            orderForm.style.pointerEvents = 'auto';
         }
     });
 
-    closeSuccessPopupBtn.addEventListener('click', () => {
-        orderSuccessPopup.style.display = 'none';
-    });
-    
-    closeSuccessPopupBtnBottom.addEventListener('click', () => {
+
+    // Close success popup
+    document.getElementById('close-success-popup-btn').addEventListener('click', () => {
         orderSuccessPopup.style.display = 'none';
     });
 
-    // Floating Button Drag Functionality
+
+    // --- WhatsApp Share ---
+    function shareOnWhatsApp(order) {
+        let message = `*খুলনা মাছ ঘর থেকে আপনার অর্ডার!*\n\n`;
+        message += `অর্ডার কোড: *${order.orderCode}*\n`;
+        message += `তারিখ: ${getFormattedDate(order.orderDate)}\n\n`;
+        message += `*গ্রাহকের বিবরণ:*\n`;
+        message += `নাম: ${order.customerName}\n`;
+        message += `ফোন: ${order.customerPhone}\n`;
+        message += `ঠিকানা: ${order.customerAddress}\n\n`;
+        message += `*অর্ডারকৃত পণ্য:*\n`;
+        order.items.forEach(item => {
+            message += `- ${item.name} (${item.quantity} ${item.unit}) - ${item.totalItemPrice} টাকা\n`;
+        });
+        message += `\n*মোট বিল: ${order.totalBill} টাকা*\n\n`;
+        message += `খুব শীঘ্রই আমাদের প্রতিনিধি আপনার সাথে যোগাযোগ করবে।\nখুলনা মাছ ঘরের সাথে থাকার জন্য ধন্যবাদ!`;
+
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, '_blank');
+    }
+
+
+    // --- PDF Generation ---
+    async function generatePdfInvoice(order) {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        // Ensure Noto Sans Bengali font is loaded for jsPDF
+        // You might need to embed the font if it's not available by default
+        // For simplicity, we'll try with default or a common font.
+        // For production, consider using jsPDF font embedding for Bengali characters.
+        // Example: doc.addFont("NotoSansBengali-Regular.ttf", "NotoSansBengali", "normal");
+        // doc.setFont("NotoSansBengali");
+
+        doc.setFontSize(22);
+        doc.text("খুলনা মাছ ঘর - রসিদ", 105, 20, null, null, "center");
+
+        doc.setFontSize(12);
+        doc.text(`অর্ডার কোড: ${order.orderCode}`, 20, 35);
+        doc.text(`তারিখ: ${getFormattedDate(order.orderDate)}`, 20, 42);
+
+        doc.setFontSize(14);
+        doc.text("গ্রাহকের বিবরণ:", 20, 55);
+        doc.setFontSize(12);
+        doc.text(`নাম: ${order.customerName}`, 20, 62);
+        doc.text(`ফোন: ${order.customerPhone}`, 20, 69);
+        doc.text(`ঠিকানা: ${order.customerAddress}`, 20, 76);
+
+        doc.setFontSize(14);
+        doc.text("অর্ডারকৃত পণ্য:", 20, 89);
+        let y = 96;
+
+        doc.setFontSize(10);
+        doc.text("পণ্য", 20, y);
+        doc.text("পরিমাণ", 100, y);
+        doc.text("মূল্য (প্রতি ইউনিট)", 130, y);
+        doc.text("মোট", 180, y, null, null, "right");
+        y += 7;
+
+        order.items.forEach(item => {
+            doc.text(`${item.name} (${item.nameEn})`, 20, y);
+            doc.text(`${item.quantity} ${item.unit}`, 100, y);
+            doc.text(`${item.price} টাকা`, 130, y);
+            doc.text(`${item.totalItemPrice} টাকা`, 180, y, null, null, "right");
+            y += 7;
+        });
+
+        y += 10;
+        doc.setFontSize(14);
+        doc.text(`মোট বিল: ${order.totalBill} টাকা`, 180, y, null, null, "right");
+
+        y += 10;
+        doc.setFontSize(10);
+        doc.text("ধন্যবাদ!", 105, y + 20, null, null, "center");
+        doc.text("খুলনা মাছ ঘরের সাথে থাকার জন্য।", 105, y + 27, null, null, "center");
+
+        doc.save(`KhulnaMachGhar_Order_${order.orderCode}.pdf`);
+    }
+
+    // --- Floating Cart Button Dragging Functionality ---
     let isDragging = false;
     let offsetX, offsetY;
 
@@ -585,16 +472,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('mousemove', (e) => {
         if (!isDragging) return;
-        e.preventDefault();
+        e.preventDefault(); // Prevent text selection during drag
 
         let newLeft = e.clientX - offsetX;
         let newTop = e.clientY - offsetY;
 
+        // Keep the button within viewport boundaries
         newLeft = Math.max(0, Math.min(newLeft, window.innerWidth - floatingCartButton.offsetWidth));
         newTop = Math.max(0, Math.min(newTop, window.innerHeight - floatingCartButton.offsetHeight));
 
         floatingCartButton.style.left = `${newLeft}px`;
         floatingCartButton.style.top = `${newTop}px`;
+        // Clear right/bottom styles to ensure left/top takes precedence during drag
         floatingCartButton.style.right = 'auto';
         floatingCartButton.style.bottom = 'auto';
     });
@@ -636,11 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    // Class to prevent body scrolling when a full-page overlay is active
-    // This rule is already in style.css, so we just need to add/remove the class.
-    // The class 'no-scroll' is added/removed in floatingCartButton.addEventListener and closeOrderSummaryBtn.addEventListener.
-
     // Initial setup
     updateCartDisplay();
-    loadProductsFromSheet();
+    loadProductsFromSheet(); // Load products when the page loads
 });
