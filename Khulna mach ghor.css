@@ -1,0 +1,848 @@
+/* Importing Noto Sans Bengali font directly for web display */
+@font-face {
+    font-family: 'Noto Sans Bengali';
+    src: url('./fonts/NotoSansBengali-Regular.ttf') format('truetype');
+    /* Ensure the path to your .ttf file is correct */
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Apply Noto Sans Bengali globally */
+body {
+    font-family: 'Noto Sans Bengali', sans-serif;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    background-color: #f8f8f8;
+    color: #333;
+    line-height: 1.6;
+    overflow-x: hidden; /* Prevent horizontal scroll */
+}
+
+/* Specific elements that might override global font, ensure they use Noto Sans Bengali */
+h1, h2, h3, h4, h5, h6,
+.slogan,
+.btn,
+.product-item h4,
+.order-summary-heading,
+.customer-info-heading,
+.success-heading,
+.message-box-title {
+    font-family: 'Noto Sans Bengali', sans-serif;
+}
+
+
+/* General Styles */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+section {
+    padding: 60px 0;
+    text-align: center;
+}
+
+.btn {
+    display: inline-block;
+    padding: 12px 25px;
+    margin: 10px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.primary-btn {
+    background-color: #007bff; /* Blue */
+    color: white;
+}
+
+.primary-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.secondary-btn {
+    background-color: #6c757d; /* Gray */
+    color: white;
+}
+
+.secondary-btn:hover {
+    background-color: #5a6268;
+    transform: translateY(-2px);
+}
+
+.whatsapp-btn {
+    background-color: #25d366; /* WhatsApp Green */
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.whatsapp-btn:hover {
+    background-color: #1da851;
+    transform: translateY(-2px);
+}
+
+
+/* Header Styles */
+.main-header {
+    background-color: #fff;
+    padding: 15px 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.main-header .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+}
+
+.logo-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.company-logo {
+    width: 80px; /* Adjust as needed */
+    height: 80px; /* Adjust as needed */
+    border-radius: 50%; /* Make it round */
+    object-fit: cover;
+    margin-bottom: 5px;
+}
+
+.company-name {
+    font-size: 1.8rem;
+    color: #007bff;
+    margin: 0;
+    /* This might be hidden by CSS to favor logo image if it contains text */
+    display: none; /* Hide if logo image already contains text */
+}
+
+.slogan {
+    font-size: 1.1rem;
+    color: #555;
+    margin: 0 0 15px 0;
+}
+
+.main-header nav a {
+    color: #007bff;
+    text-decoration: none;
+    padding: 8px 15px;
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+.main-header nav a:hover {
+    color: #0056b3;
+}
+
+/* Hero Banner Styles */
+.hero-banner {
+    background: linear-gradient(rgba(0, 123, 255, 0.8), rgba(0, 123, 255, 0.6)), url('https://placehold.co/1200x400/007bff/ffffff?text=মাছ') no-repeat center center/cover;
+    color: white;
+    padding: 80px 20px;
+    text-align: center;
+}
+
+.hero-banner h2 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+}
+
+.hero-banner p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+}
+
+
+/* Products Section Styles */
+.products-section {
+    background-color: #f8f8f8;
+    padding: 60px 0;
+}
+
+.products-section h2 {
+    font-size: 2.2rem;
+    color: #007bff;
+    margin-bottom: 40px;
+}
+
+.product-category {
+    margin-bottom: 40px;
+}
+
+.product-category h3 {
+    font-size: 1.8rem;
+    color: #333;
+    margin-bottom: 25px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    display: inline-block;
+    position: relative;
+}
+
+.product-category h3::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 4px;
+    background-color: #007bff;
+    border-radius: 2px;
+}
+
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    justify-content: center;
+    align-items: stretch;
+    padding: 0 20px;
+}
+
+.product-item {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.product-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.product-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #eee;
+}
+
+.product-item .product-bottom-section {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-grow: 1;
+}
+
+.product-item .product-info-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.product-item h4 {
+    font-size: 1.3rem;
+    color: #007bff;
+    margin: 0;
+}
+
+.product-item .price {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: bold;
+    margin: 0;
+    text-align: right;
+}
+
+.product-item .open-order-form-btn {
+    background-color: #28a745; /* Green */
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px; /* Space between price and button */
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.product-item .open-order-form-btn:hover {
+    background-color: #218838;
+}
+
+.product-item.unavailable .open-order-form-btn {
+    background-color: #dc3545; /* Red */
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.product-item.unavailable .open-order-form-btn:hover {
+    background-color: #c82333;
+}
+
+
+/* Why Choose Us Section Styles */
+.why-us-section {
+    background-color: #e9f5ff; /* Light blue background */
+    padding: 60px 0;
+}
+
+.why-us-section h2 {
+    font-size: 2.2rem;
+    color: #007bff;
+    margin-bottom: 40px;
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    padding: 0 20px;
+}
+
+.feature-item {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.feature-item .icon {
+    font-size: 3rem;
+    color: #007bff;
+    margin-bottom: 15px;
+}
+
+.feature-item h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.feature-item p {
+    font-size: 1rem;
+    color: #666;
+}
+
+/* Contact Section Styles */
+.contact-section {
+    background-color: #f8f8f8;
+    padding: 60px 0;
+}
+
+.contact-section h2 {
+    font-size: 2.2rem;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
+.contact-section p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+.contact-info {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 40px;
+}
+
+.contact-info p {
+    font-size: 1.1rem;
+    color: #333;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0; /* Remove default paragraph margin */
+}
+
+.contact-info p i {
+    color: #007bff;
+    font-size: 1.3rem;
+}
+
+.contact-info p a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.map-placeholder {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.map-placeholder iframe {
+    width: 100%;
+    height: 400px; /* Adjust height as needed */
+    border: none;
+}
+
+
+/* Footer Styles */
+footer {
+    background-color: #333;
+    color: white;
+    padding: 20px 0;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+
+/* Popup/Modal Styles (for quantity, order summary, success, message box) */
+.order-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.order-popup-content {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    position: relative;
+    max-width: 500px;
+    width: 90%;
+    box-sizing: border-box;
+}
+
+.order-popup-content .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.order-popup-content .close-btn:hover {
+    color: #333;
+}
+
+/* Product Quantity Popup specific styles */
+.popup-product-details {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.popup-product-details img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+#popup-product-name {
+    font-size: 1.4rem;
+    color: #007bff;
+    margin: 0;
+    text-align: left;
+}
+
+#popup-product-name-en {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 5px 0 0;
+    text-align: left;
+}
+
+.popup-product-description {
+    font-size: 0.9rem;
+    color: #555;
+    margin: 5px 0;
+    text-align: left;
+}
+
+.popup-price-display {
+    font-size: 1.1rem;
+    color: #333;
+    font-weight: bold;
+    margin: 0;
+    text-align: left;
+}
+
+.order-controls {
+    margin-bottom: 20px;
+}
+
+.order-controls label {
+    font-size: 1rem;
+    color: #333;
+    margin-right: 10px;
+}
+
+.order-controls input[type="number"] {
+    width: 80px;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 1rem;
+}
+
+#quantity-unit {
+    font-size: 0.9rem;
+    color: #666;
+    margin-left: 5px;
+}
+
+
+/* Order Summary Modal specific styles */
+.order-summary-content {
+    max-height: 90vh; /* Make it scrollable if content is too long */
+    overflow-y: auto; /* Enable scrolling */
+    display: flex;
+    flex-direction: column;
+}
+
+.order-summary-heading, .customer-info-heading {
+    font-size: 1.8rem;
+    color: #007bff;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+}
+
+.cart-items-display {
+    text-align: left;
+    margin-bottom: 20px;
+    flex-grow: 1; /* Allow cart items to take available space */
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px dashed #eee;
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item .item-details {
+    flex-grow: 1;
+    font-size: 1rem;
+    color: #333;
+}
+
+.cart-item .item-total {
+    font-weight: bold;
+    color: #007bff;
+    margin-left: 10px;
+}
+
+.cart-item .remove-item-btn {
+    background: none;
+    border: none;
+    color: #dc3545; /* Red */
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-left: 10px;
+    transition: color 0.2s ease;
+}
+
+.cart-item .remove-item-btn:hover {
+    color: #c82333;
+}
+
+.total-bill-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border-top: 2px solid #007bff;
+    padding-top: 15px;
+    margin-top: 15px;
+    color: #333;
+}
+
+.total-bill-amount {
+    color: #dc3545; /* Red for total amount */
+}
+
+.delivery-charge-note {
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 5px;
+    text-align: right;
+}
+
+/* Order Form styles */
+#order-form {
+    margin-top: 20px;
+    text-align: left;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.form-group input[type="text"],
+.form-group input[type="tel"],
+.form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 1rem;
+    box-sizing: border-box; /* Include padding in element's total width and height */
+}
+
+.form-group textarea {
+    resize: vertical; /* Allow vertical resizing */
+}
+
+
+/* Order Success Popup styles */
+.success-content {
+    padding: 40px 20px;
+}
+
+.success-icon {
+    font-size: 4rem;
+    color: #28a745; /* Green checkmark */
+    margin-bottom: 20px;
+}
+
+.success-heading {
+    font-size: 2rem;
+    color: #28a745;
+    margin-bottom: 15px;
+}
+
+.success-message {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+.thank-you-message {
+    font-size: 1.1rem;
+    color: #333;
+    margin-top: 20px;
+    font-weight: bold;
+}
+
+
+/* Custom Message Box styles */
+#message-box-content {
+    max-width: 350px;
+}
+
+#message-box-title {
+    font-size: 1.5rem;
+    color: #dc3545; /* Red for error messages */
+    margin-bottom: 15px;
+}
+
+#message-box-text {
+    font-size: 1rem;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+#message-box-ok-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+}
+
+#message-box-ok-btn:hover {
+    background-color: #0056b3;
+}
+
+
+/* Floating Cart Button */
+.floating-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #007bff;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    cursor: grab;
+    z-index: 999;
+    transition: background-color 0.2s ease;
+}
+
+.floating-button:active {
+    cursor: grabbing;
+}
+
+.floating-button .cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background-color: #dc3545; /* Red for count */
+    color: white;
+    font-size: 0.9rem;
+    padding: 4px 8px;
+    border-radius: 50%;
+    min-width: 25px;
+    text-align: center;
+    line-height: 1;
+    font-weight: bold;
+}
+
+/* Utility Class for body scroll control */
+body.no-scroll {
+    overflow: hidden !important;
+}
+
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    section {
+        padding: 40px 0;
+    }
+
+    .hero-banner h2 {
+        font-size: 2rem;
+    }
+
+    .hero-banner p {
+        font-size: 1rem;
+    }
+
+    .products-section h2, .why-us-section h2, .contact-section h2 {
+        font-size: 1.8rem;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        padding: 0 10px;
+    }
+
+    .features-grid {
+        grid-template-columns: 1fr; /* Stack features on small screens */
+        padding: 0 10px;
+    }
+
+    .product-item {
+        max-width: 350px; /* Constrain item width on small screens */
+        margin: 0 auto;
+    }
+
+    .main-header nav {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .main-header nav a {
+        padding: 5px 10px;
+    }
+
+    .order-popup-content {
+        max-width: 95%;
+        padding: 20px;
+    }
+
+    #product-quantity-popup .order-popup-content {
+        max-width: 300px;
+        padding: 15px;
+    }
+    .popup-product-details {
+        gap: 10px;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+    }
+    .popup-product-details img {
+        width: 70px;
+        height: 70px;
+    }
+    #popup-product-name {
+        font-size: 1.1rem;
+    }
+    #popup-product-name-en, .popup-product-description, .popup-price-display {
+        font-size: 0.75rem;
+    }
+    .order-controls label, .order-controls input {
+        font-size: 0.85rem;
+    }
+    .order-controls input[type="number"] {
+        width: 50px;
+    }
+
+    .success-content {
+        padding: 20px 15px;
+    }
+    .success-heading {
+        font-size: 1.6rem;
+    }
+    .success-message {
+        font-size: 0.85rem;
+    }
+    .thank-you-message {
+        font-size: 0.9rem;
+    }
+    #download-pdf-btn {
+        padding: 7px 15px;
+        font-size: 0.85rem;
+    }
+
+    #message-box-content {
+        max-width: 280px;
+    }
+}
