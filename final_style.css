@@ -1,0 +1,17 @@
+
+/* Slideshow Background Fade Effect */
+.hero-section {
+  transition: background-image 1s ease-in-out;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.fade-bg {
+  animation: fadeHeroBg 0.8s ease-in-out;
+}
+
+@keyframes fadeHeroBg {
+  from { opacity: 0.6; }
+  to { opacity: 1; }
+}
